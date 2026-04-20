@@ -1,8 +1,23 @@
 extends Control
 
 @onready var file_dialog: FileDialog = %FileDialog
+@onready var char_icon_file_dialog: FileDialog = %CharIconFileDialog
 @onready var convert_button: Button = %ConvertButton
 @onready var emote_list: ItemList = %EmoteList
+@onready var char_container: AspectRatioContainer = %CharContainer
+@onready var preview_texture_rect: TextureRect = %PreviewTextureRect
+@onready var showname_edit: LineEdit = %ShownameEdit
+@onready var character_icon: TextureRect = %"Character Icon"
+@onready var char_icon_load_button: Button = $"Left Menu/MenuList/CharacterFold/Character/CharIconLoadButton"
+
+# TODO: get these the heck outta the gui
+@onready var world: Node2D = %World
+@onready var camera_2d: Camera2D = %Camera2D
+
+
+@export var preview_height: float = 1.0
+
+var position_offset_normal: Vector2 = Vector2(0.0, 0.0)
 
 const VALID_SECTIONS: PackedStringArray = [
 	# General character options
@@ -44,10 +59,19 @@ var current_anim: AttorneyAnimation
 func _ready() -> void:
 	convert_button.pressed.connect(_on_convert_button_pressed)
 	file_dialog.file_selected.connect(_on_file_selected)
+	char_icon_load_button.pressed.connect(_on_char_icon_load_button_pressed)
+	char_icon_file_dialog.file_selected.connect(_on_char_icon_file_selected)
 	emote_list.item_selected.connect(_on_emote_selected)
+
 
 func _on_convert_button_pressed() -> void:
 	file_dialog.popup_centered()
+
+func _on_char_icon_load_button_pressed() -> void:
+	char_icon_file_dialog.popup_centered()
+
+func _on_char_icon_file_selected(file_path: String) -> void:
+	load_char_icon_from_filepath(file_path)
 
 func _on_file_selected(path: String) -> void:
 	var char_folder: String = path.get_base_dir()
@@ -118,19 +142,19 @@ func _on_emote_selected(idx: int) -> void:
 			magick.split_frames(image_path, frames_folder)
 		print(frame_data)
 		#magick.split_frames(image_path)
-		var lib: AnimationLibrary = %AnimationPlayer.get_animation_library("")
+		var lib: AnimationLibrary = world.animation_player.get_animation_library("")
 		if current_anim:
-			%AnimationPlayer.stop()
+			world.animation_player.stop()
 			lib.remove_animation(current_anim.name)
 			current_anim.queue_free()
 		current_anim = AttorneyAnimation.new()
 		current_anim.name = base_name
 		current_anim.add_frames_from_folder(frames_folder)
 		current_anim.initialize_from_frame_data(frame_data)
-		add_child(current_anim)
+		world.add_child(current_anim)
 		lib.add_animation(base_name, current_anim.animation)
 		print(lib.has_animation(base_name))
-		%AnimationPlayer.play(base_name)
+		world.animation_player.play(base_name)
 		return
 	var image: Image = Image.new()
 	image.load(image_path)
@@ -150,3 +174,10 @@ func remove_contents_of(directory: String) -> void:
 	var dir = DirAccess.open(directory)
 	for file in dir.get_files():
 		dir.remove(file)
+
+func load_char_icon_from_filepath(iconPath: String) -> void:
+	var image = Image.new()
+	image.load(iconPath)
+	var image_texture: ImageTexture = ImageTexture.new()
+	image_texture.set_image(image)
+	character_icon.texture = image_texture

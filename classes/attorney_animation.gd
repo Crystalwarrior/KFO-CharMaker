@@ -10,7 +10,7 @@ func add_frames_from_folder(folder_path: String) -> void:
 	if not frame_sprite:
 		frame_sprite = Sprite2D.new()
 		frame_sprite.name = "Sprite"
-		frame_sprite.centered = false
+		#frame_sprite.centered = false
 		add_child(frame_sprite)
 	frame_textures.clear()
 	var frame_files: PackedStringArray = DirAccess.get_files_at(folder_path)
