@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dc4ptx84cxhp5" path="res://scenes/char_maker.gd" id="1_cwkk8"]
 [ext_resource type="PackedScene" uid="uid://coar0w52ewb50" path="res://scenes/world.tscn" id="2_k2o8i"]
+[ext_resource type="Script" uid="uid://cmwvn07t0sv8n" path="res://scenes/camera.gd" id="3_h0otu"]
 
 [node name="Main" type="Node" unique_id=269323199]
 
@@ -14,6 +15,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_cwkk8")
 
 [node name="FileDialog" type="FileDialog" parent="GUILayer/CharConverter" unique_id=289154189]
@@ -147,8 +149,15 @@ fixed_column_width = 80
 icon_mode = 0
 fixed_icon_size = Vector2i(80, 80)
 
+[node name="CenterRef" type="ColorRect" parent="." unique_id=1978758270]
+offset_left = -1.0
+offset_top = -1.0
+offset_right = 1.0
+offset_bottom = 1.0
+
 [node name="World" parent="." unique_id=1984213863 instance=ExtResource("2_k2o8i")]
 unique_name_in_owner = true
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=682089302]
+[node name="Camera" type="Camera2D" parent="." unique_id=682089302]
 unique_name_in_owner = true
+script = ExtResource("3_h0otu")
