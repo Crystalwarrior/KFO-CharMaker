@@ -1,0 +1,169 @@
+[gd_scene format=3 uid="uid://b1xdag54tvknp"]
+
+[ext_resource type="Script" uid="uid://dc4ptx84cxhp5" path="res://_test/char_converter/char_converter.gd" id="1_65pcv"]
+
+[node name="CharConverter" type="Control" unique_id=1416316126]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_65pcv")
+
+[node name="FileDialog" type="FileDialog" parent="." unique_id=289154189]
+unique_name_in_owner = true
+oversampling_override = 1.0
+title = "Open a File"
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.ini;Char.ini file")
+use_native_dialog = true
+
+[node name="CharIconFileDialog" type="FileDialog" parent="." unique_id=983704564]
+unique_name_in_owner = true
+oversampling_override = 1.0
+title = "Open a File"
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.png;char_icon.png file")
+use_native_dialog = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=2089079804]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="CharContainer" type="AspectRatioContainer" parent="VBoxContainer" unique_id=1706737653]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+ratio = 1.3333
+
+[node name="Control" type="Control" parent="VBoxContainer/CharContainer" unique_id=1019107814]
+layout_mode = 2
+
+[node name="PreviewTextureRect" type="TextureRect" parent="VBoxContainer/CharContainer/Control" unique_id=245820122]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 5
+stretch_mode = 6
+
+[node name="BottomMenu" type="ScrollContainer" parent="VBoxContainer" unique_id=918585290]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.3
+
+[node name="EmoteList" type="ItemList" parent="VBoxContainer/BottomMenu" unique_id=1508437362]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 10
+auto_width = true
+auto_height = true
+max_columns = 12
+same_column_width = true
+fixed_column_width = 70
+icon_mode = 0
+fixed_icon_size = Vector2i(60, 60)
+
+[node name="Left Menu" type="ScrollContainer" parent="." unique_id=316406484]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 298.0
+offset_bottom = -184.0
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.2
+horizontal_scroll_mode = 0
+
+[node name="MenuList" type="VBoxContainer" parent="Left Menu" unique_id=842614088]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CharacterFold" type="FoldableContainer" parent="Left Menu/MenuList" unique_id=1902620359]
+layout_mode = 2
+title = "Character"
+
+[node name="Character" type="VBoxContainer" parent="Left Menu/MenuList/CharacterFold" unique_id=994819233]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Left Menu/MenuList/CharacterFold/Character" unique_id=942768219]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="New" type="Button" parent="Left Menu/MenuList/CharacterFold/Character/HBoxContainer" unique_id=1875191962]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "New Character"
+
+[node name="ConvertButton" type="Button" parent="Left Menu/MenuList/CharacterFold/Character/HBoxContainer" unique_id=1494157145]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 8
+text = "Convert char.ini
+"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Left Menu/MenuList/CharacterFold/Character" unique_id=836384976]
+layout_mode = 2
+
+[node name="Save" type="Button" parent="Left Menu/MenuList/CharacterFold/Character/HBoxContainer2" unique_id=758419850]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Save Character"
+
+[node name="Load" type="Button" parent="Left Menu/MenuList/CharacterFold/Character/HBoxContainer2" unique_id=235923411]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Load Character"
+
+[node name="HSeparator" type="HSeparator" parent="Left Menu/MenuList/CharacterFold/Character" unique_id=194597716]
+layout_mode = 2
+
+[node name="CharIconContainer" type="AspectRatioContainer" parent="Left Menu/MenuList/CharacterFold/Character" unique_id=1251991749]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+
+[node name="Character Icon" type="TextureRect" parent="Left Menu/MenuList/CharacterFold/Character/CharIconContainer" unique_id=1450402610]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="CharIconLoadButton" type="Button" parent="Left Menu/MenuList/CharacterFold/Character" unique_id=1827154610]
+layout_mode = 2
+text = "Load Character Icon"
+
+[node name="HSeparator2" type="HSeparator" parent="Left Menu/MenuList/CharacterFold/Character" unique_id=233917610]
+layout_mode = 2
+
+[node name="ShownameContainer" type="HBoxContainer" parent="Left Menu/MenuList/CharacterFold/Character" unique_id=765421283]
+layout_mode = 2
+
+[node name="ShownameLabel" type="Label" parent="Left Menu/MenuList/CharacterFold/Character/ShownameContainer" unique_id=1629216759]
+layout_mode = 2
+text = "Showname "
+
+[node name="ShownameEdit" type="LineEdit" parent="Left Menu/MenuList/CharacterFold/Character/ShownameContainer" unique_id=1468560990]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EmoteFold" type="FoldableContainer" parent="Left Menu/MenuList" unique_id=1766727707]
+layout_mode = 2
+title = "Emote"

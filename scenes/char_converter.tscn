@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://b1xdag54tvknp"]
+
+[ext_resource type="Script" uid="uid://dc4ptx84cxhp5" path="res://scenes/char_converter.gd" id="1_65pcv"]
+
+[sub_resource type="Animation" id="Animation_1uboj"]
+resource_name = "new_animation"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_6yhas"]
+_data = {
+&"new_animation": SubResource("Animation_1uboj")
+}
+
+[node name="CharConverter" type="Control" unique_id=1416316126]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_65pcv")
+
+[node name="FileDialog" type="FileDialog" parent="." unique_id=289154189]
+unique_name_in_owner = true
+oversampling_override = 1.0
+title = "Open a File"
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.ini;Char.ini file")
+use_native_dialog = true
+
+[node name="ConvertButton" type="Button" parent="." unique_id=1494157145]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -117.5
+offset_top = -31.0
+offset_right = 117.5
+grow_horizontal = 2
+grow_vertical = 0
+text = "Open char.ini"
+
+[node name="EmoteList" type="ItemList" parent="." unique_id=1508437362]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 336.0
+grow_vertical = 2
+theme_override_font_sizes/font_size = 10
+max_columns = 0
+fixed_column_width = 70
+icon_mode = 0
+fixed_icon_size = Vector2i(60, 60)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=821875105]
+unique_name_in_owner = true
+libraries/ = SubResource("AnimationLibrary_6yhas")
