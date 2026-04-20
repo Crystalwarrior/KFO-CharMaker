@@ -1,14 +1,12 @@
 extends Control
 
 @onready var file_dialog: FileDialog = %FileDialog
-@onready var char_icon_file_dialog: FileDialog = %CharIconFileDialog
 @onready var convert_button: Button = %ConvertButton
 @onready var emote_list: ItemList = %EmoteList
 @onready var char_container: AspectRatioContainer = %CharContainer
 @onready var preview_texture_rect: TextureRect = %PreviewTextureRect
 @onready var showname_edit: LineEdit = %ShownameEdit
-@onready var character_icon: TextureRect = %"Character Icon"
-@onready var char_icon_load_button: Button = $"Left Menu/MenuList/CharacterFold/Character/CharIconLoadButton"
+@onready var character_icon: TextureRect = %CharIcon
 
 # TODO: get these the heck outta the gui
 @onready var world: Node2D = %World
@@ -59,16 +57,11 @@ var current_anim: AttorneyAnimation
 func _ready() -> void:
 	convert_button.pressed.connect(_on_convert_button_pressed)
 	file_dialog.file_selected.connect(_on_file_selected)
-	char_icon_load_button.pressed.connect(_on_char_icon_load_button_pressed)
-	char_icon_file_dialog.file_selected.connect(_on_char_icon_file_selected)
 	emote_list.item_selected.connect(_on_emote_selected)
 
 
 func _on_convert_button_pressed() -> void:
 	file_dialog.popup_centered()
-
-func _on_char_icon_load_button_pressed() -> void:
-	char_icon_file_dialog.popup_centered()
 
 func _on_char_icon_file_selected(file_path: String) -> void:
 	load_char_icon_from_filepath(file_path)
@@ -97,7 +90,7 @@ func _on_file_selected(path: String) -> void:
 				emote_args.resize(5)
 				var emote: Emote = Emote.new(emote_args[0], emote_args[1], emote_args[2], emote_args[3], emote_args[4])
 				current_emotes.append(emote)
-
+	load_char_icon_from_filepath(char_folder + "/char_icon.png")
 	current_char_folder = char_folder
 	regenerate_buttons()
 

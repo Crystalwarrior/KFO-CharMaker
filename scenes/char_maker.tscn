@@ -25,15 +25,6 @@ access = 2
 filters = PackedStringArray("*.ini;Char.ini file")
 use_native_dialog = true
 
-[node name="CharIconFileDialog" type="FileDialog" parent="GUILayer/CharConverter" unique_id=983704564]
-unique_name_in_owner = true
-oversampling_override = 1.0
-title = "Open a File"
-file_mode = 0
-access = 2
-filters = PackedStringArray("*.png;char_icon.png file")
-use_native_dialog = true
-
 [node name="VBoxContainer" type="VBoxContainer" parent="GUILayer/CharConverter" unique_id=2089079804]
 layout_mode = 1
 anchors_preset = 15
@@ -73,6 +64,7 @@ size_flags_vertical = 3
 [node name="New" type="Button" parent="GUILayer/CharConverter/Left Menu/MenuList/CharacterFold/Character/HBoxContainer" unique_id=1875191962]
 layout_mode = 2
 size_flags_horizontal = 3
+disabled = true
 text = "New Character"
 
 [node name="ConvertButton" type="Button" parent="GUILayer/CharConverter/Left Menu/MenuList/CharacterFold/Character/HBoxContainer" unique_id=1494157145]
@@ -90,11 +82,13 @@ layout_mode = 2
 [node name="Save" type="Button" parent="GUILayer/CharConverter/Left Menu/MenuList/CharacterFold/Character/HBoxContainer2" unique_id=758419850]
 layout_mode = 2
 size_flags_horizontal = 3
+disabled = true
 text = "Save Character"
 
 [node name="Load" type="Button" parent="GUILayer/CharConverter/Left Menu/MenuList/CharacterFold/Character/HBoxContainer2" unique_id=235923411]
 layout_mode = 2
 size_flags_horizontal = 3
+disabled = true
 text = "Load Character"
 
 [node name="HSeparator" type="HSeparator" parent="GUILayer/CharConverter/Left Menu/MenuList/CharacterFold/Character" unique_id=194597716]
@@ -104,13 +98,9 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 
-[node name="Character Icon" type="TextureRect" parent="GUILayer/CharConverter/Left Menu/MenuList/CharacterFold/Character/CharIconContainer" unique_id=1450402610]
+[node name="CharIcon" type="TextureRect" parent="GUILayer/CharConverter/Left Menu/MenuList/CharacterFold/Character/CharIconContainer" unique_id=1450402610]
 unique_name_in_owner = true
 layout_mode = 2
-
-[node name="CharIconLoadButton" type="Button" parent="GUILayer/CharConverter/Left Menu/MenuList/CharacterFold/Character" unique_id=1827154610]
-layout_mode = 2
-text = "Load Character Icon"
 
 [node name="HSeparator2" type="HSeparator" parent="GUILayer/CharConverter/Left Menu/MenuList/CharacterFold/Character" unique_id=233917610]
 layout_mode = 2
