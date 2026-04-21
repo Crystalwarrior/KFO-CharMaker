@@ -1,0 +1,6 @@
+[gd_resource type="Theme" format=3 uid="uid://cidakdiv2bhax"]
+
+[ext_resource type="StyleBox" uid="uid://brpdgthx3405" path="res://assets/themes/tooltip_bg.tres" id="1_3f3va"]
+
+[resource]
+TooltipPanel/styles/panel = ExtResource("1_3f3va")
