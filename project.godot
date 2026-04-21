@@ -15,6 +15,10 @@ run/main_scene="uid://b1xdag54tvknp"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
+[gui]
+
+timers/tooltip_delay_sec=0.25
+
 [input]
 
 zoom_in={

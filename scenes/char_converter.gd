@@ -1,17 +1,25 @@
 extends Control
 
 @onready var file_dialog: FileDialog = %FileDialog
-@onready var convert_button: Button = %ConvertButton
+@onready var open_ini_button: Button = %OpenIniButton
 @onready var emote_list: ItemList = %EmoteList
-@onready var char_container: AspectRatioContainer = %CharContainer
-@onready var preview_texture_rect: TextureRect = %PreviewTextureRect
-@onready var showname_edit: LineEdit = %ShownameEdit
 @onready var character_icon: TextureRect = %CharIcon
+@onready var char_folder_label: Label = $"Left Menu/MenuList/CharacterFold/CharacterVBox/CharFolderLabel"
+
+# Options
+@onready var charname_edit: LineEdit = %CharnameEdit
+@onready var showname_edit: LineEdit = %ShownameEdit
+@onready var showname_check: CheckBox = %ShownameCheck
+@onready var side_edit: LineEdit = %SideEdit
+@onready var blips_edit: LineEdit = %BlipsEdit
+@onready var chat_edit: LineEdit = %ChatEdit
+@onready var effects_edit: LineEdit = %EffectsEdit
+@onready var realization_edit: LineEdit = %RealizationEdit
+@onready var category_edit: LineEdit = %CategoryEdit
+@onready var scaling_option: OptionButton = %ScalingOption
 
 # TODO: get these the heck outta the gui
 @onready var world: Node2D = %World
-@onready var camera_2d: Camera2D = %Camera2D
-
 
 @export var preview_height: float = 1.0
 
@@ -57,12 +65,13 @@ var parsed_data: Dictionary[String, Dictionary]
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	convert_button.pressed.connect(_on_convert_button_pressed)
+	open_ini_button.pressed.connect(_on_open_ini_button_pressed)
 	file_dialog.file_selected.connect(_on_file_selected)
 	emote_list.item_selected.connect(_on_emote_selected)
+	scaling_option.item_selected.connect(_on_scaling_selected)
 
 
-func _on_convert_button_pressed() -> void:
+func _on_open_ini_button_pressed() -> void:
 	file_dialog.popup_centered()
 
 func _on_char_icon_file_selected(file_path: String) -> void:
@@ -70,8 +79,6 @@ func _on_char_icon_file_selected(file_path: String) -> void:
 
 func _on_file_selected(path: String) -> void:
 	var char_folder: String = path.get_base_dir()
-	print(char_folder)
-
 	current_emotes.clear()
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	parsed_data = BasicIni.parse(file.get_as_text())
@@ -81,7 +88,6 @@ func _on_file_selected(path: String) -> void:
 			if key.to_lower() == "number":
 				continue
 			var value: String = emotions[key]
-			print(key, ' = ', value)
 			var emote_args: PackedStringArray = value.split("#", true, 4)
 			if emote_args.size() < 4:
 				push_warning("Misformatted char.ini: ", char_folder, ", ", key, " = ", value)
@@ -90,8 +96,57 @@ func _on_file_selected(path: String) -> void:
 			emote_args.resize(5)
 			var emote: Emote = Emote.new(emote_args[0], emote_args[1], emote_args[2], emote_args[3], emote_args[4])
 			current_emotes.append(emote)
+	if "options" in parsed_data:
+		var options: Dictionary = parsed_data["options"]
+		var char_name: String = ""
+		var showname: String = ""
+		var needs_showname: bool = true
+		var side: String = ""
+		var blips: String = ""
+		var category: String = ""
+		var scaling: String = ""
+		var chat: String = ""
+		var effects: String = ""
+		var realization: String = ""
+		if "name" in options:
+			char_name = options["name"]
+		if "showname" in options:
+			showname = options["showname"]
+		if "needs_showname" in options:
+			needs_showname = not options["needs_showname"].begins_with("false")
+		if "side" in options:
+			side = options["side"]
+		if "gender" in options:
+			blips = options["gender"]
+		if "blips" in options:
+			blips = options["blips"]
+		if "chat" in options:
+			chat = options["chat"]
+		if "effects" in options:
+			effects = options["effects"]
+		if "realization" in options:
+			realization = options["realization"]
+		if "category" in options:
+			category = options["category"]
+		if "scaling" in options:
+			scaling = options["scaling"]
+		charname_edit.text = char_name
+		showname_edit.text = showname
+		showname_check.button_pressed = needs_showname
+		side_edit.text = side
+		blips_edit.text = blips
+		chat_edit.text = chat
+		effects_edit.text = effects
+		realization_edit.text = realization
+		category_edit.text = category
+		if scaling != "pixel":
+			scaling_option.select(0)
+		else:
+			scaling_option.select(1)
 	load_char_icon_from_filepath(char_folder + "/char_icon.png")
 	current_char_folder = char_folder
+	char_folder_label.text = current_char_folder.get_file()
+	char_folder_label.tooltip_text = current_char_folder
 	regenerate_buttons()
 
 
@@ -106,7 +161,7 @@ func regenerate_buttons() -> void:
 		image_texture.set_image(image)
 		var at: int = emote_list.add_item(emote.display_name, image_texture)
 		emote_list.set_item_metadata(at, emote)
-		emote_list.set_item_tooltip(at, "%s: %s, %s" % [i+1, emote.pre, emote.idle])
+		emote_list.set_item_tooltip(at, "%s\n%s: %s, %s" % [emote.display_name, i+1, emote.pre, emote.idle])
 
 func search_valid_idle_emote(char_folder: String, emote_name: String) -> String:
 	for ext: String in SUPPORTED_EXTENSIONS:
@@ -133,7 +188,6 @@ func _on_emote_selected(idx: int) -> void:
 		var frames_folder: String = ProjectSettings.globalize_path("user://frame_cache/%s/%s/" % [char_name, base_name])
 		if not FileAccess.file_exists(frames_folder):
 			magick.split_frames(image_path, frames_folder)
-		print(frame_data)
 		#magick.split_frames(image_path)
 		var lib: AnimationLibrary = world.animation_player.get_animation_library("")
 		if current_anim:
@@ -144,15 +198,27 @@ func _on_emote_selected(idx: int) -> void:
 		current_anim.name = base_name
 		current_anim.add_frames_from_folder(frames_folder)
 		current_anim.initialize_from_frame_data(frame_data)
+
+		if scaling_option.selected == 0:
+			current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		elif scaling_option.selected == 1:
+			current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+
 		world.add_child(current_anim)
 		lib.add_animation(base_name, current_anim.animation)
-		print(lib.has_animation(base_name))
 		world.animation_player.play(base_name)
 		return
 	var image: Image = Image.new()
 	image.load(image_path)
 	var image_texture: ImageTexture = ImageTexture.new()
 	image_texture.set_image(image)
+
+func _on_scaling_selected(index: int) -> void:
+	if current_anim:
+		if index == 0:
+			current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		elif index == 1:
+			current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
