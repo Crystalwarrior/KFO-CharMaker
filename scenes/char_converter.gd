@@ -53,6 +53,8 @@ var current_char_folder: String
 
 var current_anim: AttorneyAnimation
 
+var parsed_data: Dictionary[String, Dictionary]
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	convert_button.pressed.connect(_on_convert_button_pressed)
@@ -72,24 +74,22 @@ func _on_file_selected(path: String) -> void:
 
 	current_emotes.clear()
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
-	var data: Dictionary[String, Dictionary] = BasicIni.parse(file.get_as_text())
-	for section: String in data:
-		print(section)
-		if section.to_lower() == "emotions":
-			var emotions: Dictionary = data[section]
-			for key: String in emotions:
-				if key.to_lower() == "number":
-					continue
-				var value: String = emotions[key]
-				print(key, ' = ', value)
-				var emote_args: PackedStringArray = value.split("#", true, 4)
-				if emote_args.size() < 4:
-					push_warning("Misformatted char.ini: ", char_folder, ", ", key, " = ", value)
-					continue
-				# desk mod is not always included
-				emote_args.resize(5)
-				var emote: Emote = Emote.new(emote_args[0], emote_args[1], emote_args[2], emote_args[3], emote_args[4])
-				current_emotes.append(emote)
+	parsed_data = BasicIni.parse(file.get_as_text())
+	if "emotions" in parsed_data:
+		var emotions: Dictionary = parsed_data["emotions"]
+		for key: String in emotions:
+			if key.to_lower() == "number":
+				continue
+			var value: String = emotions[key]
+			print(key, ' = ', value)
+			var emote_args: PackedStringArray = value.split("#", true, 4)
+			if emote_args.size() < 4:
+				push_warning("Misformatted char.ini: ", char_folder, ", ", key, " = ", value)
+				continue
+			# desk mod is not always included
+			emote_args.resize(5)
+			var emote: Emote = Emote.new(emote_args[0], emote_args[1], emote_args[2], emote_args[3], emote_args[4])
+			current_emotes.append(emote)
 	load_char_icon_from_filepath(char_folder + "/char_icon.png")
 	current_char_folder = char_folder
 	regenerate_buttons()

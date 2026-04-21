@@ -1,0 +1,144 @@
+[gd_scene format=3 uid="uid://bm4dd2b8qtgak"]
+
+[ext_resource type="Script" uid="uid://dc4ptx84cxhp5" path="res://scenes/char_converter.gd" id="1_1uboj"]
+
+[node name="CharConverter" type="Control" unique_id=472651589]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_1uboj")
+
+[node name="FileDialog" type="FileDialog" parent="." unique_id=178860689]
+unique_name_in_owner = true
+oversampling_override = 1.0
+title = "Open a File"
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.ini;Char.ini file")
+use_native_dialog = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=996958241]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="Left Menu" type="ScrollContainer" parent="." unique_id=233920285]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 298.0
+offset_bottom = -184.0
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.2
+horizontal_scroll_mode = 0
+
+[node name="MenuList" type="VBoxContainer" parent="Left Menu" unique_id=2010910908]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CharacterFold" type="FoldableContainer" parent="Left Menu/MenuList" unique_id=727692633]
+layout_mode = 2
+title = "Character"
+
+[node name="Character" type="VBoxContainer" parent="Left Menu/MenuList/CharacterFold" unique_id=737692034]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Left Menu/MenuList/CharacterFold/Character" unique_id=290307049]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="New" type="Button" parent="Left Menu/MenuList/CharacterFold/Character/HBoxContainer" unique_id=2107542197]
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "New Character"
+
+[node name="ConvertButton" type="Button" parent="Left Menu/MenuList/CharacterFold/Character/HBoxContainer" unique_id=313060656]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 8
+text = "Convert char.ini
+"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Left Menu/MenuList/CharacterFold/Character" unique_id=1232384946]
+layout_mode = 2
+
+[node name="Save" type="Button" parent="Left Menu/MenuList/CharacterFold/Character/HBoxContainer2" unique_id=535886181]
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Save Character"
+
+[node name="Load" type="Button" parent="Left Menu/MenuList/CharacterFold/Character/HBoxContainer2" unique_id=1104431604]
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Load Character"
+
+[node name="HSeparator" type="HSeparator" parent="Left Menu/MenuList/CharacterFold/Character" unique_id=538711742]
+layout_mode = 2
+
+[node name="CharIconContainer" type="AspectRatioContainer" parent="Left Menu/MenuList/CharacterFold/Character" unique_id=2018949201]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+
+[node name="CharIcon" type="TextureRect" parent="Left Menu/MenuList/CharacterFold/Character/CharIconContainer" unique_id=1534636234]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HSeparator2" type="HSeparator" parent="Left Menu/MenuList/CharacterFold/Character" unique_id=1688427340]
+layout_mode = 2
+
+[node name="ShownameContainer" type="HBoxContainer" parent="Left Menu/MenuList/CharacterFold/Character" unique_id=1541635399]
+layout_mode = 2
+
+[node name="ShownameLabel" type="Label" parent="Left Menu/MenuList/CharacterFold/Character/ShownameContainer" unique_id=184545757]
+layout_mode = 2
+text = "Showname "
+
+[node name="ShownameEdit" type="LineEdit" parent="Left Menu/MenuList/CharacterFold/Character/ShownameContainer" unique_id=225736824]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EmoteFold" type="FoldableContainer" parent="Left Menu/MenuList" unique_id=1287546304]
+layout_mode = 2
+title = "Emote"
+
+[node name="BottomMenu" type="ScrollContainer" parent="." unique_id=250980165]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -184.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.3
+
+[node name="EmoteList" type="ItemList" parent="BottomMenu" unique_id=2061598841]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 10
+auto_height = true
+max_columns = 0
+same_column_width = true
+fixed_column_width = 80
+icon_mode = 0
+fixed_icon_size = Vector2i(80, 80)

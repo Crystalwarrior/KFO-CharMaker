@@ -15,7 +15,7 @@ static func parse(data: String) -> Dictionary[String, Dictionary]:
 		if line.begins_with("[") and line.ends_with("]"):
 			if not section_data.is_empty():
 				result[section_name] = section_data
-			section_name = line.trim_prefix("[").trim_suffix("]")
+			section_name = line.trim_prefix("[").trim_suffix("]").to_lower()
 			section_data = {}
 		else:
 			var kv: PackedStringArray = line.split("=", true, 1)
