@@ -13,7 +13,11 @@ func add_frames_from_folder(folder_path: String) -> void:
 		#frame_sprite.centered = false
 		add_child(frame_sprite)
 	frame_textures.clear()
-	var frame_files: PackedStringArray = DirAccess.get_files_at(folder_path)
+	var frame_files: Array = DirAccess.get_files_at(folder_path)
+	# There's no simple function to call to do natural sorting, so we gotta
+	# make do with a custom sorting function ([0, 1, 2] instead of [0, 1, 10, 11, 2])
+	frame_files.sort_custom(func(a, b): return a.naturalnocasecmp_to(b) < 0)
+	
 	for i: int in frame_files.size():
 		var file_name: String = frame_files[i]
 		var image: Image = Image.new()
