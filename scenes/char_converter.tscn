@@ -28,6 +28,13 @@ access = 2
 filters = PackedStringArray("*.ini;Char.ini file")
 use_native_dialog = true
 
+[node name="FileDialogSave" type="FileDialog" parent="." unique_id=975519437]
+unique_name_in_owner = true
+oversampling_override = 1.0
+access = 2
+filters = PackedStringArray("*.ini;Char.ini file")
+use_native_dialog = true
+
 [node name="ImageDialog" type="FileDialog" parent="." unique_id=551835970]
 unique_name_in_owner = true
 oversampling_override = 1.0

@@ -2,6 +2,7 @@ extends Control
 
 @onready var file_dialog: FileDialog = %FileDialog
 @onready var image_dialog: FileDialog = %ImageDialog
+@onready var file_dialog_save: FileDialog = %FileDialogSave
 @onready var new_button: Button = %NewButton
 @onready var open_ini_button: Button = %OpenIniButton
 @onready var save_button: Button = %SaveButton
@@ -81,14 +82,13 @@ var parsed_data: Dictionary[String, Dictionary]
 
 var is_image_pre: bool
 
-var current_folder_path: String
-
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	open_ini_button.pressed.connect(_on_open_ini_button_pressed)
 	save_button.pressed.connect(_on_save_button_pressed)
 	file_dialog.file_selected.connect(_on_file_selected)
 	image_dialog.file_selected.connect(_on_image_selected)
+	file_dialog_save.file_selected.connect(_on_save_file_selected)
 	emote_list.item_selected.connect(_on_emote_selected)
 	scaling_option.item_selected.connect(_on_scaling_selected)
 	preanim_button.pressed.connect(_on_preanim_button_pressed)
@@ -101,12 +101,12 @@ func _on_open_ini_button_pressed() -> void:
 
 func _on_preanim_button_pressed() -> void:
 	is_image_pre = true
-	image_dialog.current_dir = current_folder_path
+	image_dialog.current_dir = current_character.char_folder
 	image_dialog.popup_centered()
 
 func _on_emote_button_pressed() -> void:
 	is_image_pre = false
-	image_dialog.current_dir = current_folder_path
+	image_dialog.current_dir = current_character.char_folder
 	image_dialog.popup_centered()
 
 func _on_char_icon_file_selected(file_path: String) -> void:
@@ -114,7 +114,6 @@ func _on_char_icon_file_selected(file_path: String) -> void:
 
 func _on_file_selected(path: String) -> void:
 	var char_folder: String = path.get_base_dir()
-	current_folder_path = char_folder
 	
 	# Create a new character
 	current_character = Character.new()
@@ -151,9 +150,8 @@ func _on_image_selected(path: String) -> void:
 		emote_edit.text = get_emote_path(path)
 
 func get_emote_path(filePath: String) -> String:
-	print(current_folder_path)
 	print(filePath)
-	var result = filePath.get_slice(".", 0).trim_prefix(current_folder_path + "/")
+	var result = filePath.get_slice(".", 0).trim_prefix(current_character.char_folder + "/")
 	print(result)
 	result = result.trim_prefix("(a)").trim_prefix("(b)")
 	print(result)
@@ -255,10 +253,10 @@ func _on_emote_number_changed(value: float) -> void:
 	emote_list.move_item(index_from, index_to)
 	current_emote_number = index_to
 
-#func _notification(what):
-	#if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		#var path = ProjectSettings.globalize_path("user://frame_cache/")
-		#remove_contents_of(path)
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		var path = ProjectSettings.globalize_path("user://frame_cache/")
+		remove_contents_of(path)
 
 func remove_contents_of(directory: String) -> void:
 	for dir_name in DirAccess.get_directories_at(directory):
@@ -277,31 +275,40 @@ func load_char_icon_from_filepath(iconPath: String) -> void:
 	character_icon.texture = image_texture
 
 func _on_save_button_pressed() -> void:
+	file_dialog_save.current_dir = current_character.char_folder
+	file_dialog_save.popup_centered()
+
+func _on_save_file_selected(path: String) -> void:
 	var iniString: String
 	iniString += get_options_string()
 	iniString += get_emotions_string()
-	iniString += get_emote_option_string("SoundN")
-	iniString += get_emote_option_string("SoundT")
-	iniString += get_emote_option_string("SoundL")
-	var file: FileAccess = FileAccess.open(current_folder_path, FileAccess.WRITE)
-
+	iniString += get_sound_option_string("SoundN")
+	iniString += get_sound_option_string("SoundT")
+	iniString += get_sound_option_string("SoundL")
+	var save_file = FileAccess.open(path, FileAccess.WRITE)
+	save_file.store_string(iniString)
 
 func get_options_string() -> String:
 	var result = "[Options]\n"
-	result += "name = %s\nshowname = %s\nside = %s\ngender = %s\ncategory = %s\nscaling = %s" % [charname_edit.text, showname_edit.text,
-	side_edit.text, blips_edit.text, category_edit.text, scaling_option.get_item_text(scaling_option.get_selected_id()).to_lower()]
-	return result
+	result += "name = " + charname_edit.text
+	result += "\nshowname = " + showname_edit.text
+	result += "\nside = " + side_edit.text
+	result += "\ngender = " + blips_edit.text
+	result += "\ncategory = " + category_edit.text
+	result += "\nscaling = " + scaling_option.get_item_text(scaling_option.get_selected_id()).to_lower()
+	return result+"\n\n"
 
 func get_emotions_string() -> String:
 	var result = "[Emotions]\nnumber=%d\n\n" % current_character.emotes.size()
-	var counter = 1
-	for emote in current_character.emotes:
-		result += "%d = %s#%s#%s#%d#%d\n" % [counter, emote.display_name, emote.pre, emote.idle, emote.emote_mod, emote.desk_mod]
-		counter += 1
-	return result
+	for i in current_character.emotes.size():
+		var emote: Emote = current_character.emotes[i]
+		result += str(i+1) + " = "
+		result += "#".join([emote.display_name, emote.pre, emote.idle, emote.emote_mod, emote.desk_mod])
+		result += "\n"
+	return result+"\n\n"
 
 
-func get_emote_option_string(option: String) -> String:
+func get_sound_option_string(option: String) -> String:
 	var result = "[%s]\n" % option
 	var option_value
 	var counter = 1
@@ -319,6 +326,6 @@ func get_emote_option_string(option: String) -> String:
 			continue
 		result += "%d = %s\n" % [counter, option_value]
 		counter += 1
-	if result.length() == 9:
+	if counter <= 1:
 		result = ""
-	return result
+	return result+"\n\n"
