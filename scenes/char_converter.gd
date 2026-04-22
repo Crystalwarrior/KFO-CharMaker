@@ -67,8 +67,7 @@ const ANIMATED_EXTENSIONS: PackedStringArray = ["webp", "apng", "gif"]
 const STATIC_EXTENSIONS: PackedStringArray = ["png"]
 const SUPPORTED_EXTENSIONS: PackedStringArray = ANIMATED_EXTENSIONS + STATIC_EXTENSIONS
 
-var current_emotes: Array[Emote] = []
-var current_char_folder: String
+var current_character: Character
 
 var current_anim: AttorneyAnimation
 
@@ -90,7 +89,8 @@ func _on_char_icon_file_selected(file_path: String) -> void:
 
 func _on_file_selected(path: String) -> void:
 	var char_folder: String = path.get_base_dir()
-	current_emotes.clear()
+	current_character = Character.new()
+	current_character.char_folder = char_folder
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	parsed_data = BasicIni.parse(file.get_as_text())
 	if "emotions" in parsed_data:
@@ -106,66 +106,55 @@ func _on_file_selected(path: String) -> void:
 			# desk mod is not always included
 			emote_args.resize(5)
 			var emote: Emote = Emote.new(emote_args[0], emote_args[1], emote_args[2], emote_args[3], emote_args[4])
-			current_emotes.append(emote)
+			current_character.emotes.append(emote)
 	if "options" in parsed_data:
 		var options: Dictionary = parsed_data["options"]
-		var char_name: String = ""
-		var showname: String = ""
-		var needs_showname: bool = true
-		var side: String = ""
-		var blips: String = ""
-		var category: String = ""
-		var scaling: String = ""
-		var chat: String = ""
-		var effects: String = ""
-		var realization: String = ""
 		if "name" in options:
-			char_name = options["name"]
+			current_character.char_name = options["name"]
 		if "showname" in options:
-			showname = options["showname"]
+			current_character.showname = options["showname"]
 		if "needs_showname" in options:
-			needs_showname = not options["needs_showname"].begins_with("false")
+			current_character.needs_showname = not options["needs_showname"].begins_with("false")
 		if "side" in options:
-			side = options["side"]
+			current_character.side = options["side"]
 		if "gender" in options:
-			blips = options["gender"]
+			current_character.blips = options["gender"]
 		if "blips" in options:
-			blips = options["blips"]
+			current_character.blips = options["blips"]
 		if "chat" in options:
-			chat = options["chat"]
+			current_character.chat = options["chat"]
 		if "effects" in options:
-			effects = options["effects"]
+			current_character.effects = options["effects"]
 		if "realization" in options:
-			realization = options["realization"]
+			current_character.realization = options["realization"]
 		if "category" in options:
-			category = options["category"]
+			current_character.category = options["category"]
 		if "scaling" in options:
-			scaling = options["scaling"]
-		charname_edit.text = char_name
-		showname_edit.text = showname
-		showname_check.button_pressed = needs_showname
-		side_edit.text = side
-		blips_edit.text = blips
-		chat_edit.text = chat
-		effects_edit.text = effects
-		realization_edit.text = realization
-		category_edit.text = category
-		if scaling != "pixel":
+			current_character.scaling = options["scaling"]
+		charname_edit.text = current_character.char_name
+		showname_edit.text = current_character.showname
+		showname_check.button_pressed = current_character.needs_showname
+		side_edit.text = current_character.side
+		blips_edit.text = current_character.blips
+		chat_edit.text = current_character.chat
+		effects_edit.text = current_character.effects
+		realization_edit.text = current_character.realization
+		category_edit.text = current_character.category
+		if current_character.scaling != "pixel":
 			scaling_option.select(0)
 		else:
 			scaling_option.select(1)
 	load_char_icon_from_filepath(char_folder + "/char_icon.png")
-	current_char_folder = char_folder
-	char_folder_label.text = current_char_folder.get_file()
-	char_folder_label.tooltip_text = current_char_folder
+	char_folder_label.text = char_folder.get_file()
+	char_folder_label.tooltip_text = char_folder
 	regenerate_buttons()
 
 
 func regenerate_buttons() -> void:
 	emote_list.clear()
-	for i: int in current_emotes.size():
-		var emote: Emote = current_emotes[i]
-		var image_path: String = "%s/emotions/button%s_off.png" % [current_char_folder, i+1]
+	for i: int in current_character.emotes.size():
+		var emote: Emote = current_character.emotes[i]
+		var image_path: String = "%s/emotions/button%s_off.png" % [current_character.char_folder, i+1]
 		var image: Image = Image.new()
 		image.load(image_path)
 		var image_texture: ImageTexture = ImageTexture.new()
@@ -186,8 +175,7 @@ func search_valid_idle_emote(char_folder: String, emote_name: String) -> String:
 
 func _on_emote_selected(idx: int) -> void:
 	number_spin_box.value = idx
-
-	var emote: Emote = current_emotes[idx]
+	var emote: Emote = current_character.emotes[idx]
 	comment_edit.text = emote.display_name
 	preanim_edit.text = emote.pre
 	emote_edit.text = emote.idle
@@ -201,21 +189,20 @@ func _on_emote_selected(idx: int) -> void:
 		if id == emote.desk_mod:
 			deskmod_option.select(i)
 			break
-
-	var image_path: String = search_valid_idle_emote(current_char_folder, emote.idle)
-	var file_extension: String = image_path.get_extension()
+	var image_path: String = search_valid_idle_emote(current_character.char_folder, emote.idle)
 	if not image_path:
 		return
+	var file_extension: String = image_path.get_extension()
+	# TODO: Cache all this somehow
 	if file_extension in ANIMATED_EXTENSIONS:
 		var magick: Magick = Magick.new()
 		var frame_data: Array[Dictionary] = magick.get_frame_data(image_path)
 		var directory: String = image_path.get_base_dir()
 		var base_name: String = image_path.get_file().get_basename()
-		var char_name: String = directory.substr(directory.rfind("/")+1)
+		var char_name: String = directory.get_file()
 		var frames_folder: String = ProjectSettings.globalize_path("user://frame_cache/%s/%s/" % [char_name, base_name])
 		if not FileAccess.file_exists(frames_folder):
 			magick.split_frames(image_path, frames_folder)
-		#magick.split_frames(image_path)
 		var lib: AnimationLibrary = world.animation_player.get_animation_library("")
 		if current_anim:
 			world.animation_player.stop()
@@ -225,12 +212,10 @@ func _on_emote_selected(idx: int) -> void:
 		current_anim.name = base_name
 		current_anim.add_frames_from_folder(frames_folder)
 		current_anim.initialize_from_frame_data(frame_data)
-
 		if scaling_option.selected == 0:
 			current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		elif scaling_option.selected == 1:
 			current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-
 		world.add_child(current_anim)
 		lib.add_animation(base_name, current_anim.animation)
 		world.animation_player.play(base_name)

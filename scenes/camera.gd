@@ -34,7 +34,7 @@ func _unhandled_input(event):
 			zoom_increment(-1)
 	if event is InputEventMouseMotion:
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) or Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE):
-			position -= (event.relative / zoom.x).round()
+			position -= event.relative / zoom.x
 
 
 func _process(delta):
