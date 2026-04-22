@@ -81,11 +81,12 @@ var parsed_data: Dictionary[String, Dictionary]
 
 var is_image_pre: bool
 
-var current_dir: String
+var current_folder_path: String
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	open_ini_button.pressed.connect(_on_open_ini_button_pressed)
+	save_button.pressed.connect(_on_save_button_pressed)
 	file_dialog.file_selected.connect(_on_file_selected)
 	image_dialog.file_selected.connect(_on_image_selected)
 	emote_list.item_selected.connect(_on_emote_selected)
@@ -100,12 +101,12 @@ func _on_open_ini_button_pressed() -> void:
 
 func _on_preanim_button_pressed() -> void:
 	is_image_pre = true
-	image_dialog.current_dir = current_dir
+	image_dialog.current_dir = current_folder_path
 	image_dialog.popup_centered()
 
 func _on_emote_button_pressed() -> void:
 	is_image_pre = false
-	image_dialog.current_dir = current_dir
+	image_dialog.current_dir = current_folder_path
 	image_dialog.popup_centered()
 
 func _on_char_icon_file_selected(file_path: String) -> void:
@@ -113,7 +114,7 @@ func _on_char_icon_file_selected(file_path: String) -> void:
 
 func _on_file_selected(path: String) -> void:
 	var char_folder: String = path.get_base_dir()
-	current_dir = char_folder
+	current_folder_path = char_folder
 	
 	# Create a new character
 	current_character = Character.new()
@@ -145,13 +146,17 @@ func _on_file_selected(path: String) -> void:
 
 func _on_image_selected(path: String) -> void:
 	if is_image_pre:
-		preanim_edit.text = parse_filename(path)
+		preanim_edit.text = get_emote_path(path)
 	else:
-		emote_edit.text = parse_filename(path)
+		emote_edit.text = get_emote_path(path)
 
-func parse_filename(fileName: String) -> String:
-	var result = fileName.get_file().get_slice(".", 0)
+func get_emote_path(filePath: String) -> String:
+	print(current_folder_path)
+	print(filePath)
+	var result = filePath.get_slice(".", 0).trim_prefix(current_folder_path + "/")
+	print(result)
 	result = result.trim_prefix("(a)").trim_prefix("(b)")
+	print(result)
 	return result
 
 func regenerate_buttons() -> void:
@@ -186,6 +191,10 @@ func _on_emote_selected(idx: int) -> void:
 	comment_edit.text = emote.display_name
 	preanim_edit.text = emote.pre
 	emote_edit.text = emote.idle
+	deskmod_option.selected = emote.desk_mod
+	sound_name_edit.text = emote.sound_name
+	sound_time_edit.value = emote.sound_time
+	sound_loop_check.button_pressed = emote.sound_loop
 	for i: int in modifier_option.item_count:
 		var id: int = modifier_option.get_item_id(i)
 		if id == emote.emote_mod:
@@ -246,10 +255,10 @@ func _on_emote_number_changed(value: float) -> void:
 	emote_list.move_item(index_from, index_to)
 	current_emote_number = index_to
 
-func _notification(what):
-	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		var path = ProjectSettings.globalize_path("user://frame_cache/")
-		remove_contents_of(path)
+#func _notification(what):
+	#if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		#var path = ProjectSettings.globalize_path("user://frame_cache/")
+		#remove_contents_of(path)
 
 func remove_contents_of(directory: String) -> void:
 	for dir_name in DirAccess.get_directories_at(directory):
@@ -266,3 +275,50 @@ func load_char_icon_from_filepath(iconPath: String) -> void:
 	var image_texture: ImageTexture = ImageTexture.new()
 	image_texture.set_image(image)
 	character_icon.texture = image_texture
+
+func _on_save_button_pressed() -> void:
+	var iniString: String
+	iniString += get_options_string()
+	iniString += get_emotions_string()
+	iniString += get_emote_option_string("SoundN")
+	iniString += get_emote_option_string("SoundT")
+	iniString += get_emote_option_string("SoundL")
+	var file: FileAccess = FileAccess.open(current_folder_path, FileAccess.WRITE)
+
+
+func get_options_string() -> String:
+	var result = "[Options]\n"
+	result += "name = %s\nshowname = %s\nside = %s\ngender = %s\ncategory = %s\nscaling = %s" % [charname_edit.text, showname_edit.text,
+	side_edit.text, blips_edit.text, category_edit.text, scaling_option.get_item_text(scaling_option.get_selected_id()).to_lower()]
+	return result
+
+func get_emotions_string() -> String:
+	var result = "[Emotions]\nnumber=%d\n\n" % current_character.emotes.size()
+	var counter = 1
+	for emote in current_character.emotes:
+		result += "%d = %s#%s#%s#%d#%d\n" % [counter, emote.display_name, emote.pre, emote.idle, emote.emote_mod, emote.desk_mod]
+		counter += 1
+	return result
+
+
+func get_emote_option_string(option: String) -> String:
+	var result = "[%s]\n" % option
+	var option_value
+	var counter = 1
+	for emote in current_character.emotes:
+		option_value = null
+		match option:
+			"SoundN":
+				option_value = emote.sound_name
+			"SoundT":
+				option_value = emote.sound_time
+			"SoundL":
+				if emote.sound_loop:
+					option_value = 1 if emote.sound_loop == true else 0
+		if option == "SoundL" and !option_value:
+			continue
+		result += "%d = %s\n" % [counter, option_value]
+		counter += 1
+	if result.length() == 9:
+		result = ""
+	return result

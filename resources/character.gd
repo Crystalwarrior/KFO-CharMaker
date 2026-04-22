@@ -57,6 +57,18 @@ func load_data(data: Dictionary[String, Dictionary]) -> void:
 			emote_args.resize(5)
 			var emote: Emote = Emote.new(emote_args[0], emote_args[1], emote_args[2], emote_args[3], emote_args[4])
 			emotes.append(emote)
+			# set soundN for emote
+			if "soundn" in data:
+				if str(emotes.size()) in data["soundn"]:
+					emotes[emotes.size()-1].sound_name = data["soundn"][str(emotes.size())]
+			# set soundT for emote
+			if "soundt" in data:
+				if str(emotes.size()) in data["soundt"]:
+					emotes[emotes.size()-1].sound_time = data["soundt"][str(emotes.size())]
+			# set soundL for emote
+			if "soundl" in data:
+				if str(emotes.size()) in data["soundl"]:
+					emotes[emotes.size()-1].sound_loop = true if data["soundl"][str(emotes.size())] == "1" else false
 	if "options" in data:
 		var options: Dictionary = data["options"]
 		if "name" in options:
