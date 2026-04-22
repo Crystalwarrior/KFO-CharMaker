@@ -1,7 +1,10 @@
 extends Control
 
 @onready var file_dialog: FileDialog = %FileDialog
+@onready var image_dialog: FileDialog = %ImageDialog
+@onready var new_button: Button = %NewButton
 @onready var open_ini_button: Button = %OpenIniButton
+@onready var save_button: Button = %SaveButton
 @onready var emote_list: ItemList = %EmoteList
 @onready var character_icon: TextureRect = %CharIcon
 @onready var char_folder_label: Label = %CharFolderLabel
@@ -28,6 +31,8 @@ extends Control
 @onready var sound_name_edit: LineEdit = %SoundNameEdit
 @onready var sound_time_edit: SpinBox = %SoundTimeEdit
 @onready var sound_loop_check: CheckBox = %SoundLoopCheck
+@onready var preanim_button: Button = %PreanimButton
+@onready var emote_button: Button = %EmoteButton
 
 # TODO: get these the heck outta the gui
 @onready var world: Node2D = %World
@@ -73,22 +78,39 @@ var current_anim: AttorneyAnimation
 
 var parsed_data: Dictionary[String, Dictionary]
 
+var is_image_pre: bool
+
+var current_dir: String
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	open_ini_button.pressed.connect(_on_open_ini_button_pressed)
 	file_dialog.file_selected.connect(_on_file_selected)
+	image_dialog.file_selected.connect(_on_image_selected)
 	emote_list.item_selected.connect(_on_emote_selected)
 	scaling_option.item_selected.connect(_on_scaling_selected)
-
+	preanim_button.pressed.connect(_on_preanim_button_pressed)
+	emote_button.pressed.connect(_on_emote_button_pressed)
 
 func _on_open_ini_button_pressed() -> void:
 	file_dialog.popup_centered()
+
+func _on_preanim_button_pressed() -> void:
+	is_image_pre = true
+	image_dialog.current_dir = current_dir
+	image_dialog.popup_centered()
+
+func _on_emote_button_pressed() -> void:
+	is_image_pre = false
+	image_dialog.current_dir = current_dir
+	image_dialog.popup_centered()
 
 func _on_char_icon_file_selected(file_path: String) -> void:
 	load_char_icon_from_filepath(file_path)
 
 func _on_file_selected(path: String) -> void:
 	var char_folder: String = path.get_base_dir()
+	current_dir = char_folder
 	
 	# Create a new character
 	current_character = Character.new()
@@ -116,6 +138,16 @@ func _on_file_selected(path: String) -> void:
 	char_folder_label.tooltip_text = char_folder
 	regenerate_buttons()
 
+func _on_image_selected(path: String) -> void:
+	if is_image_pre:
+		preanim_edit.text = parse_filename(path)
+	else:
+		emote_edit.text = parse_filename(path)
+
+func parse_filename(fileName: String) -> String:
+	var result = fileName.get_file().get_slice(".", 0)
+	result = result.trim_prefix("(a)").trim_prefix("(b)")
+	return result
 
 func regenerate_buttons() -> void:
 	emote_list.clear()

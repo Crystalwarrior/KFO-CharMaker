@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://4q335xxs2p" path="res://icon.svg" id="2_6yhas"]
 [ext_resource type="Texture2D" uid="uid://14k4uoeydtjp" path="res://assets/icons/smooth.svg" id="3_v8y5t"]
 [ext_resource type="Texture2D" uid="uid://rs77gdltfmku" path="res://assets/icons/pixel.svg" id="4_r658c"]
+[ext_resource type="Texture2D" uid="uid://ckf3dmstwk8ha" path="res://assets/icons/FileBrowse.svg" id="6_62nbp"]
 
 [node name="CharConverter" type="Control" unique_id=472651589]
 layout_mode = 3
@@ -25,6 +26,15 @@ title = "Open a File"
 file_mode = 0
 access = 2
 filters = PackedStringArray("*.ini;Char.ini file")
+use_native_dialog = true
+
+[node name="ImageDialog" type="FileDialog" parent="." unique_id=551835970]
+unique_name_in_owner = true
+oversampling_override = 1.0
+title = "Open a File"
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.png,*.jpg,*.jpeg, *.webp;Image Files;image/png,image/jpeg/webp")
 use_native_dialog = true
 
 [node name="HSplitContainer" type="HSplitContainer" parent="." unique_id=2015959634]
@@ -67,7 +77,8 @@ layout_mode = 2
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="New" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/HBoxContainer" unique_id=2107542197]
+[node name="NewButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/HBoxContainer" unique_id=2107542197]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 disabled = true
@@ -82,20 +93,11 @@ size_flags_vertical = 8
 text = "Open char.ini
 "
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox" unique_id=1232384946]
-layout_mode = 2
-
-[node name="Save" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/HBoxContainer2" unique_id=535886181]
+[node name="SaveButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox" unique_id=535886181]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-disabled = true
 text = "Save Character"
-
-[node name="Load" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/HBoxContainer2" unique_id=1104431604]
-layout_mode = 2
-size_flags_horizontal = 3
-disabled = true
-text = "Load Character"
 
 [node name="HSeparator" type="HSeparator" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox" unique_id=538711742]
 layout_mode = 2
@@ -142,7 +144,6 @@ text = "Name"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-editable = false
 
 [node name="ShownameLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=184545757]
 layout_mode = 2
@@ -155,7 +156,6 @@ text = "Showname "
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-editable = false
 
 [node name="BlankSpace" type="Control" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1136678518]
 layout_mode = 2
@@ -165,7 +165,6 @@ unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "If false, use a blank showname. Note:
 this follows the same rules as Showname."
-disabled = true
 button_pressed = true
 text = "Needs Showname"
 
@@ -181,7 +180,6 @@ text = "Side"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-editable = false
 
 [node name="BlipsLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=239333711]
 layout_mode = 2
@@ -195,7 +193,6 @@ text = "Blips"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-editable = false
 
 [node name="ChatLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=771144038]
 layout_mode = 2
@@ -221,7 +218,6 @@ text = "Effects"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-editable = false
 
 [node name="RealizationLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1169350367]
 layout_mode = 2
@@ -234,7 +230,6 @@ text = "Realization"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-editable = false
 
 [node name="CategoryLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=543160966]
 layout_mode = 2
@@ -246,7 +241,6 @@ text = "Category"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-editable = false
 
 [node name="ScalingLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=653118355]
 layout_mode = 2
@@ -259,7 +253,6 @@ unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Pixel: pixelated look (nearest neighbour) is retained when scaled.
 Smooth: A smoother look (bilinear) is applied when scaled."
-disabled = true
 selected = 0
 item_count = 2
 popup/item_0/text = "Smooth"
@@ -302,33 +295,46 @@ editable = false
 
 [node name="CommentLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=720974180]
 layout_mode = 2
-text = "Comment"
+text = "Name"
 
 [node name="CommentEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=1628270160]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-editable = false
 
 [node name="PreanimLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=1728643743]
 layout_mode = 2
 text = "Preanim"
 
-[node name="PreanimEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=896975106]
+[node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=1459252721]
+layout_mode = 2
+
+[node name="PreanimEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer/HBoxContainer" unique_id=896975106]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-editable = false
+
+[node name="PreanimButton" type="Button" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer/HBoxContainer" unique_id=2137899022]
+unique_name_in_owner = true
+layout_mode = 2
+icon = ExtResource("6_62nbp")
 
 [node name="EmoteLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=656249088]
 layout_mode = 2
 text = "Emote"
 
-[node name="EmoteEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=992177765]
+[node name="HBoxContainer2" type="HBoxContainer" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=2107870307]
+layout_mode = 2
+
+[node name="EmoteEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer/HBoxContainer2" unique_id=992177765]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-editable = false
+
+[node name="EmoteButton" type="Button" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer/HBoxContainer2" unique_id=132749755]
+unique_name_in_owner = true
+layout_mode = 2
+icon = ExtResource("6_62nbp")
 
 [node name="ModifierLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=357707153]
 layout_mode = 2
@@ -338,9 +344,7 @@ text = "Modifier"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-disabled = true
 text_overrun_behavior = 3
-selected = 0
 item_count = 4
 popup/item_0/text = "Idle"
 popup/item_0/id = 0
@@ -359,9 +363,7 @@ text = "Deskmod"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-disabled = true
 text_overrun_behavior = 3
-selected = 1
 item_count = 6
 popup/item_0/text = "Hide"
 popup/item_0/id = 0
@@ -384,7 +386,6 @@ text = "Sfx Name"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-editable = false
 
 [node name="SoundTimeLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=1605458007]
 layout_mode = 2
@@ -395,7 +396,6 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 allow_greater = true
-editable = false
 suffix = "ticks (60ms)"
 
 [node name="SoundLoopLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=767052883]
@@ -406,7 +406,6 @@ text = "Sfx Loop"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-disabled = true
 
 [node name="CenterSplitContainer" type="VSplitContainer" parent="HSplitContainer" unique_id=721584462]
 layout_mode = 2
