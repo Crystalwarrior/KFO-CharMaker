@@ -2,8 +2,8 @@ extends Resource
 ## Contains all the data necessary for the character to function
 class_name Character
 
-## The Absolute Path currently tied to this character reference
-@export var char_folder: String
+## The Absolute Path of the char.ini currently tied to this character reference
+@export var ini_path: String
 
 ## Specifies which folder to look for character assets, i.e.
 ## this should be named the same as the character folder.
@@ -51,7 +51,7 @@ func load_data(data: Dictionary[String, Dictionary]) -> void:
 			var value: String = emotions[key]
 			var emote_args: PackedStringArray = value.split("#", true)
 			if emote_args.size() < 4:
-				push_warning("Misformatted char.ini: ", char_folder, ", ", key, " = ", value)
+				push_warning("Misformatted char.ini: ", ini_path, ", ", key, " = ", value)
 				continue
 			# desk mod is not always included
 			emote_args.resize(5)
@@ -119,3 +119,7 @@ func save_data() -> Dictionary:
 	#data["category"] = category
 	#data["scaling"] = scaling
 	return data
+
+## Get the Character Folder absolute path.
+func get_folder() -> String:
+	return ini_path.get_base_dir()

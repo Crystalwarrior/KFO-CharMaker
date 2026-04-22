@@ -101,23 +101,21 @@ func _on_open_ini_button_pressed() -> void:
 
 func _on_preanim_button_pressed() -> void:
 	is_image_pre = true
-	image_dialog.current_dir = current_character.char_folder
+	image_dialog.current_dir = current_character.get_folder()
 	image_dialog.popup_centered()
 
 func _on_emote_button_pressed() -> void:
 	is_image_pre = false
-	image_dialog.current_dir = current_character.char_folder
+	image_dialog.current_dir = current_character.get_folder()
 	image_dialog.popup_centered()
 
 func _on_char_icon_file_selected(file_path: String) -> void:
 	load_char_icon_from_filepath(file_path)
 
 func _on_file_selected(path: String) -> void:
-	var char_folder: String = path.get_base_dir()
-	
 	# Create a new character
 	current_character = Character.new()
-	current_character.char_folder = char_folder
+	current_character.ini_path = path
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	parsed_data = BasicIni.parse(file.get_as_text())
 	# Load the data for the character!
@@ -138,8 +136,9 @@ func _on_file_selected(path: String) -> void:
 		scaling_option.select(1)
 	number_spin_box.max_value = current_character.emotes.size() - 1
 	
+	var char_folder: String = path.get_base_dir()
 	load_char_icon_from_filepath(char_folder + "/char_icon.png")
-	char_folder_label.text = char_folder.get_file()
+	char_folder_label.text = char_folder.get_basename().get_file()
 	char_folder_label.tooltip_text = char_folder
 	regenerate_buttons()
 
@@ -151,7 +150,7 @@ func _on_image_selected(path: String) -> void:
 
 func get_emote_path(filePath: String) -> String:
 	print(filePath)
-	var result = filePath.get_slice(".", 0).trim_prefix(current_character.char_folder + "/")
+	var result = filePath.get_slice(".", 0).trim_prefix(current_character.get_folder() + "/")
 	print(result)
 	result = result.trim_prefix("(a)").trim_prefix("(b)")
 	print(result)
@@ -161,7 +160,7 @@ func regenerate_buttons() -> void:
 	emote_list.clear()
 	for i: int in current_character.emotes.size():
 		var emote: Emote = current_character.emotes[i]
-		var image_path: String = "%s/emotions/button%s_off.png" % [current_character.char_folder, i+1]
+		var image_path: String = "%s/emotions/button%s_off.png" % [current_character.get_folder(), i+1]
 		var image: Image = Image.new()
 		image.load(image_path)
 		var image_texture: ImageTexture = ImageTexture.new()
@@ -203,7 +202,7 @@ func _on_emote_selected(idx: int) -> void:
 		if id == emote.desk_mod:
 			deskmod_option.select(i)
 			break
-	var image_path: String = search_valid_idle_emote(current_character.char_folder, emote.idle)
+	var image_path: String = search_valid_idle_emote(current_character.get_folder(), emote.idle)
 	if not image_path:
 		return
 	var file_extension: String = image_path.get_extension()
@@ -275,7 +274,7 @@ func load_char_icon_from_filepath(iconPath: String) -> void:
 	character_icon.texture = image_texture
 
 func _on_save_button_pressed() -> void:
-	file_dialog_save.current_dir = current_character.char_folder
+	file_dialog_save.current_dir = current_character.get_folder()
 	file_dialog_save.popup_centered()
 
 func _on_save_file_selected(path: String) -> void:
