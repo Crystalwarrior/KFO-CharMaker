@@ -72,6 +72,7 @@ const ANIMATED_EXTENSIONS: PackedStringArray = ["webp", "apng", "gif"]
 const STATIC_EXTENSIONS: PackedStringArray = ["png"]
 const SUPPORTED_EXTENSIONS: PackedStringArray = ANIMATED_EXTENSIONS + STATIC_EXTENSIONS
 
+var current_emote_number: int = -1
 var current_character: Character
 
 var current_anim: AttorneyAnimation
@@ -91,6 +92,8 @@ func _ready() -> void:
 	scaling_option.item_selected.connect(_on_scaling_selected)
 	preanim_button.pressed.connect(_on_preanim_button_pressed)
 	emote_button.pressed.connect(_on_emote_button_pressed)
+	number_spin_box.value_changed.connect(_on_emote_number_changed)
+
 
 func _on_open_ini_button_pressed() -> void:
 	file_dialog.popup_centered()
@@ -133,6 +136,8 @@ func _on_file_selected(path: String) -> void:
 		scaling_option.select(0)
 	else:
 		scaling_option.select(1)
+	number_spin_box.max_value = current_character.emotes.size() - 1
+	
 	load_char_icon_from_filepath(char_folder + "/char_icon.png")
 	char_folder_label.text = char_folder.get_file()
 	char_folder_label.tooltip_text = char_folder
@@ -173,7 +178,10 @@ func search_valid_idle_emote(char_folder: String, emote_name: String) -> String:
 	return ""
 
 func _on_emote_selected(idx: int) -> void:
+	current_emote_number = idx
+	number_spin_box.set_block_signals(true)
 	number_spin_box.value = idx
+	number_spin_box.set_block_signals(false)
 	var emote: Emote = current_character.emotes[idx]
 	comment_edit.text = emote.display_name
 	preanim_edit.text = emote.pre
@@ -230,6 +238,13 @@ func _on_scaling_selected(index: int) -> void:
 			current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		elif index == 1:
 			current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+
+func _on_emote_number_changed(value: float) -> void:
+	var index_from: int = current_emote_number
+	var index_to: int = int(value)
+	current_character.emotes.insert(index_to, current_character.emotes.pop_at(index_from))
+	emote_list.move_item(index_from, index_to)
+	current_emote_number = index_to
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
