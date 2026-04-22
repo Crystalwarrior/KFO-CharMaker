@@ -5,6 +5,10 @@ class_name Emote
 @export var pre: String
 @export var idle: String
 
+@export var sound_name: String
+@export var sound_time: int = 0
+@export var sound_loop: bool = false
+
 enum EmoteMod {
 	IDLE = 0,
 	PREANIM = 1,
@@ -23,9 +27,12 @@ enum DeskMod {
 }
 @export var desk_mod: DeskMod = DeskMod.ALWAYS_SHOW
 
-func _init(p_display_name, p_pre, p_idle, p_emote_mod, p_desk_mod = DeskMod.ALWAYS_SHOW):
+func _init(p_display_name: String, p_pre: String, p_idle: String, p_emote_mod: String, p_desk_mod: String = ""):
 	display_name = p_display_name
 	pre = p_pre
 	idle = p_idle
 	emote_mod = int(p_emote_mod) as Emote.EmoteMod
-	desk_mod = int(p_desk_mod) as Emote.DeskMod
+	if p_desk_mod.is_empty():
+		desk_mod = DeskMod.ALWAYS_SHOW
+	else:
+		desk_mod = int(p_desk_mod) as Emote.DeskMod
