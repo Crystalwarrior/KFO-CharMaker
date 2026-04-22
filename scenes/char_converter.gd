@@ -4,7 +4,7 @@ extends Control
 @onready var open_ini_button: Button = %OpenIniButton
 @onready var emote_list: ItemList = %EmoteList
 @onready var character_icon: TextureRect = %CharIcon
-@onready var char_folder_label: Label = $"Left Menu/MenuList/CharacterFold/CharacterVBox/CharFolderLabel"
+@onready var char_folder_label: Label = %CharFolderLabel
 
 # Options
 @onready var charname_edit: LineEdit = %CharnameEdit
@@ -17,6 +17,17 @@ extends Control
 @onready var realization_edit: LineEdit = %RealizationEdit
 @onready var category_edit: LineEdit = %CategoryEdit
 @onready var scaling_option: OptionButton = %ScalingOption
+
+# Emote
+@onready var number_spin_box: SpinBox = %NumberSpinBox
+@onready var comment_edit: LineEdit = %CommentEdit
+@onready var preanim_edit: LineEdit = %PreanimEdit
+@onready var emote_edit: LineEdit = %EmoteEdit
+@onready var modifier_option: OptionButton = %ModifierOption
+@onready var deskmod_option: OptionButton = %DeskmodOption
+@onready var sound_name_edit: LineEdit = %SoundNameEdit
+@onready var sound_time_edit: SpinBox = %SoundTimeEdit
+@onready var sound_loop_check: CheckBox = %SoundLoopCheck
 
 # TODO: get these the heck outta the gui
 @onready var world: Node2D = %World
@@ -88,7 +99,7 @@ func _on_file_selected(path: String) -> void:
 			if key.to_lower() == "number":
 				continue
 			var value: String = emotions[key]
-			var emote_args: PackedStringArray = value.split("#", true, 4)
+			var emote_args: PackedStringArray = value.split("#", true)
 			if emote_args.size() < 4:
 				push_warning("Misformatted char.ini: ", char_folder, ", ", key, " = ", value)
 				continue
@@ -174,7 +185,23 @@ func search_valid_idle_emote(char_folder: String, emote_name: String) -> String:
 	return ""
 
 func _on_emote_selected(idx: int) -> void:
+	number_spin_box.value = idx
+
 	var emote: Emote = current_emotes[idx]
+	comment_edit.text = emote.display_name
+	preanim_edit.text = emote.pre
+	emote_edit.text = emote.idle
+	for i: int in modifier_option.item_count:
+		var id: int = modifier_option.get_item_id(i)
+		if id == emote.emote_mod:
+			modifier_option.select(i)
+			break
+	for i: int in deskmod_option.item_count:
+		var id: int = deskmod_option.get_item_id(i)
+		if id == emote.desk_mod:
+			deskmod_option.select(i)
+			break
+
 	var image_path: String = search_valid_idle_emote(current_char_folder, emote.idle)
 	var file_extension: String = image_path.get_extension()
 	if not image_path:

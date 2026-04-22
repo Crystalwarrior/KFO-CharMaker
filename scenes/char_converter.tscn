@@ -12,6 +12,7 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_bottom = -4.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -27,87 +28,54 @@ access = 2
 filters = PackedStringArray("*.ini;Char.ini file")
 use_native_dialog = true
 
-[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=996958241]
+[node name="HSplitContainer" type="HSplitContainer" parent="." unique_id=2015959634]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 0
+drag_area_highlight_in_editor = true
 
-[node name="FoldableContainer" type="FoldableContainer" parent="." unique_id=2086862974]
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 298.0
-offset_top = -169.0
-grow_horizontal = 2
-grow_vertical = 0
-title = "Emotes"
-title_alignment = 1
-title_position = 1
-
-[node name="BottomMenu" type="ScrollContainer" parent="FoldableContainer" unique_id=250980165]
+[node name="LeftSplitContainer" type="VSplitContainer" parent="HSplitContainer" unique_id=462002216]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-size_flags_stretch_ratio = 0.3
-mouse_filter = 0
-mouse_force_pass_scroll_events = false
+split_offsets = PackedInt32Array(-170)
+drag_area_highlight_in_editor = true
+split_offset = -170
 
-[node name="EmoteList" type="ItemList" parent="FoldableContainer/BottomMenu" unique_id=2061598841]
-unique_name_in_owner = true
+[node name="CharacterFold" type="FoldableContainer" parent="HSplitContainer/LeftSplitContainer" unique_id=727692633]
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 10
-auto_height = true
-max_columns = 0
-same_column_width = true
-fixed_column_width = 40
-icon_mode = 0
-fixed_icon_size = Vector2i(40, 40)
-script = ExtResource("5_r658c")
+title = "Character"
 
-[node name="Left Menu" type="ScrollContainer" parent="." unique_id=233920285]
-layout_mode = 1
-anchors_preset = 9
-anchor_bottom = 1.0
-offset_right = 298.0
-grow_vertical = 2
+[node name="CharIniMenu" type="ScrollContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold" unique_id=233920285]
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.2
 mouse_filter = 2
 mouse_force_pass_scroll_events = false
 horizontal_scroll_mode = 0
 
-[node name="MenuList" type="VBoxContainer" parent="Left Menu" unique_id=2010910908]
+[node name="MenuList" type="VBoxContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu" unique_id=2010910908]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 0
 mouse_force_pass_scroll_events = false
 
-[node name="CharacterFold" type="FoldableContainer" parent="Left Menu/MenuList" unique_id=727692633]
-layout_mode = 2
-title = "Character"
-
-[node name="CharacterVBox" type="VBoxContainer" parent="Left Menu/MenuList/CharacterFold" unique_id=737692034]
+[node name="CharacterVBox" type="VBoxContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList" unique_id=737692034]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Left Menu/MenuList/CharacterFold/CharacterVBox" unique_id=290307049]
+[node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox" unique_id=290307049]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="New" type="Button" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/HBoxContainer" unique_id=2107542197]
+[node name="New" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/HBoxContainer" unique_id=2107542197]
 layout_mode = 2
 size_flags_horizontal = 3
 disabled = true
 text = "New Character"
 
-[node name="OpenIniButton" type="Button" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/HBoxContainer" unique_id=313060656]
+[node name="OpenIniButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/HBoxContainer" unique_id=313060656]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
@@ -116,25 +84,26 @@ size_flags_vertical = 8
 text = "Open char.ini
 "
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="Left Menu/MenuList/CharacterFold/CharacterVBox" unique_id=1232384946]
+[node name="HBoxContainer2" type="HBoxContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox" unique_id=1232384946]
 layout_mode = 2
 
-[node name="Save" type="Button" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/HBoxContainer2" unique_id=535886181]
+[node name="Save" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/HBoxContainer2" unique_id=535886181]
 layout_mode = 2
 size_flags_horizontal = 3
 disabled = true
 text = "Save Character"
 
-[node name="Load" type="Button" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/HBoxContainer2" unique_id=1104431604]
+[node name="Load" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/HBoxContainer2" unique_id=1104431604]
 layout_mode = 2
 size_flags_horizontal = 3
 disabled = true
 text = "Load Character"
 
-[node name="HSeparator" type="HSeparator" parent="Left Menu/MenuList/CharacterFold/CharacterVBox" unique_id=538711742]
+[node name="HSeparator" type="HSeparator" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox" unique_id=538711742]
 layout_mode = 2
 
-[node name="CharFolderLabel" type="Label" parent="Left Menu/MenuList/CharacterFold/CharacterVBox" unique_id=82505212]
+[node name="CharFolderLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox" unique_id=82505212]
+unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 1
 text = "Character"
@@ -142,31 +111,31 @@ horizontal_alignment = 1
 clip_text = true
 text_overrun_behavior = 1
 
-[node name="CharIconContainer" type="AspectRatioContainer" parent="Left Menu/MenuList/CharacterFold/CharacterVBox" unique_id=2018949201]
+[node name="CharIconContainer" type="AspectRatioContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox" unique_id=2018949201]
 custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 
-[node name="CharIcon" type="TextureRect" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/CharIconContainer" unique_id=1534636234]
+[node name="CharIcon" type="TextureRect" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/CharIconContainer" unique_id=1534636234]
 unique_name_in_owner = true
 layout_mode = 2
 texture = ExtResource("2_6yhas")
 expand_mode = 1
 
-[node name="OptionsFold" type="FoldableContainer" parent="Left Menu/MenuList/CharacterFold/CharacterVBox" unique_id=1789803074]
+[node name="OptionsFold" type="FoldableContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox" unique_id=1789803074]
 layout_mode = 2
 title = "Options"
 
-[node name="OptionsVBox" type="VBoxContainer" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold" unique_id=1949302638]
+[node name="OptionsVBox" type="VBoxContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold" unique_id=1949302638]
 layout_mode = 2
 
-[node name="ShownameContainer" type="HBoxContainer" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox" unique_id=1541635399]
+[node name="ShownameContainer" type="HBoxContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox" unique_id=1541635399]
 layout_mode = 2
 
-[node name="GridContainer" type="GridContainer" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox" unique_id=937917602]
+[node name="GridContainer" type="GridContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox" unique_id=937917602]
 layout_mode = 2
 columns = 2
 
-[node name="CharnameLabel" type="Label" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=2101331183]
+[node name="CharnameLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=2101331183]
 layout_mode = 2
 tooltip_text = "Specifies which folder to look for character assets, i.e.
 this should be named the same as the character folder.
@@ -174,27 +143,27 @@ Starts from the characters/ folder."
 mouse_filter = 1
 text = "Name"
 
-[node name="CharnameEdit" type="LineEdit" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1996868118]
+[node name="CharnameEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1996868118]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="ShownameLabel" type="Label" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=184545757]
+[node name="ShownameLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=184545757]
 layout_mode = 2
 tooltip_text = "What to show in the Character's Nameplate. This is local-only,
 meaning only you will see the changes unless you share the files."
 mouse_filter = 1
 text = "Showname "
 
-[node name="ShownameEdit" type="LineEdit" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=225736824]
+[node name="ShownameEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=225736824]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="BlankSpace" type="Control" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1136678518]
+[node name="BlankSpace" type="Control" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1136678518]
 layout_mode = 2
 
-[node name="ShownameCheck" type="CheckBox" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1621539432]
+[node name="ShownameCheck" type="CheckBox" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1621539432]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "If false, use a blank showname. Note:
@@ -202,7 +171,7 @@ this follows the same rules as Showname."
 button_pressed = true
 text = "Needs Showname"
 
-[node name="SideLabel" type="Label" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1599655357]
+[node name="SideLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1599655357]
 layout_mode = 2
 tooltip_text = "defaults to: wit
 Modifies where in the courtroom the character initially appears.
@@ -210,12 +179,12 @@ This is commonly called your pos, or position."
 mouse_filter = 1
 text = "Side"
 
-[node name="SideEdit" type="LineEdit" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=2086029227]
+[node name="SideEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=2086029227]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="BlipsLabel" type="Label" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=239333711]
+[node name="BlipsLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=239333711]
 layout_mode = 2
 tooltip_text = "defaults to: male
 The sound that plays for each letter. Blip sound effects can be located in
@@ -223,12 +192,12 @@ sounds/blips/[blip] or sounds/general/sfx-[blip]"
 mouse_filter = 1
 text = "Blips"
 
-[node name="BlipsEdit" type="LineEdit" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1162210178]
+[node name="BlipsEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1162210178]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="ChatLabel" type="Label" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=771144038]
+[node name="ChatLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=771144038]
 layout_mode = 2
 tooltip_text = "Custom chatbox/interjections to use. Input should be
 a directory in misc/ containing the chatbox you want to use.
@@ -236,52 +205,52 @@ Note that users can disable these in their settings."
 mouse_filter = 1
 text = "Chat"
 
-[node name="ChatEdit" type="LineEdit" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=856340055]
+[node name="ChatEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=856340055]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="EffectsLabel" type="Label" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1322147835]
+[node name="EffectsLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1322147835]
 layout_mode = 2
 tooltip_text = "specifies misc folder to search for overlay effects, similar to Chat option"
 mouse_filter = 1
 text = "Effects"
 
-[node name="EffectsEdit" type="LineEdit" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=958174046]
+[node name="EffectsEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=958174046]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="RealizationLabel" type="Label" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1169350367]
+[node name="RealizationLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1169350367]
 layout_mode = 2
 tooltip_text = "Specifies custom realization sound to be played.
 Must be located in base/sounds/general."
 mouse_filter = 1
 text = "Realization"
 
-[node name="RealizationEdit" type="LineEdit" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1554038312]
+[node name="RealizationEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1554038312]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="CategoryLabel" type="Label" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=543160966]
+[node name="CategoryLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=543160966]
 layout_mode = 2
 tooltip_text = "The category to be used for the character list."
 mouse_filter = 1
 text = "Category"
 
-[node name="CategoryEdit" type="LineEdit" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1617670966]
+[node name="CategoryEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=1617670966]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="ScalingLabel" type="Label" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=653118355]
+[node name="ScalingLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=653118355]
 layout_mode = 2
 tooltip_text = "Resize modes are used to determine how content is meant to be scaled up/down."
 mouse_filter = 1
 text = "Scaling"
 
-[node name="ScalingOption" type="OptionButton" parent="Left Menu/MenuList/CharacterFold/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=774324234]
+[node name="ScalingOption" type="OptionButton" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/OptionsFold/OptionsVBox/GridContainer" unique_id=774324234]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Pixel: pixelated look (nearest neighbour) is retained when scaled.
@@ -294,3 +263,170 @@ popup/item_0/id = 0
 popup/item_1/text = "Pixel"
 popup/item_1/icon = ExtResource("4_r658c")
 popup/item_1/id = 1
+
+[node name="EmoteContainer" type="FoldableContainer" parent="HSplitContainer/LeftSplitContainer" unique_id=180214460]
+layout_mode = 2
+title = "Emote Modifiers"
+title_alignment = 1
+title_position = 1
+
+[node name="BottomMenu" type="ScrollContainer" parent="HSplitContainer/LeftSplitContainer/EmoteContainer" unique_id=2043655588]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.3
+mouse_filter = 0
+mouse_force_pass_scroll_events = false
+
+[node name="GridContainer" type="GridContainer" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu" unique_id=993242273]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 2
+
+[node name="NumberLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=240599959]
+layout_mode = 2
+text = "Number"
+
+[node name="NumberSpinBox" type="SpinBox" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=612827928]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="CommentLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=720974180]
+layout_mode = 2
+text = "Comment"
+
+[node name="CommentEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=1628270160]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PreanimLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=1728643743]
+layout_mode = 2
+text = "Preanim"
+
+[node name="PreanimEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=896975106]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EmoteLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=656249088]
+layout_mode = 2
+text = "Emote"
+
+[node name="EmoteEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=992177765]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ModifierLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=357707153]
+layout_mode = 2
+text = "Modifier"
+
+[node name="ModifierOption" type="OptionButton" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=2056810686]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text_overrun_behavior = 3
+selected = 0
+item_count = 4
+popup/item_0/text = "Idle"
+popup/item_0/id = 0
+popup/item_1/text = "Pre"
+popup/item_1/id = 1
+popup/item_2/text = "Zoom Idle"
+popup/item_2/id = 5
+popup/item_3/text = "Zoom Pre"
+popup/item_3/id = 6
+
+[node name="DeskmodLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=1625387104]
+layout_mode = 2
+text = "Deskmod"
+
+[node name="DeskmodOption" type="OptionButton" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=93598593]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text_overrun_behavior = 3
+selected = 1
+item_count = 6
+popup/item_0/text = "Hide"
+popup/item_0/id = 0
+popup/item_1/text = "Show"
+popup/item_1/id = 1
+popup/item_2/text = "Emote Only"
+popup/item_2/id = 2
+popup/item_3/text = "Pre Only"
+popup/item_3/id = 3
+popup/item_4/text = "Emote Only Center"
+popup/item_4/id = 4
+popup/item_5/text = "Pre Only Center"
+popup/item_5/id = 5
+
+[node name="SoundNameLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=98782827]
+layout_mode = 2
+text = "Sfx Name"
+
+[node name="SoundNameEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=428779073]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SoundTimeLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=1605458007]
+layout_mode = 2
+text = "Sfx Time"
+
+[node name="SoundTimeEdit" type="SpinBox" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=1821313031]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+allow_greater = true
+suffix = "ticks (60ms)"
+
+[node name="SoundLoopLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=767052883]
+layout_mode = 2
+text = "Sfx Loop"
+
+[node name="SoundLoopCheck" type="CheckBox" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=1063154495]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CenterSplitContainer" type="VSplitContainer" parent="HSplitContainer" unique_id=721584462]
+layout_mode = 2
+split_offsets = PackedInt32Array(-170)
+drag_area_highlight_in_editor = true
+split_offset = -170
+
+[node name="ViewZone" type="Control" parent="HSplitContainer/CenterSplitContainer" unique_id=1721035877]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="EmotesFold" type="FoldableContainer" parent="HSplitContainer/CenterSplitContainer" unique_id=2086862974]
+layout_mode = 2
+title = "Emotes"
+title_alignment = 1
+title_position = 1
+
+[node name="BottomMenu" type="ScrollContainer" parent="HSplitContainer/CenterSplitContainer/EmotesFold" unique_id=250980165]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.3
+mouse_filter = 0
+mouse_force_pass_scroll_events = false
+
+[node name="EmoteList" type="ItemList" parent="HSplitContainer/CenterSplitContainer/EmotesFold/BottomMenu" unique_id=2061598841]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 10
+auto_height = true
+max_columns = 0
+same_column_width = true
+fixed_column_width = 40
+icon_mode = 0
+fixed_icon_size = Vector2i(40, 40)
+script = ExtResource("5_r658c")
