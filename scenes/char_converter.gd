@@ -89,61 +89,28 @@ func _on_char_icon_file_selected(file_path: String) -> void:
 
 func _on_file_selected(path: String) -> void:
 	var char_folder: String = path.get_base_dir()
+	
+	# Create a new character
 	current_character = Character.new()
 	current_character.char_folder = char_folder
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	parsed_data = BasicIni.parse(file.get_as_text())
-	if "emotions" in parsed_data:
-		var emotions: Dictionary = parsed_data["emotions"]
-		for key: String in emotions:
-			if key.to_lower() == "number":
-				continue
-			var value: String = emotions[key]
-			var emote_args: PackedStringArray = value.split("#", true)
-			if emote_args.size() < 4:
-				push_warning("Misformatted char.ini: ", char_folder, ", ", key, " = ", value)
-				continue
-			# desk mod is not always included
-			emote_args.resize(5)
-			var emote: Emote = Emote.new(emote_args[0], emote_args[1], emote_args[2], emote_args[3], emote_args[4])
-			current_character.emotes.append(emote)
-	if "options" in parsed_data:
-		var options: Dictionary = parsed_data["options"]
-		if "name" in options:
-			current_character.char_name = options["name"]
-		if "showname" in options:
-			current_character.showname = options["showname"]
-		if "needs_showname" in options:
-			current_character.needs_showname = not options["needs_showname"].begins_with("false")
-		if "side" in options:
-			current_character.side = options["side"]
-		if "gender" in options:
-			current_character.blips = options["gender"]
-		if "blips" in options:
-			current_character.blips = options["blips"]
-		if "chat" in options:
-			current_character.chat = options["chat"]
-		if "effects" in options:
-			current_character.effects = options["effects"]
-		if "realization" in options:
-			current_character.realization = options["realization"]
-		if "category" in options:
-			current_character.category = options["category"]
-		if "scaling" in options:
-			current_character.scaling = options["scaling"]
-		charname_edit.text = current_character.char_name
-		showname_edit.text = current_character.showname
-		showname_check.button_pressed = current_character.needs_showname
-		side_edit.text = current_character.side
-		blips_edit.text = current_character.blips
-		chat_edit.text = current_character.chat
-		effects_edit.text = current_character.effects
-		realization_edit.text = current_character.realization
-		category_edit.text = current_character.category
-		if current_character.scaling != "pixel":
-			scaling_option.select(0)
-		else:
-			scaling_option.select(1)
+	# Load the data for the character!
+	current_character.load_data(parsed_data)
+	
+	charname_edit.text = current_character.char_name
+	showname_edit.text = current_character.showname
+	showname_check.button_pressed = current_character.needs_showname
+	side_edit.text = current_character.side
+	blips_edit.text = current_character.blips
+	chat_edit.text = current_character.chat
+	effects_edit.text = current_character.effects
+	realization_edit.text = current_character.realization
+	category_edit.text = current_character.category
+	if current_character.scaling != "pixel":
+		scaling_option.select(0)
+	else:
+		scaling_option.select(1)
 	load_char_icon_from_filepath(char_folder + "/char_icon.png")
 	char_folder_label.text = char_folder.get_file()
 	char_folder_label.tooltip_text = char_folder
