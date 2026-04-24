@@ -61,7 +61,13 @@ enum DeskMod {
 @export var sound_loop: bool = false
 
 
-func _init(p_display_name: String, p_pre: String, p_idle: String, p_emote_mod: String, p_desk_mod: String = ""):
+func _init(
+		p_display_name: String,
+		p_pre: String,
+		p_idle: String,
+		p_emote_mod: String,
+		p_desk_mod: String = "",
+):
 	display_name = p_display_name
 	pre = p_pre
 	idle = p_idle
