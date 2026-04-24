@@ -169,20 +169,23 @@ func regenerate_buttons() -> void:
 	emote_list.clear()
 	for i: int in current_character.emotes.size():
 		var emote: Emote = current_character.emotes[i]
-		var image_path: String = "%s/emotions/button%s_" % [current_character.get_folder(), i + 1]
-		var image_off: Image = Image.new()
-		var image_on: Image = Image.new()
-		image_off.load(image_path+"off.png")
-		image_on.load(image_path+"on.png")
-		if image_off:
-			emote.image_off = ImageTexture.create_from_image(image_off)
-		if image_on:
-			emote.image_on = ImageTexture.create_from_image(image_on)
-		var image_texture: ImageTexture = ImageTexture.new()
-		image_texture.set_image(image_off)
-		var at: int = emote_list.add_item(emote.display_name, image_texture)
+		set_emote_button_images(emote, current_character.get_folder() + "/emotions/", i+1)
+		var at: int = emote_list.add_item(emote.display_name, emote.image_off)
 		emote_list.set_item_metadata(at, emote)
 		emote_list.set_item_tooltip(at, "%s\n%s: %s, %s" % [emote.display_name, i + 1, emote.pre, emote.idle])
+
+func set_emote_button_images(emote: Emote, folderPath: String, idx: int) -> void:
+	var button_path = folderPath + "button" + str(idx) + "_"
+	var image_off_exist = FileAccess.file_exists(button_path + "off.png")
+	var image_on_exist = FileAccess.file_exists(button_path + "on.png")
+	var image_off: Image = Image.new()
+	var image_on: Image = Image.new()
+	if image_off_exist:
+		image_off.load(button_path+"off.png")
+		emote.image_off = ImageTexture.create_from_image(image_off)
+	if image_on_exist:
+		image_on.load(button_path+"on.png")
+		emote.image_on = ImageTexture.create_from_image(image_on)
 
 
 func search_valid_idle_emote(char_folder: String, emote_name: String) -> String:
