@@ -25,3 +25,33 @@ static func parse(data: String) -> Dictionary[String, Dictionary]:
 		result[section_name] = section_data
 
 	return result
+
+
+static func make_char_ini(data: Dictionary[String, Dictionary]) -> String:
+	var ini_string: String = ""
+	if "options" in data:
+		ini_string += "[Options]"
+		for key: String in data["options"]:
+			var value: String = data["options"][key]
+			ini_string += "\n%s = %s" % [key, value]
+		ini_string += "\n\n"
+	if "emotions" in data:
+		ini_string += "\n[Emotions]"
+		var emote_count: int = data["emotions"].keys().size()
+		ini_string += "\nnumber = %s" % emote_count
+		for index: int in emote_count:
+			var emote_number: String = str(index+1)
+			ini_string += "\n%s = %s" % [emote_number, data["emotions"][emote_number]]
+	if "soundn" in data:
+		ini_string += "\n\n[SoundN]"
+		for key: String in data["soundn"]:
+			ini_string += "\n%s = %s" % [key, data["soundn"][key]]
+	if "soundt" in data:
+		ini_string += "\n\n[SoundT]"
+		for key: String in data["soundt"]:
+			ini_string += "\n%s = %s" % [key, data["soundt"][key]]
+	if "soundl" in data:
+		ini_string += "\n\n[SoundL]"
+		for key: String in data["soundl"]:
+			ini_string += "\n%s = %s" % [key, data["soundl"][key]]
+	return ini_string

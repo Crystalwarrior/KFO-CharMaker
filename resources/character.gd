@@ -56,28 +56,21 @@ func load_data(data: Dictionary[String, Dictionary]) -> void:
 			# desk mod is not always included
 			emote_args.resize(5)
 			var emote: Emote = Emote.new(emote_args[0], emote_args[1], emote_args[2], emote_args[3], emote_args[4])
-			emotes.append(emote)
-			
-			# set soundN for emote
+			# This index is counted from 1 instead of 0 unfortunately
+			var ini_idx: int = emotes.size()+1
 			if "soundn" in data:
-				if str(emotes.size()) in data["soundn"]:
-					emotes[emotes.size()-1].sound_name = data["soundn"][str(emotes.size())]
-
-			# set soundT for emote
+				if str(ini_idx) in data["soundn"]:
+					emote.sound_name = data["soundn"][str(ini_idx)]
 			if "soundt" in data:
-				if str(emotes.size()) in data["soundt"]:
-					emotes[emotes.size()-1].sound_time = data["soundt"][str(emotes.size())]
-
-			# set soundL for emote
+				if str(ini_idx) in data["soundt"]:
+					emote.sound_time = data["soundt"][str(ini_idx)]
 			if "soundl" in data:
-				if str(emotes.size()) in data["soundl"]:
-					var emote_soundl
-					if data["soundl"][str(emotes.size())] == "1":
+				if str(ini_idx) in data["soundl"]:
+					var emote_soundl: bool = false
+					if data["soundl"][str(ini_idx)] == "1":
 						emote_soundl = true
-					else:
-						emote_soundl = false
-					emotes[emotes.size()-1].sound_loop = emote_soundl
-					
+					emote.sound_loop = emote_soundl
+			emotes.append(emote)
 	if "options" in data:
 		var options: Dictionary = data["options"]
 		if "name" in options:
@@ -105,19 +98,45 @@ func load_data(data: Dictionary[String, Dictionary]) -> void:
 
 ## Save the data into BasicIni style format
 func save_data() -> Dictionary:
-	var data = {}
-	# TODO: save the data dictionary properly
-	#data["name"] = char_name
-	#data["showname"] = showname
-	#data["needs_showname"] = str(needs_showname)
-	#data["side"] = side
-	#data["gender"] = blips
-	#data["blips"] = blips
-	#data["chat"] = chat
-	#data["effects"] = effects
-	#data["realization"] = realization
-	#data["category"] = category
-	#data["scaling"] = scaling
+	var data: Dictionary[String, Dictionary]
+	data["emotions"] = {}
+	data["options"] = {}
+	for i: int in emotes.size():
+		var number_string: String = str(i+1)
+		var emote: Emote = emotes[i]
+		data["emotions"][number_string] = "#".join(
+			[emote.display_name, emote.pre, emote.idle, emote.emote_mod, emote.desk_mod]
+		)
+		if not emote.sound_name.is_empty() and emote.sound_name not in ["-1", "0", "1"]:
+			if not "soundn" in data:
+				data["soundn"] = {}
+			data["soundn"][number_string] = emote.sound_name
+		if emote.sound_time > 0:
+			if not "soundt" in data:
+				data["soundt"] = {}
+			data["soundt"][number_string] = emote.sound_time
+		if emote.sound_loop == true:
+			if not "soundl" in data:
+				data["soundl"] = {}
+			data["soundl"][number_string] = emote.sound_loop
+	data["options"]["name"] = char_name
+	data["options"]["showname"] = showname
+	if needs_showname == true:
+		data["options"]["needs_showname"] = str(needs_showname)
+	if not side.is_empty():
+		data["options"]["side"] = side
+	if not blips.is_empty():
+		data["options"]["blips"] = blips
+	if not chat.is_empty():
+		data["options"]["chat"] = chat
+	if not effects.is_empty():
+		data["options"]["effects"] = effects
+	if not realization.is_empty():
+		data["options"]["realization"] = realization
+	if not category.is_empty():
+		data["options"]["category"] = category
+	if not scaling.is_empty():
+		data["options"]["scaling"] = scaling
 	return data
 
 ## Get the Character Folder absolute path.

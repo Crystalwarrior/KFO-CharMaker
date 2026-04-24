@@ -278,53 +278,6 @@ func _on_save_button_pressed() -> void:
 	file_dialog_save.popup_centered()
 
 func _on_save_file_selected(path: String) -> void:
-	var iniString: String
-	iniString += get_options_string()
-	iniString += get_emotions_string()
-	iniString += get_sound_option_string("SoundN")
-	iniString += get_sound_option_string("SoundT")
-	iniString += get_sound_option_string("SoundL")
+	var ini_string: String = BasicIni.make_char_ini(current_character.save_data())
 	var save_file = FileAccess.open(path, FileAccess.WRITE)
-	save_file.store_string(iniString)
-
-func get_options_string() -> String:
-	var result = "[Options]\n"
-	result += "name = " + charname_edit.text
-	result += "\nshowname = " + showname_edit.text
-	result += "\nside = " + side_edit.text
-	result += "\ngender = " + blips_edit.text
-	result += "\ncategory = " + category_edit.text
-	result += "\nscaling = " + scaling_option.get_item_text(scaling_option.get_selected_id()).to_lower()
-	return result+"\n\n"
-
-func get_emotions_string() -> String:
-	var result = "[Emotions]\nnumber=%d\n\n" % current_character.emotes.size()
-	for i in current_character.emotes.size():
-		var emote: Emote = current_character.emotes[i]
-		result += str(i+1) + " = "
-		result += "#".join([emote.display_name, emote.pre, emote.idle, emote.emote_mod, emote.desk_mod])
-		result += "\n"
-	return result+"\n\n"
-
-
-func get_sound_option_string(option: String) -> String:
-	var result = "[%s]\n" % option
-	var option_value
-	var counter = 1
-	for emote in current_character.emotes:
-		option_value = null
-		match option:
-			"SoundN":
-				option_value = emote.sound_name
-			"SoundT":
-				option_value = emote.sound_time
-			"SoundL":
-				if emote.sound_loop:
-					option_value = 1 if emote.sound_loop == true else 0
-		if option == "SoundL" and !option_value:
-			continue
-		result += "%d = %s\n" % [counter, option_value]
-		counter += 1
-	if counter <= 1:
-		result = ""
-	return result+"\n\n"
+	save_file.store_string(ini_string)
