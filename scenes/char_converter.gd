@@ -74,6 +74,7 @@ const STATIC_EXTENSIONS: PackedStringArray = ["png"]
 const SUPPORTED_EXTENSIONS: PackedStringArray = ANIMATED_EXTENSIONS + STATIC_EXTENSIONS
 
 var current_emote_number: int = -1
+var previous_emote_number: int = -1
 var current_character: Character
 
 var current_anim: AttorneyAnimation
@@ -168,11 +169,17 @@ func regenerate_buttons() -> void:
 	emote_list.clear()
 	for i: int in current_character.emotes.size():
 		var emote: Emote = current_character.emotes[i]
-		var image_path: String = "%s/emotions/button%s_off.png" % [current_character.get_folder(), i + 1]
-		var image: Image = Image.new()
-		image.load(image_path)
+		var image_path: String = "%s/emotions/button%s_" % [current_character.get_folder(), i + 1]
+		var image_off: Image = Image.new()
+		var image_on: Image = Image.new()
+		image_off.load(image_path+"off.png")
+		image_on.load(image_path+"on.png")
+		if image_off:
+			emote.image_off = ImageTexture.create_from_image(image_off)
+		if image_on:
+			emote.image_on = ImageTexture.create_from_image(image_on)
 		var image_texture: ImageTexture = ImageTexture.new()
-		image_texture.set_image(image)
+		image_texture.set_image(image_off)
 		var at: int = emote_list.add_item(emote.display_name, image_texture)
 		emote_list.set_item_metadata(at, emote)
 		emote_list.set_item_tooltip(at, "%s\n%s: %s, %s" % [emote.display_name, i + 1, emote.pre, emote.idle])
@@ -202,6 +209,10 @@ func _on_emote_selected(idx: int) -> void:
 	sound_name_edit.text = emote.sound_name
 	sound_time_edit.value = emote.sound_time
 	sound_loop_check.button_pressed = emote.sound_loop
+	emote_list.set_item_icon(previous_emote_number, current_character.emotes[previous_emote_number].image_off) # Set previous emote's button to off state
+	previous_emote_number = idx
+	if emote.image_on:
+		emote_list.set_item_icon(current_emote_number, emote.image_on) # Set current emote's butotn to on state if image exist
 	for i: int in modifier_option.item_count:
 		var id: int = modifier_option.get_item_id(i)
 		if id == emote.emote_mod:
