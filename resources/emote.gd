@@ -1,4 +1,5 @@
 extends Resource
+
 ## Contains the Emote animation data necessary for the character
 class_name Emote
 
@@ -13,7 +14,7 @@ enum EmoteMod {
 	## displayed. Additionally, the background is replaced by speed lines.
 	ZOOM = 5,
 	## Same as Zoom, except it turns on the PREANIM as well.
-	ZOOM_PREANIM = 6
+	ZOOM_PREANIM = 6,
 }
 
 ## This option allows an emote to either force the desk/witness stand/overlay to
@@ -58,6 +59,7 @@ enum DeskMod {
 @export var sound_time: int = 0
 ## If the sound should be looping or not
 @export var sound_loop: bool = false
+
 
 func _init(p_display_name: String, p_pre: String, p_idle: String, p_emote_mod: String, p_desk_mod: String = ""):
 	display_name = p_display_name

@@ -16,7 +16,7 @@ static func parse(data: String) -> Dictionary[String, Dictionary]:
 			if not section_data.is_empty():
 				result[section_name] = section_data
 			section_name = line.trim_prefix("[").trim_suffix("]").to_lower()
-			section_data = {}
+			section_data = { }
 		else:
 			var kv: PackedStringArray = line.split("=", true, 1)
 			section_data[kv[0].strip_edges()] = kv[1].strip_edges() if kv.size() > 1 else ""
@@ -40,7 +40,7 @@ static func make_char_ini(data: Dictionary[String, Dictionary]) -> String:
 		var emote_count: int = data["emotions"].keys().size()
 		ini_string += "\nnumber = %s" % emote_count
 		for index: int in emote_count:
-			var emote_number: String = str(index+1)
+			var emote_number: String = str(index + 1)
 			ini_string += "\n%s = %s" % [emote_number, data["emotions"][emote_number]]
 	if "soundn" in data:
 		ini_string += "\n\n[SoundN]"

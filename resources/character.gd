@@ -1,4 +1,5 @@
 extends Resource
+
 ## Contains all the data necessary for the character to function
 class_name Character
 
@@ -38,8 +39,9 @@ class_name Character
 ## pixel: pixelated look (nearest neighbour) is retained when scaled.[br]
 ## smooth: A smoother look (bilinear) is applied when scaled.[br]
 @export var scaling: String = ""
-## The Emotes stored on this character. 
+## The Emotes stored on this character.
 @export var emotes: Array[Emote] = []
+
 
 ## Load the data obtained from BasicIni.parse(file.get_as_text())
 func load_data(data: Dictionary[String, Dictionary]) -> void:
@@ -55,9 +57,15 @@ func load_data(data: Dictionary[String, Dictionary]) -> void:
 				continue
 			# desk mod is not always included
 			emote_args.resize(5)
-			var emote: Emote = Emote.new(emote_args[0], emote_args[1], emote_args[2], emote_args[3], emote_args[4])
+			var emote: Emote = Emote.new(
+				emote_args[0],
+				emote_args[1],
+				emote_args[2],
+				emote_args[3],
+				emote_args[4],
+			)
 			# This index is counted from 1 instead of 0 unfortunately
-			var ini_idx: int = emotes.size()+1
+			var ini_idx: int = emotes.size() + 1
 			if "soundn" in data:
 				if str(ini_idx) in data["soundn"]:
 					emote.sound_name = data["soundn"][str(ini_idx)]
@@ -96,28 +104,29 @@ func load_data(data: Dictionary[String, Dictionary]) -> void:
 		if "scaling" in options:
 			scaling = options["scaling"]
 
+
 ## Save the data into BasicIni style format
 func save_data() -> Dictionary:
 	var data: Dictionary[String, Dictionary]
-	data["emotions"] = {}
-	data["options"] = {}
+	data["emotions"] = { }
+	data["options"] = { }
 	for i: int in emotes.size():
-		var number_string: String = str(i+1)
+		var number_string: String = str(i + 1)
 		var emote: Emote = emotes[i]
 		data["emotions"][number_string] = "#".join(
-			[emote.display_name, emote.pre, emote.idle, emote.emote_mod, emote.desk_mod]
+			[emote.display_name, emote.pre, emote.idle, emote.emote_mod, emote.desk_mod],
 		)
 		if not emote.sound_name.is_empty() and emote.sound_name not in ["-1", "0", "1"]:
 			if not "soundn" in data:
-				data["soundn"] = {}
+				data["soundn"] = { }
 			data["soundn"][number_string] = emote.sound_name
 		if emote.sound_time > 0:
 			if not "soundt" in data:
-				data["soundt"] = {}
+				data["soundt"] = { }
 			data["soundt"][number_string] = emote.sound_time
 		if emote.sound_loop == true:
 			if not "soundl" in data:
-				data["soundl"] = {}
+				data["soundl"] = { }
 			data["soundl"][number_string] = emote.sound_loop
 	data["options"]["name"] = char_name
 	data["options"]["showname"] = showname
@@ -138,6 +147,7 @@ func save_data() -> Dictionary:
 	if not scaling.is_empty():
 		data["options"]["scaling"] = scaling
 	return data
+
 
 ## Get the Character Folder absolute path.
 func get_folder() -> String:
