@@ -34,6 +34,10 @@ extends Control
 @onready var sound_loop_check: CheckBox = %SoundLoopCheck
 @onready var preanim_button: Button = %PreanimButton
 @onready var emote_button: Button = %EmoteButton
+@onready var off_button_icon: TextureRect = %OffButtonIcon
+@onready var off_edit_button: Button = %OffEditButton
+@onready var on_button_icon: TextureRect = %OnButtonIcon
+@onready var on_edit_button: Button = %OnEditButton
 
 # TODO: get these the heck outta the gui
 @onready var world: Node2D = %World
@@ -174,6 +178,7 @@ func regenerate_buttons() -> void:
 		emote_list.set_item_metadata(at, emote)
 		emote_list.set_item_tooltip(at, "%s\n%s: %s, %s" % [emote.display_name, i + 1, emote.pre, emote.idle])
 
+
 func set_emote_button_images(emote: Emote, folderPath: String, idx: int) -> void:
 	var button_path = folderPath + "button" + str(idx) + "_"
 	var image_off_exist = FileAccess.file_exists(button_path + "off.png")
@@ -212,6 +217,10 @@ func _on_emote_selected(idx: int) -> void:
 	sound_name_edit.text = emote.sound_name
 	sound_time_edit.value = emote.sound_time
 	sound_loop_check.button_pressed = emote.sound_loop
+	if emote.image_off:
+		off_button_icon.texture = emote.image_off
+	if emote.image_on:
+		on_button_icon.texture = emote.image_on
 	emote_list.set_item_icon(previous_emote_number, current_character.emotes[previous_emote_number].image_off) # Set previous emote's button to off state
 	previous_emote_number = idx
 	if emote.image_on:

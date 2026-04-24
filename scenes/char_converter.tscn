@@ -412,6 +412,32 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="OffButtonIcon" type="TextureRect" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=821147000]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+stretch_mode = 5
+
+[node name="OffEditButton" type="Button" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=624361521]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "EDIT"
+
+[node name="OnButtonIcon" type="TextureRect" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=687414993]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+stretch_mode = 5
+
+[node name="OnEditButton" type="Button" parent="HSplitContainer/LeftSplitContainer/EmoteContainer/BottomMenu/GridContainer" unique_id=687975632]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "EDIT"
+
 [node name="CenterSplitContainer" type="VSplitContainer" parent="HSplitContainer" unique_id=721584462]
 layout_mode = 2
 split_offsets = PackedInt32Array(-170)
