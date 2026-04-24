@@ -82,6 +82,7 @@ var parsed_data: Dictionary[String, Dictionary]
 
 var is_image_pre: bool
 
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	open_ini_button.pressed.connect(_on_open_ini_button_pressed)
@@ -99,18 +100,22 @@ func _ready() -> void:
 func _on_open_ini_button_pressed() -> void:
 	file_dialog.popup_centered()
 
+
 func _on_preanim_button_pressed() -> void:
 	is_image_pre = true
 	image_dialog.current_dir = current_character.get_folder()
 	image_dialog.popup_centered()
+
 
 func _on_emote_button_pressed() -> void:
 	is_image_pre = false
 	image_dialog.current_dir = current_character.get_folder()
 	image_dialog.popup_centered()
 
+
 func _on_char_icon_file_selected(file_path: String) -> void:
 	load_char_icon_from_filepath(file_path)
+
 
 func _on_file_selected(path: String) -> void:
 	# Create a new character
@@ -120,7 +125,7 @@ func _on_file_selected(path: String) -> void:
 	parsed_data = BasicIni.parse(file.get_as_text())
 	# Load the data for the character!
 	current_character.load_data(parsed_data)
-	
+
 	charname_edit.text = current_character.char_name
 	showname_edit.text = current_character.showname
 	showname_check.button_pressed = current_character.needs_showname
@@ -135,18 +140,20 @@ func _on_file_selected(path: String) -> void:
 	else:
 		scaling_option.select(1)
 	number_spin_box.max_value = current_character.emotes.size() - 1
-	
+
 	var char_folder: String = path.get_base_dir()
 	load_char_icon_from_filepath(char_folder + "/char_icon.png")
 	char_folder_label.text = char_folder.get_basename().get_file()
 	char_folder_label.tooltip_text = char_folder
 	regenerate_buttons()
 
+
 func _on_image_selected(path: String) -> void:
 	if is_image_pre:
 		preanim_edit.text = get_emote_path(path)
 	else:
 		emote_edit.text = get_emote_path(path)
+
 
 func get_emote_path(filePath: String) -> String:
 	print(filePath)
@@ -156,18 +163,20 @@ func get_emote_path(filePath: String) -> String:
 	print(result)
 	return result
 
+
 func regenerate_buttons() -> void:
 	emote_list.clear()
 	for i: int in current_character.emotes.size():
 		var emote: Emote = current_character.emotes[i]
-		var image_path: String = "%s/emotions/button%s_off.png" % [current_character.get_folder(), i+1]
+		var image_path: String = "%s/emotions/button%s_off.png" % [current_character.get_folder(), i + 1]
 		var image: Image = Image.new()
 		image.load(image_path)
 		var image_texture: ImageTexture = ImageTexture.new()
 		image_texture.set_image(image)
 		var at: int = emote_list.add_item(emote.display_name, image_texture)
 		emote_list.set_item_metadata(at, emote)
-		emote_list.set_item_tooltip(at, "%s\n%s: %s, %s" % [emote.display_name, i+1, emote.pre, emote.idle])
+		emote_list.set_item_tooltip(at, "%s\n%s: %s, %s" % [emote.display_name, i + 1, emote.pre, emote.idle])
+
 
 func search_valid_idle_emote(char_folder: String, emote_name: String) -> String:
 	for ext: String in SUPPORTED_EXTENSIONS:
@@ -178,6 +187,7 @@ func search_valid_idle_emote(char_folder: String, emote_name: String) -> String:
 		if FileAccess.file_exists(try_path):
 			return try_path
 	return ""
+
 
 func _on_emote_selected(idx: int) -> void:
 	current_emote_number = idx
@@ -238,12 +248,14 @@ func _on_emote_selected(idx: int) -> void:
 	var image_texture: ImageTexture = ImageTexture.new()
 	image_texture.set_image(image)
 
+
 func _on_scaling_selected(index: int) -> void:
 	if current_anim:
 		if index == 0:
 			current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		elif index == 1:
 			current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+
 
 func _on_emote_number_changed(value: float) -> void:
 	var index_from: int = current_emote_number
@@ -252,10 +264,12 @@ func _on_emote_number_changed(value: float) -> void:
 	emote_list.move_item(index_from, index_to)
 	current_emote_number = index_to
 
+
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		var path = ProjectSettings.globalize_path("user://frame_cache/")
 		remove_contents_of(path)
+
 
 func remove_contents_of(directory: String) -> void:
 	for dir_name in DirAccess.get_directories_at(directory):
@@ -266,6 +280,7 @@ func remove_contents_of(directory: String) -> void:
 	for file in dir.get_files():
 		dir.remove(file)
 
+
 func load_char_icon_from_filepath(iconPath: String) -> void:
 	var image = Image.new()
 	image.load(iconPath)
@@ -273,9 +288,11 @@ func load_char_icon_from_filepath(iconPath: String) -> void:
 	image_texture.set_image(image)
 	character_icon.texture = image_texture
 
+
 func _on_save_button_pressed() -> void:
 	file_dialog_save.current_dir = current_character.get_folder()
 	file_dialog_save.popup_centered()
+
 
 func _on_save_file_selected(path: String) -> void:
 	var ini_string: String = BasicIni.make_char_ini(current_character.save_data())

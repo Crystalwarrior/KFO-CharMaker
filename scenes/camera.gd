@@ -25,6 +25,7 @@ func center() -> void:
 	else:
 		position = Vector2(0, 0)
 
+
 func _unhandled_input(event):
 	if event is InputEventMouseButton:
 		get_viewport().gui_release_focus()

@@ -11,6 +11,7 @@ func _ready() -> void:
 	if error != OK:
 		push_error("An error occurred in the HTTP request.")
 
+
 # Called when the HTTP request is completed.
 func _http_request_completed(result: int, _response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	if result != HTTPRequest.RESULT_SUCCESS:
