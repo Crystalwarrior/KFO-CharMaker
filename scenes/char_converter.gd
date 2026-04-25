@@ -166,7 +166,7 @@ func get_emote_path(filePath: String) -> String:
 	print(filePath)
 	var result = filePath.get_slice(".", 0).trim_prefix(current_character.get_folder() + "/")
 	print(result)
-	result = result.trim_prefix("(a)").trim_prefix("(b)")
+	result = result.trim_prefix("(a)").trim_prefix("(b)").trim_prefix("(c)")
 	print(result)
 	return result
 
