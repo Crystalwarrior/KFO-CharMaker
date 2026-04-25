@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="New Game Project"
+config/name="KFO-CharMaker"
 run/main_scene="uid://b1xdag54tvknp"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
