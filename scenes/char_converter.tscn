@@ -44,6 +44,9 @@ access = 2
 filters = PackedStringArray("*.png,*.jpg,*.jpeg, *.webp;Image Files;image/png,image/jpeg/webp")
 use_native_dialog = true
 
+[node name="ConfirmationDialog" type="ConfirmationDialog" parent="." unique_id=959821638]
+unique_name_in_owner = true
+
 [node name="HSplitContainer" type="HSplitContainer" parent="." unique_id=2015959634]
 layout_mode = 1
 anchors_preset = 15

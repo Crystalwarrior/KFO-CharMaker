@@ -3,6 +3,8 @@ extends Control
 @onready var file_dialog: FileDialog = %FileDialog
 @onready var image_dialog: FileDialog = %ImageDialog
 @onready var file_dialog_save: FileDialog = %FileDialogSave
+@onready var confirmation_dialog: ConfirmationDialog = %ConfirmationDialog
+
 @onready var new_button: Button = %NewButton
 @onready var open_ini_button: Button = %OpenIniButton
 @onready var save_button: Button = %SaveButton
@@ -173,24 +175,20 @@ func regenerate_buttons() -> void:
 	emote_list.clear()
 	for i: int in current_character.emotes.size():
 		var emote: Emote = current_character.emotes[i]
-		set_emote_button_images(emote, current_character.get_folder() + "/emotions/", i+1)
+		set_emote_button_images(emote, current_character.get_folder() + "/emotions/", i)
 		var at: int = emote_list.add_item(emote.display_name, emote.image_off)
 		emote_list.set_item_metadata(at, emote)
 		emote_list.set_item_tooltip(at, "%s\n%s: %s, %s" % [emote.display_name, i + 1, emote.pre, emote.idle])
 
 
 func set_emote_button_images(emote: Emote, folderPath: String, idx: int) -> void:
-	var button_path = folderPath + "button" + str(idx) + "_"
-	var image_off_exist = FileAccess.file_exists(button_path + "off.png")
-	var image_on_exist = FileAccess.file_exists(button_path + "on.png")
-	var image_off: Image = Image.new()
-	var image_on: Image = Image.new()
-	if image_off_exist:
-		image_off.load(button_path+"off.png")
-		emote.image_off = ImageTexture.create_from_image(image_off)
-	if image_on_exist:
-		image_on.load(button_path+"on.png")
-		emote.image_on = ImageTexture.create_from_image(image_on)
+	var button_path = folderPath + "button" + str(idx + 1)
+	var button_off_path: String = button_path + "_off.png"
+	var button_on_path: String = button_path + "_on.png"
+	if FileAccess.file_exists(button_off_path):
+		emote.image_off = ImageTexture.create_from_image(Image.load_from_file(button_off_path))
+	if FileAccess.file_exists(button_on_path):
+		emote.image_on = ImageTexture.create_from_image(Image.load_from_file(button_on_path))
 
 
 func search_valid_idle_emote(char_folder: String, emote_name: String) -> String:
@@ -217,14 +215,16 @@ func _on_emote_selected(idx: int) -> void:
 	sound_name_edit.text = emote.sound_name
 	sound_time_edit.value = emote.sound_time
 	sound_loop_check.button_pressed = emote.sound_loop
+	# Set previous emote's button to off state
+	var previous_emote: Emote = current_character.emotes[previous_emote_number]
+	emote_list.set_item_icon(previous_emote_number, previous_emote.image_off)
 	if emote.image_off:
 		off_button_icon.texture = emote.image_off
 	if emote.image_on:
+		emote_list.set_item_icon(current_emote_number, emote.image_on)
+		# Set current emote's button to on state if image exist
 		on_button_icon.texture = emote.image_on
-	emote_list.set_item_icon(previous_emote_number, current_character.emotes[previous_emote_number].image_off) # Set previous emote's button to off state
 	previous_emote_number = idx
-	if emote.image_on:
-		emote_list.set_item_icon(current_emote_number, emote.image_on) # Set current emote's butotn to on state if image exist
 	for i: int in modifier_option.item_count:
 		var id: int = modifier_option.get_item_id(i)
 		if id == emote.emote_mod:
@@ -319,5 +319,64 @@ func _on_save_button_pressed() -> void:
 
 func _on_save_file_selected(path: String) -> void:
 	var ini_string: String = BasicIni.make_char_ini(current_character.save_data())
-	var save_file = FileAccess.open(path, FileAccess.WRITE)
+	var save_file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	save_file.store_string(ini_string)
+	current_character.ini_path = path
+	var save_folder: String = path.get_base_dir()
+	# SAVE BUTTONS
+	# TODO: move this somewhere more appropriate!!
+	var emotions_folder: String = save_folder + "/emotions/"
+	if DirAccess.dir_exists_absolute(emotions_folder):
+		confirmation_dialog.dialog_text = """
+Warning: /emotions/ folder already exists and will be overwritten.
+If you press "Accept", an /_old_emotions/ folder will be created as backup.
+If /_old_emotions/ already exists, all the files inside of it will also be overwritten!
+		"""
+		confirmation_dialog.ok_button_text = "Accept"
+		confirmation_dialog.popup_centered()
+		confirmation_dialog.confirmed.connect(
+			_on_emotions_overwrite_confirmed.bind(save_folder),
+			CONNECT_ONE_SHOT
+		)
+		confirmation_dialog.canceled.connect(
+			_on_emotions_overwrite_cancelled,
+			CONNECT_ONE_SHOT
+		)
+		return
+	save_buttons(save_folder)
+
+
+func _on_emotions_overwrite_confirmed(save_folder: String) -> void:
+	if confirmation_dialog.confirmed.is_connected(_on_emotions_overwrite_confirmed):
+		confirmation_dialog.confirmed.disconnect(_on_emotions_overwrite_confirmed)
+	if confirmation_dialog.canceled.is_connected(_on_emotions_overwrite_cancelled):
+		confirmation_dialog.canceled.disconnect(_on_emotions_overwrite_cancelled)
+	save_buttons(save_folder)
+
+
+func _on_emotions_overwrite_cancelled() -> void:
+	if confirmation_dialog.confirmed.is_connected(_on_emotions_overwrite_confirmed):
+		confirmation_dialog.confirmed.disconnect(_on_emotions_overwrite_confirmed)
+	if confirmation_dialog.canceled.is_connected(_on_emotions_overwrite_cancelled):
+		confirmation_dialog.canceled.disconnect(_on_emotions_overwrite_cancelled)
+
+
+func save_buttons(path: String) -> void:
+	var emotions_folder: String = path + "/emotions/"
+	if DirAccess.dir_exists_absolute(emotions_folder):
+		var backup_folder: String = path + "/_old_emotions/"
+		DirAccess.make_dir_absolute(backup_folder)
+		for file: String in DirAccess.get_files_at(emotions_folder):
+			var input_path: String = emotions_folder + file
+			var output_path: String = backup_folder + file
+			if FileAccess.file_exists(output_path):
+				DirAccess.remove_absolute(output_path)
+			DirAccess.rename_absolute(input_path, output_path)
+	DirAccess.make_dir_absolute(emotions_folder)
+	for idx: int in current_character.emotes.size():
+		var emote: Emote = current_character.emotes[idx]
+		var button_path = emotions_folder + "button" + str(idx + 1)
+		if emote.image_off:
+			emote.image_off.get_image().save_png(button_path + "_off.png")
+		if emote.image_on:
+			emote.image_on.get_image().save_png(button_path + "_on.png")
