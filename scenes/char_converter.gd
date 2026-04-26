@@ -163,11 +163,8 @@ func _on_image_selected(path: String) -> void:
 
 
 func get_emote_path(filePath: String) -> String:
-	print(filePath)
 	var result = filePath.get_slice(".", 0).trim_prefix(current_character.get_folder() + "/")
-	print(result)
 	result = result.trim_prefix("(a)").trim_prefix("(b)").trim_prefix("(c)")
-	print(result)
 	return result
 
 
@@ -241,6 +238,12 @@ func _on_emote_selected(idx: int) -> void:
 	var file_extension: String = image_path.get_extension()
 	# TODO: Cache all this somehow
 	if file_extension in ANIMATED_EXTENSIONS:
+		handle_animated_file(image_path)
+	if file_extension in STATIC_EXTENSIONS:
+		handle_static_file(image_path)
+
+
+func handle_animated_file(image_path: String) -> void:
 		var magick: Magick = Magick.new()
 		var frame_data: Array[Dictionary] = magick.get_frame_data(image_path)
 		var directory: String = image_path.get_base_dir()
@@ -250,10 +253,7 @@ func _on_emote_selected(idx: int) -> void:
 		if not FileAccess.file_exists(frames_folder):
 			magick.split_frames(image_path, frames_folder)
 		var lib: AnimationLibrary = world.animation_player.get_animation_library("")
-		if current_anim:
-			world.animation_player.stop()
-			lib.remove_animation(current_anim.name)
-			current_anim.queue_free()
+		clear_world()
 		current_anim = AttorneyAnimation.new()
 		current_anim.name = base_name
 		current_anim.add_frames_from_folder(frames_folder)
@@ -265,11 +265,27 @@ func _on_emote_selected(idx: int) -> void:
 		world.add_child(current_anim)
 		lib.add_animation(base_name, current_anim.animation)
 		world.animation_player.play(base_name)
-		return
-	var image: Image = Image.new()
-	image.load(image_path)
-	var image_texture: ImageTexture = ImageTexture.new()
-	image_texture.set_image(image)
+
+
+func handle_static_file(image_path: String) -> void:
+	var image = Image.load_from_file(image_path)
+	var image_texture = ImageTexture.create_from_image(image)
+	var sprite = Sprite2D.new()
+	sprite.texture = image_texture
+	clear_world()
+	sprite.set_texture(image_texture)
+	world.add_child(sprite)
+
+
+func clear_world() -> void:
+	for child in world.get_children():
+		if child is AttorneyAnimation:
+			var lib: AnimationLibrary = world.animation_player.get_animation_library("")
+			world.animation_player.stop()
+			lib.remove_animation(current_anim.name)
+			current_anim.queue_free()
+		if child is Sprite2D:
+			child.queue_free()
 
 
 func _on_scaling_selected(index: int) -> void:
