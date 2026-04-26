@@ -99,10 +99,29 @@ func _ready() -> void:
 	file_dialog_save.file_selected.connect(_on_save_file_selected)
 	emote_list.item_selected.connect(_on_emote_selected)
 	scaling_option.item_selected.connect(_on_scaling_selected)
+	# Char sidemenu
+	charname_edit.text_changed.connect(_on_char_name_changed)
+	showname_edit.text_changed.connect(_on_char_showname_changed)
+	showname_check.toggled.connect(_on_char_needShowname_changed)
+	side_edit.text_changed.connect(_on_char_side_changed)
+	blips_edit.text_changed.connect(_on_char_blips_changed)
+	chat_edit.text_changed.connect(_on_char_chat_changed)
+	effects_edit.text_changed.connect(_on_char_effects_changed)
+	realization_edit.text_changed.connect(_on_char_realization_changed)
+	category_edit.text_changed.connect(_on_char_category_changed)
+	scaling_option.item_selected.connect(_on_char_scaling_changed)
+	# Emote sidemenu
 	preanim_button.pressed.connect(_on_preanim_button_pressed)
 	emote_button.pressed.connect(_on_emote_button_pressed)
 	number_spin_box.value_changed.connect(_on_emote_number_changed)
-
+	comment_edit.text_changed.connect(_on_emote_name_changed)
+	preanim_edit.text_submitted.connect(_on_preanim_edit_changed)
+	emote_edit.text_submitted.connect(_on_emote_edit_changed)
+	modifier_option.item_selected.connect(_on_emote_mod_changed)
+	deskmod_option.item_selected.connect(_on_emote_deskmod_changed)
+	sound_name_edit.text_changed.connect(_on_emote_sound_changed)
+	sound_time_edit.value_changed.connect(_on_emote_soundTime_changed)
+	sound_loop_check.toggled.connect(_on_emote_soundLoop_changed)
 
 func _on_open_ini_button_pressed() -> void:
 	file_dialog.popup_centered()
@@ -132,7 +151,6 @@ func _on_file_selected(path: String) -> void:
 	parsed_data = BasicIni.parse(file.get_as_text())
 	# Load the data for the character!
 	current_character.load_data(parsed_data)
-
 	charname_edit.text = current_character.char_name
 	showname_edit.text = current_character.showname
 	showname_check.button_pressed = current_character.needs_showname
@@ -147,7 +165,6 @@ func _on_file_selected(path: String) -> void:
 	else:
 		scaling_option.select(1)
 	number_spin_box.max_value = current_character.emotes.size() - 1
-
 	var char_folder: String = path.get_base_dir()
 	load_char_icon_from_filepath(char_folder + "/char_icon.png")
 	char_folder_label.text = char_folder.get_basename().get_file()
@@ -155,17 +172,95 @@ func _on_file_selected(path: String) -> void:
 	regenerate_buttons()
 
 
+func _on_char_name_changed(new_text: String) -> void:
+	current_character.char_name = new_text
+
+
+func _on_char_showname_changed(new_text: String) -> void:
+	current_character.showname = new_text
+
+
+func _on_char_needShowname_changed(toggled_on: bool) -> void:
+	current_character.needs_showname = toggled_on
+
+
+func _on_char_side_changed(new_text: String) -> void:
+	current_character.side = new_text
+
+
+func _on_char_blips_changed(new_text: String) -> void:
+	current_character.blips = new_text
+
+
+func _on_char_chat_changed(new_text: String) -> void:
+	current_character.chat = new_text
+
+
+func _on_char_effects_changed(new_text: String) -> void:
+	current_character.effects = new_text
+
+
+func _on_char_realization_changed(new_text: String) -> void:
+	current_character.realization = new_text
+
+
+func _on_char_category_changed(new_text: String) -> void:
+	current_character.category = new_text
+
+
+func _on_char_scaling_changed(index: int) -> void:
+	current_character.scaling = scaling_option.get_item_text(index)
+
+
+func _on_preanim_edit_changed(new_text: String) -> void:
+	is_image_pre = true
+	_on_image_selected(new_text)
+
+
+func _on_emote_edit_changed(new_text: String) -> void:
+	is_image_pre = false
+	_on_image_selected(new_text)
+
+
 func _on_image_selected(path: String) -> void:
 	if is_image_pre:
 		preanim_edit.text = get_emote_path(path)
+		current_character.emotes[current_emote_number].pre = get_emote_path(path)
 	else:
 		emote_edit.text = get_emote_path(path)
+		current_character.emotes[current_emote_number].idle = get_emote_path(path)
+	_on_emote_selected(current_emote_number)
 
 
 func get_emote_path(filePath: String) -> String:
 	var result = filePath.get_slice(".", 0).trim_prefix(current_character.get_folder() + "/")
 	result = result.trim_prefix("(a)").trim_prefix("(b)").trim_prefix("(c)")
 	return result
+
+
+func _on_emote_name_changed(new_text: String) -> void:
+	current_character.emotes[current_emote_number].display_name = new_text
+	emote_list.set_item_text(current_emote_number, new_text)
+
+
+func _on_emote_mod_changed(index: int) -> void:
+	current_character.emotes[current_emote_number].emote_mod = index
+
+
+func _on_emote_deskmod_changed(index: int) -> void:
+	current_character.emotes[current_emote_number].desk_mod = index
+
+
+func _on_emote_sound_changed(new_text: String) -> void:
+	current_character.emotes[current_emote_number].sound_name = new_text
+
+
+func _on_emote_soundTime_changed(value: float) -> void:
+	current_character.emotes[current_emote_number].sound_time = value
+
+
+func _on_emote_soundLoop_changed(toggled_on: bool) -> void:
+	current_character.emotes[current_emote_number].sound_loop = toggled_on
 
 
 func regenerate_buttons() -> void:
@@ -244,27 +339,27 @@ func _on_emote_selected(idx: int) -> void:
 
 
 func handle_animated_file(image_path: String) -> void:
-		var magick: Magick = Magick.new()
-		var frame_data: Array[Dictionary] = magick.get_frame_data(image_path)
-		var directory: String = image_path.get_base_dir()
-		var base_name: String = image_path.get_file().get_basename()
-		var char_name: String = directory.get_file()
-		var frames_folder: String = ProjectSettings.globalize_path("user://frame_cache/%s/%s/" % [char_name, base_name])
-		if not FileAccess.file_exists(frames_folder):
-			magick.split_frames(image_path, frames_folder)
-		var lib: AnimationLibrary = world.animation_player.get_animation_library("")
-		clear_world()
-		current_anim = AttorneyAnimation.new()
-		current_anim.name = base_name
-		current_anim.add_frames_from_folder(frames_folder)
-		current_anim.initialize_from_frame_data(frame_data)
-		if scaling_option.selected == 0:
-			current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-		elif scaling_option.selected == 1:
-			current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		world.add_child(current_anim)
-		lib.add_animation(base_name, current_anim.animation)
-		world.animation_player.play(base_name)
+	var magick: Magick = Magick.new()
+	var frame_data: Array[Dictionary] = magick.get_frame_data(image_path)
+	var directory: String = image_path.get_base_dir()
+	var base_name: String = image_path.get_file().get_basename()
+	var char_name: String = directory.get_file()
+	var frames_folder: String = ProjectSettings.globalize_path("user://frame_cache/%s/%s/" % [char_name, base_name])
+	if not FileAccess.file_exists(frames_folder):
+		magick.split_frames(image_path, frames_folder)
+	var lib: AnimationLibrary = world.animation_player.get_animation_library("")
+	clear_world()
+	current_anim = AttorneyAnimation.new()
+	current_anim.name = base_name
+	current_anim.add_frames_from_folder(frames_folder)
+	current_anim.initialize_from_frame_data(frame_data)
+	if scaling_option.selected == 0:
+		current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	elif scaling_option.selected == 1:
+		current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	world.add_child(current_anim)
+	lib.add_animation(base_name, current_anim.animation)
+	world.animation_player.play(base_name)
 
 
 func handle_static_file(image_path: String) -> void:
@@ -321,10 +416,8 @@ func remove_contents_of(directory: String) -> void:
 
 
 func load_char_icon_from_filepath(iconPath: String) -> void:
-	var image = Image.new()
-	image.load(iconPath)
-	var image_texture: ImageTexture = ImageTexture.new()
-	image_texture.set_image(image)
+	var image = Image.load_from_file(iconPath)
+	var image_texture = ImageTexture.create_from_image(image)
 	character_icon.texture = image_texture
 
 
