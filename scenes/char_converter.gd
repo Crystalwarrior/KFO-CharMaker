@@ -116,7 +116,9 @@ func _ready() -> void:
 	number_spin_box.value_changed.connect(_on_emote_number_changed)
 	comment_edit.text_changed.connect(_on_emote_name_changed)
 	preanim_edit.text_submitted.connect(_on_preanim_edit_changed)
+	preanim_edit.focus_exited.connect(_on_preanim_lost_focus)
 	emote_edit.text_submitted.connect(_on_emote_edit_changed)
+	emote_edit.focus_exited.connect(_on_emote_lost_focus)
 	modifier_option.item_selected.connect(_on_emote_mod_changed)
 	deskmod_option.item_selected.connect(_on_emote_deskmod_changed)
 	sound_name_edit.text_changed.connect(_on_emote_sound_changed)
@@ -217,9 +219,23 @@ func _on_preanim_edit_changed(new_text: String) -> void:
 	_on_image_selected(new_text)
 
 
+func _on_preanim_lost_focus() -> void:
+	if preanim_edit.text == current_character.emotes[current_emote_number].pre:
+		return
+	is_image_pre = true
+	_on_image_selected(preanim_edit.text)
+
+
 func _on_emote_edit_changed(new_text: String) -> void:
 	is_image_pre = false
 	_on_image_selected(new_text)
+
+
+func _on_emote_lost_focus() -> void:
+	if emote_edit.text == current_character.emotes[current_emote_number].idle:
+		return
+	is_image_pre = false
+	_on_image_selected(emote_edit.text)
 
 
 func _on_image_selected(path: String) -> void:
