@@ -175,7 +175,7 @@ func _on_file_selected(path: String) -> void:
 		scaling_option.select(0)
 	else:
 		scaling_option.select(1)
-	number_spin_box.max_value = current_character.emotes.size() - 1
+	number_spin_box.max_value = current_character.emotes.size()
 	var char_folder: String = path.get_base_dir()
 	load_char_icon_from_filepath(char_folder + "/char_icon.png")
 	char_folder_label.text = char_folder.get_basename().get_file()
@@ -460,6 +460,9 @@ func _on_scaling_selected(index: int) -> void:
 
 
 func _on_emote_number_changed(value: float) -> void:
+	if value == 0:
+		number_spin_box.value = 1
+		return
 	var index_from: int = current_emote_number
 	var index_to: int = int(value) - 1
 	current_character.emotes.insert(index_to, current_character.emotes.pop_at(index_from))
