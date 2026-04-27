@@ -327,7 +327,7 @@ func search_valid_emote(char_folder: String, emote_name: String, state: String) 
 func _on_emote_selected(idx: int) -> void:
 	current_emote_number = idx
 	number_spin_box.set_block_signals(true)
-	number_spin_box.value = idx
+	number_spin_box.value = idx + 1
 	number_spin_box.set_block_signals(false)
 	var emote: Emote = current_character.emotes[idx]
 	comment_edit.text = emote.display_name
@@ -382,6 +382,7 @@ func load_image_file(image_path):
 		animation_buttons.visible = false
 		handle_static_file(image_path)
 
+
 func handle_animated_file(image_path: String) -> void:
 	# TODO: Cache all this somehow
 	var magick: Magick = Magick.new()
@@ -417,6 +418,7 @@ func clear_world() -> void:
 	for child in world.get_children():
 		child.queue_free()
 
+
 func _on_animState_selected(index: int):
 	current_state = index
 	var prefix
@@ -447,7 +449,7 @@ func _on_animState_selected(index: int):
 					child.visible = true
 					animation_buttons.set_animation_player(child.animation_player)
 					child.animation_player.play(child.name)
-			
+
 
 func _on_scaling_selected(index: int) -> void:
 	if current_anim:
@@ -459,10 +461,11 @@ func _on_scaling_selected(index: int) -> void:
 
 func _on_emote_number_changed(value: float) -> void:
 	var index_from: int = current_emote_number
-	var index_to: int = int(value)
+	var index_to: int = int(value) - 1
 	current_character.emotes.insert(index_to, current_character.emotes.pop_at(index_from))
 	emote_list.move_item(index_from, index_to)
 	current_emote_number = index_to
+	previous_emote_number = index_to
 
 
 func _notification(what):
