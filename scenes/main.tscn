@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://b1xdag54tvknp"]
 
 [ext_resource type="PackedScene" uid="uid://bm4dd2b8qtgak" path="res://scenes/char_converter.tscn" id="1_h0otu"]
-[ext_resource type="PackedScene" uid="uid://coar0w52ewb50" path="res://scenes/world.tscn" id="2_k2o8i"]
 [ext_resource type="Script" uid="uid://dkfp1sj4wdqmy" path="res://scenes/camera_controls.gd" id="2_o6xl0"]
 [ext_resource type="Texture2D" uid="uid://cdjfkw6b2o54t" path="res://assets/icons/CenterView.svg" id="2_tefeu"]
 [ext_resource type="Script" uid="uid://cmwvn07t0sv8n" path="res://scenes/camera.gd" id="3_h0otu"]
@@ -50,7 +49,7 @@ offset_top = -1.0
 offset_right = 1.0
 offset_bottom = 1.0
 
-[node name="World" parent="." unique_id=1984213863 instance=ExtResource("2_k2o8i")]
+[node name="World" type="Node2D" parent="." unique_id=1984213863]
 unique_name_in_owner = true
 
 [node name="Camera" type="Camera2D" parent="." unique_id=682089302]
