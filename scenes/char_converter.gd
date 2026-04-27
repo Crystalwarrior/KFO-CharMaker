@@ -373,7 +373,6 @@ func _on_emote_selected(idx: int) -> void:
 		if id == emote.desk_mod:
 			deskmod_option.select(i)
 			break
-	clear_world()
 	var pre_image_path: String = search_valid_emote(current_character.get_folder(), emote.pre, "pre")
 	var idle_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "idle")
 	var talk_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "talk")
@@ -403,6 +402,22 @@ func _on_emote_selected(idx: int) -> void:
 
 
 func load_image_file(image_path):
+	var emote_name: String = emote_edit.text
+	if emote_name.is_empty() or emote_name == "-":
+		return
+	match current_state:
+		EmoteState.PRE:
+			emote_name = preanim_edit.text
+			if emote_name.is_empty() or emote_name == "-":
+				return
+		EmoteState.IDLE:
+			emote_name = "(a)" + emote_name
+		EmoteState.TALK:
+			emote_name = "(b)" + emote_name
+		EmoteState.POST:
+			emote_name = "(c)" + emote_name
+	if world.get_node(emote_name):
+		return
 	var file_extension: String = image_path.get_extension()
 	if file_extension in ANIMATED_EXTENSIONS:
 		animation_buttons.visible = true
@@ -417,10 +432,13 @@ func handle_animated_file(image_path: String) -> void:
 	var directory: String = image_path.get_base_dir()
 	var base_name: String = image_path.get_file().get_basename()
 	var char_name: String = directory.get_file()
+	var attorney_anim: AttorneyAnimation = world.get_node(base_name)
+	if attorney_anim:
+		return
 	var frames_folder: String = ProjectSettings.globalize_path("user://frame_cache/%s/%s/" % [char_name, base_name])
 	if not FileAccess.file_exists(frames_folder):
 		magick.split_frames(image_path, frames_folder)
-	var attorney_anim: AttorneyAnimation = AttorneyAnimation.new()
+	attorney_anim = AttorneyAnimation.new()
 	attorney_anim.add_frames_from_folder(frames_folder)
 	attorney_anim.initialize_from_frame_data(base_name, frame_data)
 	if scaling_option.selected == 0:
@@ -449,44 +467,35 @@ func clear_world() -> void:
 func _on_anim_state_selected(index: int):
 	animation_option_button.select(index)
 	current_state = index as EmoteState
-	var prefix
+	var emote_name: String = emote_edit.text
 	if animation_buttons.visible:
 		match current_state:
 			EmoteState.PRE:
-				prefix = null
+				emote_name = preanim_edit.text
 			EmoteState.IDLE:
-				prefix = "(a)"
+				emote_name = "(a)" + emote_name
 			EmoteState.TALK:
-				prefix = "(b)"
+				emote_name = "(b)" + emote_name
 			EmoteState.POST:
-				prefix = "(c)"
+				emote_name = "(c)" + emote_name
 		animation_buttons.set_animation_player(null)
-		for child: AttorneyAnimation in world.get_children():
-			if child.animation_player.animation_finished.is_connected(_on_pre_finished):
-				child.animation_player.animation_finished.disconnect(_on_pre_finished)
-			if prefix:
-				child.animation_player.stop()
-				if child.name.begins_with(prefix):
-					child.visible = true
-					animation_buttons.set_animation_player(child.animation_player)
-					child.animation_player.play(child.name)
-					current_anim = child
+		for ao_anim: AttorneyAnimation in world.get_children():
+			if ao_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
+				ao_anim.animation_player.animation_finished.disconnect(_on_pre_finished)
+			ao_anim.animation_player.stop()
+			ao_anim.hide()
+		var attorney_animation: AttorneyAnimation = world.get_node(emote_name)
+		if attorney_animation:
+			attorney_animation.visible = true
+			animation_buttons.set_animation_player(attorney_animation.animation_player)
+			if current_state == EmoteState.PRE:
+				attorney_animation.animation_player.animation_finished.connect(_on_pre_finished, CONNECT_ONE_SHOT)
+				if loop_pre_button.button_pressed:
+					attorney_animation.animation.loop_mode = Animation.LOOP_LINEAR
 				else:
-					child.visible = false
-			else:
-				child.animation_player.stop()
-				if child.name.begins_with("(a)") or child.name.begins_with("(b)") or child.name.begins_with("(c)"):
-					child.visible = false
-				else:
-					child.visible = true
-					animation_buttons.set_animation_player(child.animation_player)
-					child.animation_player.animation_finished.connect(_on_pre_finished, CONNECT_ONE_SHOT)
-					if loop_pre_button.button_pressed:
-						child.animation.loop_mode = Animation.LOOP_LINEAR
-					else:
-						child.animation.loop_mode = Animation.LOOP_NONE
-					child.animation_player.play(child.name)
-					current_anim = child
+					attorney_animation.animation.loop_mode = Animation.LOOP_NONE
+			attorney_animation.animation_player.play(attorney_animation.name)
+			current_anim = attorney_animation
 
 
 func _on_pre_finished(_anim_name: StringName) -> void:
