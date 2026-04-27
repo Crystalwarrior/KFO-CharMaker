@@ -8,6 +8,11 @@
 [ext_resource type="Texture2D" uid="uid://ckf3dmstwk8ha" path="res://assets/icons/FileBrowse.svg" id="6_62nbp"]
 [ext_resource type="PackedScene" uid="uid://bv3pgfi27kdan" path="res://scenes/animation_buttons.tscn" id="7_wijlb"]
 
+[sub_resource type="LabelSettings" id="LabelSettings_wijlb"]
+font_size = 32
+outline_size = 8
+outline_color = Color(0, 0, 0, 1)
+
 [node name="CharConverter" type="Control" unique_id=472651589]
 layout_mode = 3
 anchors_preset = 15
@@ -488,6 +493,29 @@ split_offset = -170
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
+
+[node name="LoadingScreen" type="ColorRect" parent="HSplitContainer/CenterSplitContainer/ViewZone" unique_id=1170268904]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.2509804)
+
+[node name="LoadingLabel" type="Label" parent="HSplitContainer/CenterSplitContainer/ViewZone/LoadingScreen" unique_id=977152930]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Loading..."
+label_settings = SubResource("LabelSettings_wijlb")
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/CenterSplitContainer" unique_id=128698260]
 layout_mode = 2

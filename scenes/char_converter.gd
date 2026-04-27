@@ -18,6 +18,8 @@ extends Control
 
 @onready var loop_pre_button: CheckButton = %LoopPreButton
 
+@onready var loading_screen: ColorRect = %LoadingScreen
+
 # Options
 @onready var charname_edit: LineEdit = %CharnameEdit
 @onready var showname_edit: LineEdit = %ShownameEdit
@@ -98,6 +100,7 @@ var parsed_data: Dictionary[String, Dictionary]
 
 var is_image_pre: bool
 
+var magick: Magick
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -136,7 +139,7 @@ func _ready() -> void:
 	sound_time_edit.value_changed.connect(_on_emote_soundTime_changed)
 	sound_loop_check.toggled.connect(_on_emote_soundLoop_changed)
 
-	var magick: Magick = Magick.new()
+	magick = Magick.new()
 	var magick_real: bool = magick.test_magick()
 	if not magick_real:
 		install_magick_dialog.popup_centered()
@@ -379,18 +382,20 @@ func _on_emote_selected(idx: int) -> void:
 	animation_option_button.set_item_disabled(1, true)
 	animation_option_button.set_item_disabled(2, true)
 	animation_option_button.set_item_disabled(3, true)
+	loading_screen.show()
 	if pre_image_path:
-		load_image_file(pre_image_path)
+		await load_image_file(pre_image_path)
 		animation_option_button.set_item_disabled(0, false)
 	if idle_image_path:
-		load_image_file(idle_image_path)
+		await load_image_file(idle_image_path)
 		animation_option_button.set_item_disabled(1, false)
 	if talk_image_path:
-		load_image_file(talk_image_path)
+		await load_image_file(talk_image_path)
 		animation_option_button.set_item_disabled(2, false)
 	if post_image_path:
-		load_image_file(post_image_path)
+		await load_image_file(post_image_path)
 		animation_option_button.set_item_disabled(3, false)
+	loading_screen.hide()
 	if emote.emote_mod == Emote.EmoteMod.PREANIM:
 		_on_anim_state_selected(EmoteState.PRE)
 	else:
@@ -401,16 +406,14 @@ func load_image_file(image_path):
 	var file_extension: String = image_path.get_extension()
 	if file_extension in ANIMATED_EXTENSIONS:
 		animation_buttons.visible = true
-		handle_animated_file(image_path)
+		await handle_animated_file(image_path)
 	if file_extension in STATIC_EXTENSIONS:
 		animation_buttons.visible = false
 		handle_static_file(image_path)
 
 
 func handle_animated_file(image_path: String) -> void:
-	# TODO: Cache all this somehow
-	var magick: Magick = Magick.new()
-	var frame_data: Array[Dictionary] = magick.get_frame_data(image_path)
+	var frame_data: Array[Dictionary] = await magick.get_threaded_frame_data(image_path)
 	var directory: String = image_path.get_base_dir()
 	var base_name: String = image_path.get_file().get_basename()
 	var char_name: String = directory.get_file()
