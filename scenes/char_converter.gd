@@ -411,14 +411,14 @@ func handle_animated_file(image_path: String) -> void:
 	var frames_folder: String = ProjectSettings.globalize_path("user://frame_cache/%s/%s/" % [char_name, base_name])
 	if not FileAccess.file_exists(frames_folder):
 		magick.split_frames(image_path, frames_folder)
-	current_anim = AttorneyAnimation.new()
-	current_anim.add_frames_from_folder(frames_folder)
-	current_anim.initialize_from_frame_data(base_name, frame_data)
+	var attorney_anim: AttorneyAnimation = AttorneyAnimation.new()
+	attorney_anim.add_frames_from_folder(frames_folder)
+	attorney_anim.initialize_from_frame_data(base_name, frame_data)
 	if scaling_option.selected == 0:
-		current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		world.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	elif scaling_option.selected == 1:
-		current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	world.add_child(current_anim)
+		world.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	world.add_child(attorney_anim)
 
 # TODO: static image file should still be treated as a single-frame AttorneyAnimation
 func handle_static_file(image_path: String) -> void:
