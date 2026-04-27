@@ -473,11 +473,11 @@ selected = 0
 item_count = 4
 popup/item_0/text = "Pre-Anim"
 popup/item_0/id = 0
-popup/item_1/text = "Idle"
+popup/item_1/text = "Idle (a)"
 popup/item_1/id = 1
-popup/item_2/text = "Talk"
+popup/item_2/text = "Talk (b)"
 popup/item_2/id = 2
-popup/item_3/text = "Post"
+popup/item_3/text = "Post (c)"
 popup/item_3/id = 3
 
 [node name="EmotesFold" type="FoldableContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer" unique_id=2086862974]
