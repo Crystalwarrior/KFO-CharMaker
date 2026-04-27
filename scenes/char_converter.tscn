@@ -481,6 +481,12 @@ popup/item_2/id = 2
 popup/item_3/text = "Post (c)"
 popup/item_3/id = 3
 
+[node name="LoopPreButton" type="CheckButton" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/HBoxContainer/HBoxContainer" unique_id=1339919992]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "If the preanim should be looped or proceed to Idle when done"
+text = "Loop Pre"
+
 [node name="EmotesFold" type="FoldableContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer" unique_id=2086862974]
 layout_mode = 2
 size_flags_vertical = 3

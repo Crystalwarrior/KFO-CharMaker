@@ -43,6 +43,8 @@ func set_animation_player(to_player: AnimationPlayer) -> void:
 	set_disabled(animation_player == null)
 	if animation_player:
 		animation_player.animation_started.connect(_on_animation_started)
+	else:
+		update_sliders(0.0)
 
 
 func set_disabled(value: bool) -> void:

@@ -15,6 +15,8 @@ extends Control
 @onready var animation_buttons: HBoxContainer = %AnimationButtons
 @onready var animation_option_button: OptionButton = %AnimationOptionButton
 
+@onready var loop_pre_button: CheckButton = %LoopPreButton
+
 # Options
 @onready var charname_edit: LineEdit = %CharnameEdit
 @onready var showname_edit: LineEdit = %ShownameEdit
@@ -88,8 +90,8 @@ var current_character: Character
 
 var current_anim: AttorneyAnimation
 
-enum emoteStates {PRE, IDLE, TALK, POST}
-var current_state: emoteStates = emoteStates.PRE
+enum EmoteState {PRE, IDLE, TALK, POST}
+var current_state: EmoteState = EmoteState.PRE
 
 var parsed_data: Dictionary[String, Dictionary]
 
@@ -105,7 +107,8 @@ func _ready() -> void:
 	file_dialog_save.file_selected.connect(_on_save_file_selected)
 	emote_list.item_selected.connect(_on_emote_selected)
 	scaling_option.item_selected.connect(_on_scaling_selected)
-	animation_option_button.item_selected.connect(_on_animState_selected)
+	animation_option_button.item_selected.connect(_on_anim_state_selected)
+	loop_pre_button.toggled.connect(_on_loop_pre_button_toggled)
 	# Char sidemenu
 	charname_edit.text_changed.connect(_on_char_name_changed)
 	showname_edit.text_changed.connect(_on_char_showname_changed)
@@ -269,11 +272,11 @@ func _on_emote_name_changed(new_text: String) -> void:
 
 
 func _on_emote_mod_changed(index: int) -> void:
-	current_character.emotes[current_emote_number].emote_mod = index
+	current_character.emotes[current_emote_number].emote_mod = modifier_option.get_item_id(index) as Emote.EmoteMod
 
 
 func _on_emote_deskmod_changed(index: int) -> void:
-	current_character.emotes[current_emote_number].desk_mod = index
+	current_character.emotes[current_emote_number].desk_mod = deskmod_option.get_item_id(index) as Emote.DeskMod
 
 
 func _on_emote_sound_changed(new_text: String) -> void:
@@ -281,7 +284,7 @@ func _on_emote_sound_changed(new_text: String) -> void:
 
 
 func _on_emote_soundTime_changed(value: float) -> void:
-	current_character.emotes[current_emote_number].sound_time = value
+	current_character.emotes[current_emote_number].sound_time = int(value)
 
 
 func _on_emote_soundLoop_changed(toggled_on: bool) -> void:
@@ -315,6 +318,10 @@ func search_valid_emote(char_folder: String, emote_name: String, state: String) 
 			try_path = "%s/(a)%s.%s" % [char_folder, emote_name, ext]
 		if state == "talk":
 			try_path = "%s/(b)%s.%s" % [char_folder, emote_name, ext]
+		if state == "post":
+			try_path = "%s/(c)%s.%s" % [char_folder, emote_name, ext]
+			if not FileAccess.file_exists(try_path):
+				return ""
 		if FileAccess.file_exists(try_path):
 			return try_path
 		else:
@@ -362,15 +369,26 @@ func _on_emote_selected(idx: int) -> void:
 	var idle_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "idle")
 	var talk_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "talk")
 	var post_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "post")
+	animation_option_button.set_item_disabled(0, true)
+	animation_option_button.set_item_disabled(1, true)
+	animation_option_button.set_item_disabled(2, true)
+	animation_option_button.set_item_disabled(3, true)
 	if pre_image_path:
 		load_image_file(pre_image_path)
+		animation_option_button.set_item_disabled(0, false)
 	if idle_image_path:
 		load_image_file(idle_image_path)
+		animation_option_button.set_item_disabled(1, false)
 	if talk_image_path:
 		load_image_file(talk_image_path)
+		animation_option_button.set_item_disabled(2, false)
 	if post_image_path:
 		load_image_file(post_image_path)
-	_on_animState_selected(current_state)
+		animation_option_button.set_item_disabled(3, false)
+	if emote.emote_mod == Emote.EmoteMod.PREANIM:
+		_on_anim_state_selected(EmoteState.PRE)
+	else:
+		_on_anim_state_selected(EmoteState.IDLE)
 
 
 func load_image_file(image_path):
@@ -394,7 +412,6 @@ func handle_animated_file(image_path: String) -> void:
 	if not FileAccess.file_exists(frames_folder):
 		magick.split_frames(image_path, frames_folder)
 	current_anim = AttorneyAnimation.new()
-	current_anim.name = base_name
 	current_anim.add_frames_from_folder(frames_folder)
 	current_anim.initialize_from_frame_data(base_name, frame_data)
 	if scaling_option.selected == 0:
@@ -403,13 +420,14 @@ func handle_animated_file(image_path: String) -> void:
 		current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	world.add_child(current_anim)
 
-
+# TODO: static image file should still be treated as a single-frame AttorneyAnimation
 func handle_static_file(image_path: String) -> void:
 	var image = Image.load_from_file(image_path)
 	var image_texture = ImageTexture.create_from_image(image)
 	var sprite = Sprite2D.new()
 	sprite.texture = image_texture
 	sprite.set_texture(image_texture)
+	sprite.name = image_path.get_file().get_basename()
 	world.add_child(sprite)
 
 
@@ -419,44 +437,68 @@ func clear_world() -> void:
 		child.queue_free()
 
 
-func _on_animState_selected(index: int):
-	current_state = index
+func _on_anim_state_selected(index: int):
+	animation_option_button.select(index)
+	current_state = index as EmoteState
 	var prefix
 	if animation_buttons.visible:
 		match current_state:
-			emoteStates.PRE:
+			EmoteState.PRE:
 				prefix = null
-			emoteStates.IDLE:
+			EmoteState.IDLE:
 				prefix = "(a)"
-			emoteStates.TALK:
+			EmoteState.TALK:
 				prefix = "(b)"
-			emoteStates.POST:
+			EmoteState.POST:
 				prefix = "(c)"
-		for child in world.get_children():
+		animation_buttons.set_animation_player(null)
+		for child: AttorneyAnimation in world.get_children():
+			if child.animation_player.animation_finished.is_connected(_on_pre_finished):
+				child.animation_player.animation_finished.disconnect(_on_pre_finished)
 			if prefix:
+				child.animation_player.stop()
 				if child.name.begins_with(prefix):
 					child.visible = true
 					animation_buttons.set_animation_player(child.animation_player)
 					child.animation_player.play(child.name)
+					current_anim = child
 				else:
-					child.animation_player.stop()
 					child.visible = false
 			else:
+				child.animation_player.stop()
 				if child.name.begins_with("(a)") or child.name.begins_with("(b)") or child.name.begins_with("(c)"):
-					child.animation_player.stop()
 					child.visible = false
 				else:
 					child.visible = true
 					animation_buttons.set_animation_player(child.animation_player)
+					child.animation_player.animation_finished.connect(_on_pre_finished, CONNECT_ONE_SHOT)
+					if loop_pre_button.button_pressed:
+						child.animation.loop_mode = Animation.LOOP_LINEAR
+					else:
+						child.animation.loop_mode = Animation.LOOP_NONE
 					child.animation_player.play(child.name)
+					current_anim = child
+
+
+func _on_pre_finished(_anim_name: StringName) -> void:
+	_on_anim_state_selected(EmoteState.IDLE)
+
+
+func _on_loop_pre_button_toggled(toggled_on: bool) -> void:
+	# preanim is NOT selected
+	if animation_option_button.selected != 0:
+		return
+	if toggled_on:
+		current_anim.animation.loop_mode = Animation.LOOP_LINEAR
+	else:
+		current_anim.animation.loop_mode = Animation.LOOP_NONE
 
 
 func _on_scaling_selected(index: int) -> void:
-	if current_anim:
-		if index == 0:
-			current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-		elif index == 1:
-			current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	if index == 0:
+		world.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	elif index == 1:
+		world.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 
 func _on_emote_number_changed(value: float) -> void:
