@@ -457,6 +457,7 @@ layout_mode = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer" unique_id=333832416]
 layout_mode = 2
+alignment = 2
 
 [node name="AnimationButtons" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/HBoxContainer" unique_id=696682605 instance=ExtResource("7_wijlb")]
 unique_name_in_owner = true

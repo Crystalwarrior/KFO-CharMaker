@@ -13,6 +13,7 @@ extends Control
 @onready var char_folder_label: Label = %CharFolderLabel
 
 @onready var animation_buttons: HBoxContainer = %AnimationButtons
+@onready var animation_option_button: OptionButton = %AnimationOptionButton
 
 # Options
 @onready var charname_edit: LineEdit = %CharnameEdit
@@ -302,12 +303,17 @@ func set_emote_button_images(emote: Emote, folderPath: String, idx: int) -> void
 		emote.image_on = ImageTexture.create_from_image(Image.load_from_file(button_on_path))
 
 
-func search_valid_idle_emote(char_folder: String, emote_name: String) -> String:
+func search_valid_emote(char_folder: String, emote_name: String, state: String) -> String:
+	var try_path: String
 	for ext: String in SUPPORTED_EXTENSIONS:
-		var try_path: String = "%s/%s.%s" % [char_folder, emote_name, ext]
+		if state == "idle":
+			try_path = "%s/(a)%s.%s" % [char_folder, emote_name, ext]
+		if state == "talk":
+			try_path = "%s/(b)%s.%s" % [char_folder, emote_name, ext]
 		if FileAccess.file_exists(try_path):
 			return try_path
-		try_path = "%s/(a)%s.%s" % [char_folder, emote_name, ext]
+		else:
+			try_path = "%s/%s.%s" % [char_folder, emote_name, ext]
 		if FileAccess.file_exists(try_path):
 			return try_path
 	return ""
@@ -346,18 +352,26 @@ func _on_emote_selected(idx: int) -> void:
 		if id == emote.desk_mod:
 			deskmod_option.select(i)
 			break
-	var image_path: String = search_valid_idle_emote(current_character.get_folder(), emote.idle)
-	if not image_path:
-		return
+	clear_world()
+	var idle_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "idle")
+	var pre_image_path: String = search_valid_emote(current_character.get_folder(), emote.pre, "pre")
+	if idle_image_path:
+		load_image_file(idle_image_path)
+	if pre_image_path:
+		load_image_file(pre_image_path)
+
+
+func load_image_file(image_path):
 	var file_extension: String = image_path.get_extension()
-	# TODO: Cache all this somehow
 	if file_extension in ANIMATED_EXTENSIONS:
+		animation_buttons.visible = true
 		handle_animated_file(image_path)
 	if file_extension in STATIC_EXTENSIONS:
+		animation_buttons.visible = false
 		handle_static_file(image_path)
 
-
 func handle_animated_file(image_path: String) -> void:
+	# TODO: Cache all this somehow
 	var magick: Magick = Magick.new()
 	var frame_data: Array[Dictionary] = magick.get_frame_data(image_path)
 	var directory: String = image_path.get_base_dir()
@@ -367,7 +381,6 @@ func handle_animated_file(image_path: String) -> void:
 	if not FileAccess.file_exists(frames_folder):
 		magick.split_frames(image_path, frames_folder)
 	var lib: AnimationLibrary = world.animation_player.get_animation_library("")
-	clear_world()
 	current_anim = AttorneyAnimation.new()
 	current_anim.name = base_name
 	current_anim.add_frames_from_folder(frames_folder)
@@ -387,7 +400,6 @@ func handle_static_file(image_path: String) -> void:
 	var image_texture = ImageTexture.create_from_image(image)
 	var sprite = Sprite2D.new()
 	sprite.texture = image_texture
-	clear_world()
 	sprite.set_texture(image_texture)
 	world.add_child(sprite)
 
@@ -395,10 +407,11 @@ func handle_static_file(image_path: String) -> void:
 func clear_world() -> void:
 	for child in world.get_children():
 		if child is AttorneyAnimation:
-			var lib: AnimationLibrary = world.animation_player.get_animation_library("")
-			world.animation_player.stop()
-			lib.remove_animation(current_anim.name)
-			current_anim.queue_free()
+			if child == current_anim:
+				var lib: AnimationLibrary = world.animation_player.get_animation_library("")
+				world.animation_player.stop()
+				lib.remove_animation(current_anim.name)
+			child.queue_free()
 		if child is Sprite2D:
 			child.queue_free()
 
