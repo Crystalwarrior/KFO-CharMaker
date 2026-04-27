@@ -455,9 +455,30 @@ mouse_filter = 2
 [node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/CenterSplitContainer" unique_id=128698260]
 layout_mode = 2
 
-[node name="AnimationButtons" parent="HSplitContainer/CenterSplitContainer/VBoxContainer" unique_id=696682605 instance=ExtResource("7_wijlb")]
+[node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer" unique_id=333832416]
+layout_mode = 2
+
+[node name="AnimationButtons" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/HBoxContainer" unique_id=696682605 instance=ExtResource("7_wijlb")]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/HBoxContainer" unique_id=148867730]
+layout_mode = 2
+
+[node name="AnimationOptionButton" type="OptionButton" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/HBoxContainer/HBoxContainer" unique_id=249581653]
+unique_name_in_owner = true
+layout_mode = 2
+selected = 0
+item_count = 4
+popup/item_0/text = "Pre-Anim"
+popup/item_0/id = 0
+popup/item_1/text = "Idle"
+popup/item_1/id = 1
+popup/item_2/text = "Talk"
+popup/item_2/id = 2
+popup/item_3/text = "Post"
+popup/item_3/id = 3
 
 [node name="EmotesFold" type="FoldableContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer" unique_id=2086862974]
 layout_mode = 2
