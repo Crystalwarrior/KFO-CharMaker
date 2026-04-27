@@ -401,22 +401,9 @@ func _on_emote_selected(idx: int) -> void:
 		_on_anim_state_selected(EmoteState.IDLE)
 
 
-func load_image_file(image_path):
-	var emote_name: String = emote_edit.text
-	if emote_name.is_empty() or emote_name == "-":
-		return
-	match current_state:
-		EmoteState.PRE:
-			emote_name = preanim_edit.text
-			if emote_name.is_empty() or emote_name == "-":
-				return
-		EmoteState.IDLE:
-			emote_name = "(a)" + emote_name
-		EmoteState.TALK:
-			emote_name = "(b)" + emote_name
-		EmoteState.POST:
-			emote_name = "(c)" + emote_name
-	if world.get_node(emote_name):
+func load_image_file(image_path: String):
+	var emote_name: String = image_path.get_file().get_basename()
+	if is_instance_valid(world.get_node_or_null(emote_name)):
 		return
 	var file_extension: String = image_path.get_extension()
 	if file_extension in ANIMATED_EXTENSIONS:
@@ -432,13 +419,10 @@ func handle_animated_file(image_path: String) -> void:
 	var directory: String = image_path.get_base_dir()
 	var base_name: String = image_path.get_file().get_basename()
 	var char_name: String = directory.get_file()
-	var attorney_anim: AttorneyAnimation = world.get_node(base_name)
-	if attorney_anim:
-		return
 	var frames_folder: String = ProjectSettings.globalize_path("user://frame_cache/%s/%s/" % [char_name, base_name])
 	if not FileAccess.file_exists(frames_folder):
 		magick.split_frames(image_path, frames_folder)
-	attorney_anim = AttorneyAnimation.new()
+	var attorney_anim: AttorneyAnimation = AttorneyAnimation.new()
 	attorney_anim.add_frames_from_folder(frames_folder)
 	attorney_anim.initialize_from_frame_data(base_name, frame_data)
 	if scaling_option.selected == 0:
@@ -484,7 +468,7 @@ func _on_anim_state_selected(index: int):
 				ao_anim.animation_player.animation_finished.disconnect(_on_pre_finished)
 			ao_anim.animation_player.stop()
 			ao_anim.hide()
-		var attorney_animation: AttorneyAnimation = world.get_node(emote_name)
+		var attorney_animation: AttorneyAnimation = world.get_node_or_null(emote_name)
 		if attorney_animation:
 			attorney_animation.visible = true
 			animation_buttons.set_animation_player(attorney_animation.animation_player)
@@ -499,6 +483,8 @@ func _on_anim_state_selected(index: int):
 
 
 func _on_pre_finished(_anim_name: StringName) -> void:
+	# wait a frame so we don't create a frame where nothing is shown
+	await get_tree().process_frame
 	_on_anim_state_selected(EmoteState.IDLE)
 
 

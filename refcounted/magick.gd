@@ -11,7 +11,8 @@ var thread: Thread
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE:
-		thread.wait_to_finish()
+		if is_instance_valid(thread):
+			thread.wait_to_finish()
 
 
 func test_magick() -> bool:
