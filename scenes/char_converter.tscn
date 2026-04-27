@@ -47,12 +47,51 @@ use_native_dialog = true
 
 [node name="ConfirmationDialog" type="ConfirmationDialog" parent="." unique_id=959821638]
 unique_name_in_owner = true
+oversampling_override = 1.0
+
+[node name="InstallMagickDialog" type="AcceptDialog" parent="." unique_id=304357719]
+unique_name_in_owner = true
+oversampling_override = 1.0
+title = "ImageMagick Not Found!"
+position = Vector2i(0, 36)
+size = Vector2i(475, 132)
+dialog_text = "Magick does not exist, so Animations can't be supported!
+Please install it from the official ImageMagick website here:
+"
+
+[node name="Control" type="Control" parent="InstallMagickDialog" unique_id=386366596]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 467.0
+offset_bottom = 83.0
+mouse_filter = 2
+
+[node name="LinkButton" type="LinkButton" parent="InstallMagickDialog/Control" unique_id=1515907119]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -77.0
+offset_top = -23.0
+offset_right = 77.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 4
+size_flags_vertical = 0
+text = "Install ImageMagick"
+uri = "https://imagemagick.org/download/#windows"
 
 [node name="HSplitContainer" type="HSplitContainer" parent="." unique_id=2015959634]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = 426.0
+offset_bottom = 15.0
 grow_horizontal = 2
 grow_vertical = 2
 drag_area_highlight_in_editor = true

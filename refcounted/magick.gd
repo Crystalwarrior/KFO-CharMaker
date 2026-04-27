@@ -2,6 +2,17 @@ extends RefCounted
 
 class_name Magick
 
+func test_magick() -> bool:
+	var result: int = OS.execute(
+		"magick",
+		[
+			"-version"
+		]
+	)
+	if result != OK:
+		return false
+	return true
+
 # Returns the frame data for each animated frame in the image
 func get_frame_data(image_path: String) -> Array[Dictionary]:
 	var path: String = ProjectSettings.globalize_path(image_path)

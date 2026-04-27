@@ -4,6 +4,7 @@ extends Control
 @onready var image_dialog: FileDialog = %ImageDialog
 @onready var file_dialog_save: FileDialog = %FileDialogSave
 @onready var confirmation_dialog: ConfirmationDialog = %ConfirmationDialog
+@onready var install_magick_dialog: AcceptDialog = %InstallMagickDialog
 
 @onready var new_button: Button = %NewButton
 @onready var open_ini_button: Button = %OpenIniButton
@@ -134,6 +135,11 @@ func _ready() -> void:
 	sound_name_edit.text_changed.connect(_on_emote_sound_changed)
 	sound_time_edit.value_changed.connect(_on_emote_soundTime_changed)
 	sound_loop_check.toggled.connect(_on_emote_soundLoop_changed)
+
+	var magick: Magick = Magick.new()
+	var magick_real: bool = magick.test_magick()
+	if not magick_real:
+		install_magick_dialog.popup_centered()
 
 
 func _on_open_ini_button_pressed() -> void:
