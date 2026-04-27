@@ -6,6 +6,14 @@ class_name AttorneyAnimation
 
 var frame_sprite: Sprite2D
 var frame_textures: Array[ImageTexture]
+var animation_player: AnimationPlayer
+
+
+func _init() -> void:
+	animation_player = AnimationPlayer.new()
+	animation_player.name = "AnimationPlayer"
+	animation_player.add_animation_library("", AnimationLibrary.new())
+	add_child(animation_player)
 
 
 func add_frames_from_folder(folder_path: String) -> void:
@@ -30,10 +38,10 @@ func add_frames_from_folder(folder_path: String) -> void:
 		frame_textures.append(image_texture)
 
 
-func initialize_from_frame_data(frame_data: Array[Dictionary]) -> void:
+func initialize_from_frame_data(animation_name: String, frame_data: Array[Dictionary]) -> void:
 	animation = Animation.new()
 	var track_index: int = animation.add_track(Animation.TYPE_VALUE)
-	animation.track_set_path(track_index, name + "/Sprite:texture")
+	animation.track_set_path(track_index, "Sprite:texture")
 	animation.value_track_set_update_mode(track_index, Animation.UPDATE_DISCRETE)
 
 	var current_time: float = 0.0
@@ -43,3 +51,5 @@ func initialize_from_frame_data(frame_data: Array[Dictionary]) -> void:
 		animation.loop_mode = Animation.LOOP_LINEAR
 		current_time += frame["delay"] * 0.01
 	animation.length = current_time
+	var lib: AnimationLibrary = animation_player.get_animation_library("")
+	lib.add_animation(animation_name, animation)

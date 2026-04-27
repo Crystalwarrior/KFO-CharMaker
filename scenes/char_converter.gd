@@ -380,19 +380,18 @@ func handle_animated_file(image_path: String) -> void:
 	var frames_folder: String = ProjectSettings.globalize_path("user://frame_cache/%s/%s/" % [char_name, base_name])
 	if not FileAccess.file_exists(frames_folder):
 		magick.split_frames(image_path, frames_folder)
-	var lib: AnimationLibrary = world.animation_player.get_animation_library("")
+	clear_world()
 	current_anim = AttorneyAnimation.new()
 	current_anim.name = base_name
 	current_anim.add_frames_from_folder(frames_folder)
-	current_anim.initialize_from_frame_data(frame_data)
+	current_anim.initialize_from_frame_data(base_name, frame_data)
 	if scaling_option.selected == 0:
 		current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	elif scaling_option.selected == 1:
 		current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	world.add_child(current_anim)
-	lib.add_animation(base_name, current_anim.animation)
-	animation_buttons.set_animation_player(world.animation_player)
-	world.animation_player.play(base_name)
+	animation_buttons.set_animation_player(current_anim.animation_player)
+	current_anim.animation_player.play(base_name)
 
 
 func handle_static_file(image_path: String) -> void:
@@ -405,15 +404,9 @@ func handle_static_file(image_path: String) -> void:
 
 
 func clear_world() -> void:
+	animation_buttons.set_animation_player(null)
 	for child in world.get_children():
-		if child is AttorneyAnimation:
-			if child == current_anim:
-				var lib: AnimationLibrary = world.animation_player.get_animation_library("")
-				world.animation_player.stop()
-				lib.remove_animation(current_anim.name)
-			child.queue_free()
-		if child is Sprite2D:
-			child.queue_free()
+		child.queue_free()
 
 
 func _on_scaling_selected(index: int) -> void:
