@@ -88,6 +88,9 @@ var current_character: Character
 
 var current_anim: AttorneyAnimation
 
+enum emoteStates {PRE, IDLE, TALK, POST}
+var current_state: emoteStates = emoteStates.PRE
+
 var parsed_data: Dictionary[String, Dictionary]
 
 var is_image_pre: bool
@@ -102,6 +105,7 @@ func _ready() -> void:
 	file_dialog_save.file_selected.connect(_on_save_file_selected)
 	emote_list.item_selected.connect(_on_emote_selected)
 	scaling_option.item_selected.connect(_on_scaling_selected)
+	animation_option_button.item_selected.connect(_on_animState_selected)
 	# Char sidemenu
 	charname_edit.text_changed.connect(_on_char_name_changed)
 	showname_edit.text_changed.connect(_on_char_showname_changed)
@@ -151,6 +155,7 @@ func _on_char_icon_file_selected(file_path: String) -> void:
 
 func _on_file_selected(path: String) -> void:
 	# Create a new character
+	clear_world()
 	current_character = Character.new()
 	current_character.ini_path = path
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
@@ -353,12 +358,19 @@ func _on_emote_selected(idx: int) -> void:
 			deskmod_option.select(i)
 			break
 	clear_world()
-	var idle_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "idle")
 	var pre_image_path: String = search_valid_emote(current_character.get_folder(), emote.pre, "pre")
-	if idle_image_path:
-		load_image_file(idle_image_path)
+	var idle_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "idle")
+	var talk_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "talk")
+	var post_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "post")
 	if pre_image_path:
 		load_image_file(pre_image_path)
+	if idle_image_path:
+		load_image_file(idle_image_path)
+	if talk_image_path:
+		load_image_file(talk_image_path)
+	if post_image_path:
+		load_image_file(post_image_path)
+	_on_animState_selected(current_state)
 
 
 func load_image_file(image_path):
@@ -380,7 +392,6 @@ func handle_animated_file(image_path: String) -> void:
 	var frames_folder: String = ProjectSettings.globalize_path("user://frame_cache/%s/%s/" % [char_name, base_name])
 	if not FileAccess.file_exists(frames_folder):
 		magick.split_frames(image_path, frames_folder)
-	clear_world()
 	current_anim = AttorneyAnimation.new()
 	current_anim.name = base_name
 	current_anim.add_frames_from_folder(frames_folder)
@@ -390,8 +401,6 @@ func handle_animated_file(image_path: String) -> void:
 	elif scaling_option.selected == 1:
 		current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	world.add_child(current_anim)
-	animation_buttons.set_animation_player(current_anim.animation_player)
-	current_anim.animation_player.play(base_name)
 
 
 func handle_static_file(image_path: String) -> void:
@@ -408,6 +417,37 @@ func clear_world() -> void:
 	for child in world.get_children():
 		child.queue_free()
 
+func _on_animState_selected(index: int):
+	current_state = index
+	var prefix
+	if animation_buttons.visible:
+		match current_state:
+			emoteStates.PRE:
+				prefix = null
+			emoteStates.IDLE:
+				prefix = "(a)"
+			emoteStates.TALK:
+				prefix = "(b)"
+			emoteStates.POST:
+				prefix = "(c)"
+		for child in world.get_children():
+			if prefix:
+				if child.name.begins_with(prefix):
+					child.visible = true
+					animation_buttons.set_animation_player(child.animation_player)
+					child.animation_player.play(child.name)
+				else:
+					child.animation_player.stop()
+					child.visible = false
+			else:
+				if child.name.begins_with("(a)") or child.name.begins_with("(b)") or child.name.begins_with("(c)"):
+					child.animation_player.stop()
+					child.visible = false
+				else:
+					child.visible = true
+					animation_buttons.set_animation_player(child.animation_player)
+					child.animation_player.play(child.name)
+			
 
 func _on_scaling_selected(index: int) -> void:
 	if current_anim:
