@@ -1,0 +1,74 @@
+[gd_scene format=3 uid="uid://bv3pgfi27kdan"]
+
+[ext_resource type="Texture2D" uid="uid://baf6cuwoydl4m" path="res://assets/icons/PlayBackwards.svg" id="1_s1gu2"]
+[ext_resource type="Script" uid="uid://omsijdi1123a" path="res://scenes/animation_buttons.gd" id="1_yen0i"]
+[ext_resource type="Texture2D" uid="uid://j2fbsn8obfxt" path="res://assets/icons/PlayStartBackwards.svg" id="2_yen0i"]
+[ext_resource type="Texture2D" uid="uid://bfl21swlcyqye" path="res://assets/icons/Stop.svg" id="3_f6pen"]
+[ext_resource type="Texture2D" uid="uid://7viryekon6w0" path="res://assets/icons/PlayStart.svg" id="4_2jrah"]
+[ext_resource type="Texture2D" uid="uid://b8j1exwjbnc2a" path="res://assets/icons/Play.svg" id="5_8m4kp"]
+[ext_resource type="Texture2D" uid="uid://cb847ygftudmu" path="res://assets/icons/Pause.svg" id="5_f6pen"]
+
+[node name="AnimationButtons" type="HBoxContainer" unique_id=696682605]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 31.0
+grow_horizontal = 2
+script = ExtResource("1_yen0i")
+
+[node name="PlayBackwardsButton" type="Button" parent="." unique_id=1359566764]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Play Animation Backwards"
+icon = ExtResource("1_s1gu2")
+
+[node name="PlayStartBackwardsButton" type="Button" parent="." unique_id=597710121]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Play Animation Backwards from End"
+icon = ExtResource("2_yen0i")
+
+[node name="StopButton" type="Button" parent="." unique_id=1399620440]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Stop Animation"
+icon = ExtResource("3_f6pen")
+
+[node name="PauseButton" type="Button" parent="." unique_id=787767552]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+tooltip_text = "Pause Animation"
+icon = ExtResource("5_f6pen")
+
+[node name="PlayStartButton" type="Button" parent="." unique_id=1047322419]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Play Animation from Start"
+icon = ExtResource("4_2jrah")
+
+[node name="PlayButton" type="Button" parent="." unique_id=2087016894]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Play Animation"
+icon = ExtResource("5_8m4kp")
+
+[node name="VSeparator" type="VSeparator" parent="." unique_id=88911677]
+layout_mode = 2
+
+[node name="AnimationSlider" type="HSlider" parent="." unique_id=1331947334]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+step = 0.0
+editable = false
+
+[node name="VSeparator2" type="VSeparator" parent="." unique_id=1177753683]
+layout_mode = 2
+
+[node name="AnimationPosition" type="SpinBox" parent="." unique_id=1902108695]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Animation Position (in seconds)"
+step = 0.001
+suffix = "s"

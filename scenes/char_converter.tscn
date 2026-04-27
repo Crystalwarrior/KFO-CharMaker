@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://14k4uoeydtjp" path="res://assets/icons/smooth.svg" id="3_v8y5t"]
 [ext_resource type="Texture2D" uid="uid://rs77gdltfmku" path="res://assets/icons/pixel.svg" id="4_r658c"]
 [ext_resource type="Texture2D" uid="uid://ckf3dmstwk8ha" path="res://assets/icons/FileBrowse.svg" id="6_62nbp"]
+[ext_resource type="PackedScene" uid="uid://bv3pgfi27kdan" path="res://scenes/animation_buttons.tscn" id="7_wijlb"]
 
 [node name="CharConverter" type="Control" unique_id=472651589]
 layout_mode = 3
@@ -451,20 +452,28 @@ layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 
-[node name="EmotesFold" type="FoldableContainer" parent="HSplitContainer/CenterSplitContainer" unique_id=2086862974]
+[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/CenterSplitContainer" unique_id=128698260]
 layout_mode = 2
+
+[node name="AnimationButtons" parent="HSplitContainer/CenterSplitContainer/VBoxContainer" unique_id=696682605 instance=ExtResource("7_wijlb")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="EmotesFold" type="FoldableContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer" unique_id=2086862974]
+layout_mode = 2
+size_flags_vertical = 3
 mouse_force_pass_scroll_events = false
 title = "Emotes"
 title_alignment = 1
 title_position = 1
 
-[node name="BottomMenu" type="ScrollContainer" parent="HSplitContainer/CenterSplitContainer/EmotesFold" unique_id=250980165]
+[node name="BottomMenu" type="ScrollContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/EmotesFold" unique_id=250980165]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.3
 
-[node name="EmoteList" type="ItemList" parent="HSplitContainer/CenterSplitContainer/EmotesFold/BottomMenu" unique_id=2061598841]
+[node name="EmoteList" type="ItemList" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/EmotesFold/BottomMenu" unique_id=2061598841]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

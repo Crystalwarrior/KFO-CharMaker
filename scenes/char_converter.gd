@@ -12,6 +12,8 @@ extends Control
 @onready var character_icon: TextureRect = %CharIcon
 @onready var char_folder_label: Label = %CharFolderLabel
 
+@onready var animation_buttons: HBoxContainer = %AnimationButtons
+
 # Options
 @onready var charname_edit: LineEdit = %CharnameEdit
 @onready var showname_edit: LineEdit = %ShownameEdit
@@ -124,6 +126,7 @@ func _ready() -> void:
 	sound_name_edit.text_changed.connect(_on_emote_sound_changed)
 	sound_time_edit.value_changed.connect(_on_emote_soundTime_changed)
 	sound_loop_check.toggled.connect(_on_emote_soundLoop_changed)
+
 
 func _on_open_ini_button_pressed() -> void:
 	file_dialog.popup_centered()
@@ -375,6 +378,7 @@ func handle_animated_file(image_path: String) -> void:
 		current_anim.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	world.add_child(current_anim)
 	lib.add_animation(base_name, current_anim.animation)
+	animation_buttons.set_animation_player(world.animation_player)
 	world.animation_player.play(base_name)
 
 
