@@ -402,8 +402,9 @@ func _on_emote_selected(idx: int) -> void:
 
 
 func load_image_file(image_path: String):
-	var emote_name: String = image_path.get_file().get_basename()
-	if is_instance_valid(world.get_node_or_null(emote_name)):
+	var local_path: String = image_path.trim_prefix(current_character.get_folder() + "/").get_basename()
+	var node_name: String = local_path.replace("/", "|")
+	if is_instance_valid(world.get_node_or_null(node_name)):
 		return
 	var file_extension: String = image_path.get_extension()
 	if file_extension in ANIMATED_EXTENSIONS:
@@ -418,13 +419,15 @@ func handle_animated_file(image_path: String) -> void:
 	var frame_data: Array[Dictionary] = await magick.get_threaded_frame_data(image_path)
 	var directory: String = image_path.get_base_dir()
 	var base_name: String = image_path.get_file().get_basename()
+	var local_path: String = image_path.trim_prefix(current_character.get_folder() + "/").get_basename()
 	var char_name: String = directory.get_file()
 	var frames_folder: String = ProjectSettings.globalize_path("user://frame_cache/%s/%s/" % [char_name, base_name])
 	if not FileAccess.file_exists(frames_folder):
 		magick.split_frames(image_path, frames_folder)
 	var attorney_anim: AttorneyAnimation = AttorneyAnimation.new()
 	attorney_anim.add_frames_from_folder(frames_folder)
-	attorney_anim.initialize_from_frame_data(base_name, frame_data)
+	attorney_anim.initialize_from_frame_data(local_path, frame_data)
+	attorney_anim.name = local_path.replace("/", "|")
 	if scaling_option.selected == 0:
 		world.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	elif scaling_option.selected == 1:
@@ -438,7 +441,8 @@ func handle_static_file(image_path: String) -> void:
 	var sprite = Sprite2D.new()
 	sprite.texture = image_texture
 	sprite.set_texture(image_texture)
-	sprite.name = image_path.get_file().get_basename()
+	var local_path: String = image_path.trim_prefix(current_character.get_folder() + "/").get_basename()
+	sprite.name = local_path.replace("/", "|")
 	world.add_child(sprite)
 
 
@@ -452,23 +456,31 @@ func _on_anim_state_selected(index: int):
 	animation_option_button.select(index)
 	current_state = index as EmoteState
 	var emote_name: String = emote_edit.text
-	if animation_buttons.visible:
-		match current_state:
-			EmoteState.PRE:
-				emote_name = preanim_edit.text
-			EmoteState.IDLE:
-				emote_name = "(a)" + emote_name
-			EmoteState.TALK:
-				emote_name = "(b)" + emote_name
-			EmoteState.POST:
-				emote_name = "(c)" + emote_name
-		animation_buttons.set_animation_player(null)
-		for ao_anim: AttorneyAnimation in world.get_children():
+	var prefix: String = ""
+	match current_state:
+		EmoteState.PRE:
+			emote_name = preanim_edit.text
+		EmoteState.IDLE:
+			prefix = "(a)"
+		EmoteState.TALK:
+			prefix = "(b)"
+		EmoteState.POST:
+			prefix = "(c)"
+	emote_name = emote_name.replace("/", "|")
+	animation_buttons.set_animation_player(null)
+	for child: Node2D in world.get_children():
+		child.hide()
+		if child is AttorneyAnimation:
+			var ao_anim: AttorneyAnimation = child
 			if ao_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
 				ao_anim.animation_player.animation_finished.disconnect(_on_pre_finished)
 			ao_anim.animation_player.stop()
-			ao_anim.hide()
-		var attorney_animation: AttorneyAnimation = world.get_node_or_null(emote_name)
+		else:
+			# no prefix checked
+			if child.name == emote_name:
+				child.show()
+	if animation_buttons.visible:
+		var attorney_animation: AttorneyAnimation = world.get_node_or_null(prefix + emote_name)
 		if attorney_animation:
 			attorney_animation.visible = true
 			animation_buttons.set_animation_player(attorney_animation.animation_player)
