@@ -1,11 +1,19 @@
 # ✨ Features ✨
 
+⭐ Intuitive camera controls!
+
 ⭐ Full ini-editing suite for all [Options]
+
 ⭐ Individually modify each Emote setting, including Sound options
+
 ⭐ Re-arrange emotes and automatically save the modified Buttons
+
 ⭐ Add/Remove new Emote slots
+
 ⭐ Import and playback animations directly in the app! ([ImageMagick](https://imagemagick.org/download/#windows) needs to be installed)
+
 ⭐ Ability to save/load Character .ini files
+
 ⭐ FAST workflow woahhhh
 
 Keep in mind this is an ALPHA RELEASE! Please keep regular backups of your files.
