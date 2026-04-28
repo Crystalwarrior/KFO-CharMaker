@@ -208,7 +208,9 @@ func _on_file_selected(path: String) -> void:
 		scaling_option.select(0)
 	else:
 		scaling_option.select(1)
+	number_spin_box.set_block_signals(true)
 	number_spin_box.max_value = current_character.emotes.size()
+	number_spin_box.set_block_signals(false)
 	var char_folder: String = path.get_base_dir()
 	load_char_icon_from_filepath(char_folder + "/char_icon.png")
 	char_folder_label.text = char_folder.get_basename().get_file()
@@ -295,7 +297,9 @@ func _on_add_emote_pressed() -> void:
 		return
 	var emote: Emote = Emote.new("Blank")
 	current_character.emotes.append(emote)
+	number_spin_box.set_block_signals(true)
 	number_spin_box.max_value = current_character.emotes.size()
+	number_spin_box.set_block_signals(false)
 	set_emote_button_images(emote, current_character.get_folder() + "/emotions/", current_character.emotes.size())
 	add_emote_list_button(emote)
 
@@ -622,7 +626,9 @@ func _on_delete_emote_canceled() -> void:
 
 func delete_emote(idx: int) -> void:
 	current_character.emotes.remove_at(idx)
+	number_spin_box.set_block_signals(true)
 	number_spin_box.max_value = current_character.emotes.size()
+	number_spin_box.set_block_signals(false)
 	emote_list.remove_item(idx)
 	_on_emote_selected(clampi(0, idx-1, current_character.emotes.size()))
 
