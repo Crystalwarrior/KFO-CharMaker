@@ -9,7 +9,10 @@ extends Control
 @onready var new_button: Button = %NewButton
 @onready var open_ini_button: Button = %OpenIniButton
 @onready var save_button: Button = %SaveButton
+
 @onready var emote_list: ItemList = %EmoteList
+@onready var add_emote_button: Button = %AddEmoteButton
+
 @onready var character_icon: TextureRect = %CharIcon
 @onready var char_folder_label: Label = %CharFolderLabel
 
@@ -34,6 +37,7 @@ extends Control
 
 # Emote
 @onready var number_spin_box: SpinBox = %NumberSpinBox
+@onready var delete_emote_button: Button = %DeleteEmoteButton
 @onready var comment_edit: LineEdit = %CommentEdit
 @onready var preanim_edit: LineEdit = %PreanimEdit
 @onready var emote_edit: LineEdit = %EmoteEdit
@@ -42,12 +46,16 @@ extends Control
 @onready var sound_name_edit: LineEdit = %SoundNameEdit
 @onready var sound_time_edit: SpinBox = %SoundTimeEdit
 @onready var sound_loop_check: CheckBox = %SoundLoopCheck
-@onready var preanim_button: Button = %PreanimButton
-@onready var emote_button: Button = %EmoteButton
+@onready var set_preanim_button: Button = %SetPreanimButton
+@onready var set_emote_button: Button = %SetEmoteButton
 @onready var off_button_icon: TextureRect = %OffButtonIcon
 @onready var off_edit_button: Button = %OffEditButton
 @onready var on_button_icon: TextureRect = %OnButtonIcon
 @onready var on_edit_button: Button = %OnEditButton
+
+@onready var emotes_fold: FoldableContainer = %EmotesFold
+@onready var character_fold: FoldableContainer = %CharacterFold
+@onready var emote_modifiers_fold: FoldableContainer = %EmoteModifiersFold
 
 # TODO: get these the heck outta the gui
 @onready var world: Node2D = %World
@@ -87,8 +95,7 @@ const ANIMATED_EXTENSIONS: PackedStringArray = ["webp", "apng", "gif"]
 const STATIC_EXTENSIONS: PackedStringArray = ["png"]
 const SUPPORTED_EXTENSIONS: PackedStringArray = ANIMATED_EXTENSIONS + STATIC_EXTENSIONS
 
-var current_emote_number: int = -1
-var previous_emote_number: int = -1
+var current_emote_number: int = 0
 var current_character: Character
 
 var current_anim: AttorneyAnimation
@@ -102,6 +109,8 @@ var is_image_pre: bool
 
 var magick: Magick
 
+const BUTTON_PLACEHOLDER: Texture = preload("uid://e8ms34nail52")
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	open_ini_button.pressed.connect(_on_open_ini_button_pressed)
@@ -110,6 +119,7 @@ func _ready() -> void:
 	image_dialog.file_selected.connect(_on_image_selected)
 	file_dialog_save.file_selected.connect(_on_save_file_selected)
 	emote_list.item_selected.connect(_on_emote_selected)
+	add_emote_button.pressed.connect(_on_add_emote_pressed)
 	scaling_option.item_selected.connect(_on_scaling_selected)
 	animation_option_button.item_selected.connect(_on_anim_state_selected)
 	loop_pre_button.toggled.connect(_on_loop_pre_button_toggled)
@@ -125,9 +135,10 @@ func _ready() -> void:
 	category_edit.text_changed.connect(_on_char_category_changed)
 	scaling_option.item_selected.connect(_on_char_scaling_changed)
 	# Emote sidemenu
-	preanim_button.pressed.connect(_on_preanim_button_pressed)
-	emote_button.pressed.connect(_on_emote_button_pressed)
+	set_preanim_button.pressed.connect(_on_set_preanim_button_pressed)
+	set_emote_button.pressed.connect(_on_set_emote_button_pressed)
 	number_spin_box.value_changed.connect(_on_emote_number_changed)
+	delete_emote_button.pressed.connect(_on_delete_emote_pressed)
 	comment_edit.text_changed.connect(_on_emote_name_changed)
 	preanim_edit.text_submitted.connect(_on_preanim_edit_changed)
 	preanim_edit.focus_exited.connect(_on_preanim_lost_focus)
@@ -139,23 +150,33 @@ func _ready() -> void:
 	sound_time_edit.value_changed.connect(_on_emote_soundTime_changed)
 	sound_loop_check.toggled.connect(_on_emote_soundLoop_changed)
 
+	emotes_fold.folding_changed.connect(_on_emotes_folding_changed)
+	character_fold.folding_changed.connect(_on_character_folding_changed)
+	emote_modifiers_fold.folding_changed.connect(_on_emote_modifiers_folding_changed)
+
 	magick = Magick.new()
 	var magick_real: bool = magick.test_magick()
 	if not magick_real:
 		install_magick_dialog.popup_centered()
 
 
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		var path = ProjectSettings.globalize_path("user://frame_cache/")
+		remove_contents_of(path)
+
+
 func _on_open_ini_button_pressed() -> void:
 	file_dialog.popup_centered()
 
 
-func _on_preanim_button_pressed() -> void:
+func _on_set_preanim_button_pressed() -> void:
 	is_image_pre = true
 	image_dialog.current_dir = current_character.get_folder()
 	image_dialog.popup_centered()
 
 
-func _on_emote_button_pressed() -> void:
+func _on_set_emote_button_pressed() -> void:
 	is_image_pre = false
 	image_dialog.current_dir = current_character.get_folder()
 	image_dialog.popup_centered()
@@ -269,8 +290,18 @@ func _on_image_selected(path: String) -> void:
 	_on_emote_selected(current_emote_number)
 
 
+func _on_add_emote_pressed() -> void:
+	if not current_character:
+		return
+	var emote: Emote = Emote.new("Blank")
+	current_character.emotes.append(emote)
+	number_spin_box.max_value = current_character.emotes.size()
+	set_emote_button_images(emote, current_character.get_folder() + "/emotions/", current_character.emotes.size())
+	add_emote_list_button(emote)
+
+
 func get_emote_path(filePath: String) -> String:
-	var result = filePath.get_slice(".", 0).trim_prefix(current_character.get_folder() + "/")
+	var result = filePath.get_basename().trim_prefix(current_character.get_folder() + "/")
 	result = result.trim_prefix("(a)").trim_prefix("(b)").trim_prefix("(c)")
 	return result
 
@@ -300,14 +331,37 @@ func _on_emote_soundLoop_changed(toggled_on: bool) -> void:
 	current_character.emotes[current_emote_number].sound_loop = toggled_on
 
 
+func _on_emotes_folding_changed(is_folded: bool) -> void:
+	%CenterSplitContainer.collapsed = is_folded
+
+
+func _on_character_folding_changed(_is_folded: bool) -> void:
+	if character_fold.folded:
+		character_fold.size_flags_vertical = Control.SIZE_FILL
+	else:
+		character_fold.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	%LeftSplitContainer.collapsed = character_fold.folded or emote_modifiers_fold.folded
+
+
+func _on_emote_modifiers_folding_changed(_is_folded: bool) -> void:
+	%LeftSplitContainer.collapsed = character_fold.folded or emote_modifiers_fold.folded
+
+
 func regenerate_buttons() -> void:
 	emote_list.clear()
 	for i: int in current_character.emotes.size():
 		var emote: Emote = current_character.emotes[i]
 		set_emote_button_images(emote, current_character.get_folder() + "/emotions/", i)
-		var at: int = emote_list.add_item(emote.display_name, emote.image_off)
-		emote_list.set_item_metadata(at, emote)
-		emote_list.set_item_tooltip(at, "%s\n%s: %s, %s" % [emote.display_name, i + 1, emote.pre, emote.idle])
+		add_emote_list_button(emote)
+
+
+func add_emote_list_button(emote: Emote) -> void:
+	var icon: Texture = emote.image_off
+	if icon == null:
+		icon = BUTTON_PLACEHOLDER
+	var at: int = emote_list.add_item(emote.display_name, icon)
+	emote_list.set_item_metadata(at, emote)
+	emote_list.set_item_tooltip(at, "%s\n%s: %s, %s" % [emote.display_name, at + 1, emote.pre, emote.idle])
 
 
 func set_emote_button_images(emote: Emote, folderPath: String, idx: int) -> void:
@@ -341,7 +395,11 @@ func search_valid_emote(char_folder: String, emote_name: String, state: String) 
 
 
 func _on_emote_selected(idx: int) -> void:
+	if idx < 0 or idx >= current_character.emotes.size():
+		return
+	var previous_emote_number: int = current_emote_number
 	current_emote_number = idx
+	emote_list.select(current_emote_number)
 	number_spin_box.set_block_signals(true)
 	number_spin_box.value = idx + 1
 	number_spin_box.set_block_signals(false)
@@ -354,15 +412,18 @@ func _on_emote_selected(idx: int) -> void:
 	sound_time_edit.value = emote.sound_time
 	sound_loop_check.button_pressed = emote.sound_loop
 	# Set previous emote's button to off state
-	var previous_emote: Emote = current_character.emotes[previous_emote_number]
-	emote_list.set_item_icon(previous_emote_number, previous_emote.image_off)
-	if emote.image_off:
-		off_button_icon.texture = emote.image_off
-	if emote.image_on:
-		emote_list.set_item_icon(current_emote_number, emote.image_on)
-		# Set current emote's button to on state if image exist
-		on_button_icon.texture = emote.image_on
-	previous_emote_number = idx
+	if previous_emote_number >= 0 and previous_emote_number < current_character.emotes.size():
+		var previous_emote: Emote = current_character.emotes[previous_emote_number]
+		if previous_emote and previous_emote.image_off != null:
+			emote_list.set_item_icon(previous_emote_number, previous_emote.image_off)
+	var icon: Texture = emote.image_off
+	if icon == null:
+		icon = BUTTON_PLACEHOLDER
+	if emote.image_on != null:
+		icon = emote.image_on
+	emote_list.set_item_icon(current_emote_number, icon)
+	off_button_icon.texture = emote.image_off
+	on_button_icon.texture = emote.image_on
 	for i: int in modifier_option.item_count:
 		var id: int = modifier_option.get_item_id(i)
 		if id == emote.emote_mod:
@@ -408,10 +469,8 @@ func load_image_file(image_path: String):
 		return
 	var file_extension: String = image_path.get_extension()
 	if file_extension in ANIMATED_EXTENSIONS:
-		animation_buttons.visible = true
 		await handle_animated_file(image_path)
 	if file_extension in STATIC_EXTENSIONS:
-		animation_buttons.visible = false
 		handle_static_file(image_path)
 
 
@@ -475,23 +534,23 @@ func _on_anim_state_selected(index: int):
 			if ao_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
 				ao_anim.animation_player.animation_finished.disconnect(_on_pre_finished)
 			ao_anim.animation_player.stop()
+			if child.name == prefix + emote_name:
+				ao_anim.show()
+				animation_buttons.set_animation_player(ao_anim.animation_player)
+				if current_state == EmoteState.PRE:
+					ao_anim.animation_player.animation_finished.connect(_on_pre_finished, CONNECT_ONE_SHOT)
+					if loop_pre_button.button_pressed:
+						ao_anim.animation.loop_mode = Animation.LOOP_LINEAR
+					else:
+						ao_anim.animation.loop_mode = Animation.LOOP_NONE
+				ao_anim.animation_player.play(ao_anim.name)
+				current_anim = ao_anim
+				animation_buttons.show()
 		else:
 			# no prefix checked
 			if child.name == emote_name:
 				child.show()
-	if animation_buttons.visible:
-		var attorney_animation: AttorneyAnimation = world.get_node_or_null(prefix + emote_name)
-		if attorney_animation:
-			attorney_animation.visible = true
-			animation_buttons.set_animation_player(attorney_animation.animation_player)
-			if current_state == EmoteState.PRE:
-				attorney_animation.animation_player.animation_finished.connect(_on_pre_finished, CONNECT_ONE_SHOT)
-				if loop_pre_button.button_pressed:
-					attorney_animation.animation.loop_mode = Animation.LOOP_LINEAR
-				else:
-					attorney_animation.animation.loop_mode = Animation.LOOP_NONE
-			attorney_animation.animation_player.play(attorney_animation.name)
-			current_anim = attorney_animation
+				animation_buttons.hide()
 
 
 func _on_pre_finished(_anim_name: StringName) -> void:
@@ -518,21 +577,54 @@ func _on_scaling_selected(index: int) -> void:
 
 
 func _on_emote_number_changed(value: float) -> void:
-	if value == 0:
-		number_spin_box.value = 1
-		return
 	var index_from: int = current_emote_number
 	var index_to: int = int(value) - 1
 	current_character.emotes.insert(index_to, current_character.emotes.pop_at(index_from))
 	emote_list.move_item(index_from, index_to)
 	current_emote_number = index_to
-	previous_emote_number = index_to
 
 
-func _notification(what):
-	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		var path = ProjectSettings.globalize_path("user://frame_cache/")
-		remove_contents_of(path)
+func _on_delete_emote_pressed() -> void:
+	if Input.is_key_pressed(KEY_SHIFT):
+		delete_emote(current_emote_number)
+		return
+	confirmation_dialog.title = "Delete Emote?"
+	confirmation_dialog.dialog_text = """
+Are you sure you want to delete this emote?
+There is no undo-redo yet!! (Hold Shift to skip this prompt next time)
+	"""
+	confirmation_dialog.ok_button_text = "Delete!"
+	confirmation_dialog.popup_centered()
+	confirmation_dialog.confirmed.connect(
+		_on_delete_emote_confirmed,
+		CONNECT_ONE_SHOT
+	)
+	confirmation_dialog.canceled.connect(
+		_on_delete_emote_canceled,
+		CONNECT_ONE_SHOT
+	)
+
+
+func _on_delete_emote_confirmed() -> void:
+	if confirmation_dialog.confirmed.is_connected(_on_delete_emote_confirmed):
+		confirmation_dialog.confirmed.disconnect(_on_delete_emote_confirmed)
+	if confirmation_dialog.canceled.is_connected(_on_delete_emote_canceled):
+		confirmation_dialog.canceled.disconnect(_on_delete_emote_canceled)
+	delete_emote(current_emote_number)
+
+
+func _on_delete_emote_canceled() -> void:
+	if confirmation_dialog.confirmed.is_connected(_on_delete_emote_confirmed):
+		confirmation_dialog.confirmed.disconnect(_on_delete_emote_confirmed)
+	if confirmation_dialog.canceled.is_connected(_on_delete_emote_canceled):
+		confirmation_dialog.canceled.disconnect(_on_delete_emote_canceled)
+
+
+func delete_emote(idx: int) -> void:
+	current_character.emotes.remove_at(idx)
+	number_spin_box.max_value = current_character.emotes.size()
+	emote_list.remove_item(idx)
+	_on_emote_selected(clampi(0, idx-1, current_character.emotes.size()))
 
 
 func remove_contents_of(directory: String) -> void:
@@ -566,6 +658,7 @@ func _on_save_file_selected(path: String) -> void:
 	# TODO: move this somewhere more appropriate!!
 	var emotions_folder: String = save_folder + "/emotions/"
 	if DirAccess.dir_exists_absolute(emotions_folder):
+		confirmation_dialog.title = "Overwrite Buttons?"
 		confirmation_dialog.dialog_text = """
 Warning: /emotions/ folder already exists and will be overwritten.
 If you press "Accept", an /_old_emotions/ folder will be created as backup.
