@@ -3,6 +3,7 @@ extends Control
 @onready var file_dialog: FileDialog = %FileDialog
 @onready var image_dialog: FileDialog = %ImageDialog
 @onready var file_dialog_save: FileDialog = %FileDialogSave
+@onready var button_image_dialog: FileDialog = %ButtonImageDialog
 @onready var confirmation_dialog: ConfirmationDialog = %ConfirmationDialog
 @onready var install_magick_dialog: AcceptDialog = %InstallMagickDialog
 
@@ -49,13 +50,20 @@ extends Control
 @onready var set_preanim_button: Button = %SetPreanimButton
 @onready var set_emote_button: Button = %SetEmoteButton
 @onready var off_button_icon: TextureRect = %OffButtonIcon
-@onready var off_edit_button: Button = %OffEditButton
+@onready var off_photo_button: Button = %OffPhotoButton
+@onready var off_load_button: Button = %OffLoadButton
 @onready var on_button_icon: TextureRect = %OnButtonIcon
-@onready var on_edit_button: Button = %OnEditButton
-
+@onready var on_photo_button: Button = %OnPhotoButton
+@onready var on_load_button: Button = %OnLoadButton
 @onready var emotes_fold: FoldableContainer = %EmotesFold
 @onready var character_fold: FoldableContainer = %CharacterFold
 @onready var emote_modifiers_fold: FoldableContainer = %EmoteModifiersFold
+
+# Button image buttons
+@onready var load_bg_button: Button = %LoadBGButton
+@onready var clear_bg_button: Button = %ClearBGButton
+@onready var load_fg_button: Button = %LoadFGButton
+@onready var clear_fg_button: Button = %ClearFGButton
 
 # TODO: get these the heck outta the gui
 @onready var world: Node2D = %World
@@ -107,9 +115,14 @@ var parsed_data: Dictionary[String, Dictionary]
 
 var is_image_pre: bool
 
+var is_button_image_bg: bool
+
 var magick: Magick
 
 const BUTTON_PLACEHOLDER: Texture = preload("uid://e8ms34nail52")
+
+signal button_image_selected(texture: ImageTexture, is_bg)
+signal button_image_deleted(is_bg)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -118,6 +131,8 @@ func _ready() -> void:
 	file_dialog.file_selected.connect(_on_file_selected)
 	image_dialog.file_selected.connect(_on_image_selected)
 	file_dialog_save.file_selected.connect(_on_save_file_selected)
+	button_image_dialog.file_selected.connect(_on_button_image_file_selected)
+	
 	emote_list.item_selected.connect(_on_emote_selected)
 	add_emote_button.pressed.connect(_on_add_emote_pressed)
 	scaling_option.item_selected.connect(_on_scaling_selected)
@@ -149,6 +164,11 @@ func _ready() -> void:
 	sound_name_edit.text_changed.connect(_on_emote_sound_changed)
 	sound_time_edit.value_changed.connect(_on_emote_soundTime_changed)
 	sound_loop_check.toggled.connect(_on_emote_soundLoop_changed)
+	# Button image buttons
+	load_bg_button.pressed.connect(_on_load_bg_button_pressed)
+	clear_bg_button.pressed.connect(_on_clear_bg_button_pressed)
+	load_fg_button.pressed.connect(_on_load_fg_button_pressed)
+	clear_fg_button.pressed.connect(_on_clear_fg_button_pressed)
 
 	emotes_fold.folding_changed.connect(_on_emotes_folding_changed)
 	character_fold.folding_changed.connect(_on_character_folding_changed)
@@ -718,3 +738,26 @@ func save_buttons(path: String) -> void:
 			emote.image_off.get_image().save_png(button_path + "_off.png")
 		if emote.image_on:
 			emote.image_on.get_image().save_png(button_path + "_on.png")
+
+func _on_button_image_file_selected(path: String) -> void:
+	var image = Image.load_from_file(path)
+	var texture = ImageTexture.create_from_image(image)
+	button_image_selected.emit(texture, is_button_image_bg)
+
+func _on_load_bg_button_pressed() -> void:
+	is_button_image_bg = true
+	button_image_dialog.current_dir = current_character.get_folder()
+	button_image_dialog.popup_centered()
+
+func _on_clear_bg_button_pressed() -> void:
+	is_button_image_bg = true
+	button_image_deleted.emit(is_button_image_bg)
+
+func _on_load_fg_button_pressed() -> void:
+	is_button_image_bg = false
+	button_image_dialog.current_dir = current_character.get_folder()
+	button_image_dialog.popup_centered()
+
+func _on_clear_fg_button_pressed() -> void:
+	is_button_image_bg = false
+	button_image_deleted.emit(is_button_image_bg)
