@@ -10,6 +10,8 @@ extends Node
 
 func _ready() -> void:
 	sub_viewport.world_2d = get_tree().root.world_2d
+	capture_button.pressed.connect(_on_capture_button_pressed)
+
 
 func _process(delta: float) -> void:
 	sub_viewport_camera.position = button_cropper.position + button_cropper.button_crop_zone.position
@@ -17,3 +19,8 @@ func _process(delta: float) -> void:
 	var prev_position: Vector2 = sub_viewport_container.position
 	var prev_size_x: float = sub_viewport_container.size.x
 	sub_viewport_container.set_size(button_cropper.button_crop_zone.size)
+
+
+func _on_capture_button_pressed() -> void:
+	await RenderingServer.frame_post_draw
+	capture_button.icon = ImageTexture.create_from_image(sub_viewport.get_texture().get_image())

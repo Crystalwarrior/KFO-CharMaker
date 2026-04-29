@@ -12,6 +12,7 @@ enum DragMode {
 	LEFT, TOP_LEFT, TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT, MOVE,
 }
 
+
 const _LEFT_MODES = [DragMode.LEFT, DragMode.TOP_LEFT, DragMode.BOTTOM_LEFT]
 const _RIGHT_MODES = [DragMode.RIGHT, DragMode.TOP_RIGHT, DragMode.BOTTOM_RIGHT]
 const _TOP_MODES = [DragMode.TOP, DragMode.TOP_LEFT, DragMode.TOP_RIGHT]
@@ -20,11 +21,13 @@ const _HORIZONTAL_EDGE_MODES = [DragMode.LEFT, DragMode.RIGHT]
 const _VERTICAL_EDGE_MODES = [DragMode.TOP, DragMode.BOTTOM]
 const _CORNER_MODES = [DragMode.TOP_LEFT, DragMode.TOP_RIGHT, DragMode.BOTTOM_LEFT, DragMode.BOTTOM_RIGHT]
 
+
 var drag_mode: DragMode = DragMode.MOVE
 var dragging = false
 var drag_start_global: Vector2
 var initial_global_pos: Vector2
 var initial_size: Vector2
+
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -46,6 +49,7 @@ func _gui_input(event: InputEvent) -> void:
 		drag_mode = result[0]
 		mouse_default_cursor_shape = result[1]
 
+
 func _detect_mode(local_pos: Vector2) -> Array:
 	var in_left = local_pos.x < resize_width
 	var in_right = local_pos.x > size.x - resize_width
@@ -61,6 +65,7 @@ func _detect_mode(local_pos: Vector2) -> Array:
 	if in_top: return [DragMode.TOP, Control.CURSOR_VSIZE]
 	if in_bottom: return [DragMode.BOTTOM, Control.CURSOR_VSIZE]
 	return [DragMode.MOVE, Control.CURSOR_MOVE]
+
 
 func _handle_drag() -> void:
 	if drag_mode == DragMode.MOVE:

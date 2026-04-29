@@ -72,7 +72,9 @@ stretch = true
 
 [node name="SubViewport" type="SubViewport" parent="GUILayer/SubViewportContainer" unique_id=610432675]
 unique_name_in_owner = true
+handle_input_locally = false
 size = Vector2i(40, 40)
+render_target_update_mode = 4
 
 [node name="SubViewportCamera" type="Camera2D" parent="GUILayer/SubViewportContainer/SubViewport" unique_id=1620356932]
 unique_name_in_owner = true
@@ -88,6 +90,8 @@ offset_right = 4.0
 offset_bottom = 8.0
 grow_horizontal = 2
 text = "Capture Button"
+icon_alignment = 1
+vertical_icon_alignment = 0
 
 [node name="CenterRef" type="ColorRect" parent="." unique_id=1978758270]
 offset_left = -1.0
