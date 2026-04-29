@@ -72,6 +72,7 @@ stretch = true
 
 [node name="SubViewport" type="SubViewport" parent="GUILayer/SubViewportContainer" unique_id=610432675]
 unique_name_in_owner = true
+transparent_bg = true
 handle_input_locally = false
 size = Vector2i(40, 40)
 render_target_update_mode = 4
