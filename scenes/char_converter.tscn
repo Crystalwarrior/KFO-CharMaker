@@ -136,6 +136,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 drag_area_highlight_in_editor = true
 
 [node name="LeftSplitContainer" type="VSplitContainer" parent="HSplitContainer" unique_id=462002216]
@@ -544,6 +545,7 @@ text = "EDIT"
 [node name="CenterSplitContainer" type="VSplitContainer" parent="HSplitContainer" unique_id=721584462]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
 drag_area_highlight_in_editor = true
 
 [node name="ViewZone" type="Control" parent="HSplitContainer/CenterSplitContainer" unique_id=1721035877]

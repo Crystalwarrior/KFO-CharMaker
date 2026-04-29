@@ -1,13 +1,32 @@
 [gd_scene format=3 uid="uid://b1xdag54tvknp"]
 
 [ext_resource type="PackedScene" uid="uid://bm4dd2b8qtgak" path="res://scenes/char_converter.tscn" id="1_h0otu"]
+[ext_resource type="Script" uid="uid://6ut86phbrp7r" path="res://scenes/main.gd" id="1_tipki"]
 [ext_resource type="Script" uid="uid://dkfp1sj4wdqmy" path="res://scenes/camera_controls.gd" id="2_o6xl0"]
 [ext_resource type="Texture2D" uid="uid://cdjfkw6b2o54t" path="res://assets/icons/CenterView.svg" id="2_tefeu"]
 [ext_resource type="Script" uid="uid://cmwvn07t0sv8n" path="res://scenes/camera.gd" id="3_h0otu"]
 [ext_resource type="Texture2D" uid="uid://cx1mrj8q70p7o" path="res://assets/icons/ZoomLess.svg" id="3_o6xl0"]
 [ext_resource type="Texture2D" uid="uid://bqql5tunkpnsn" path="res://assets/icons/ZoomMore.svg" id="4_tipki"]
+[ext_resource type="Script" uid="uid://c1ywb6hlblco2" path="res://scenes/button_cropper.gd" id="7_o6xl0"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tipki"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+draw_center = false
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8, 0, 0.8, 1)
+expand_margin_left = 1.0
+expand_margin_top = 1.0
+expand_margin_right = 1.0
+expand_margin_bottom = 1.0
 
 [node name="Main" type="Node" unique_id=269323199]
+script = ExtResource("1_tipki")
 
 [node name="GUILayer" type="CanvasLayer" parent="." unique_id=336270299]
 
@@ -43,6 +62,33 @@ unique_name_in_owner = true
 layout_mode = 2
 icon = ExtResource("4_tipki")
 
+[node name="SubViewportContainer" type="SubViewportContainer" parent="GUILayer" unique_id=1162041625]
+unique_name_in_owner = true
+offset_left = 297.0
+offset_right = 337.0
+offset_bottom = 40.0
+pivot_offset_ratio = Vector2(1, 0)
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="GUILayer/SubViewportContainer" unique_id=610432675]
+unique_name_in_owner = true
+size = Vector2i(40, 40)
+
+[node name="SubViewportCamera" type="Camera2D" parent="GUILayer/SubViewportContainer/SubViewport" unique_id=1620356932]
+unique_name_in_owner = true
+anchor_mode = 0
+
+[node name="CaptureButton" type="Button" parent="GUILayer" unique_id=1735467149]
+unique_name_in_owner = true
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -4.0
+offset_right = 4.0
+offset_bottom = 8.0
+grow_horizontal = 2
+text = "Capture Button"
+
 [node name="CenterRef" type="ColorRect" parent="." unique_id=1978758270]
 offset_left = -1.0
 offset_top = -1.0
@@ -55,3 +101,24 @@ unique_name_in_owner = true
 [node name="Camera" type="Camera2D" parent="." unique_id=682089302]
 unique_name_in_owner = true
 script = ExtResource("3_h0otu")
+
+[node name="ButtonCropper" type="ReferenceRect" parent="." unique_id=923137094]
+unique_name_in_owner = true
+offset_right = 48.0
+offset_bottom = 44.0
+border_color = Color(0, 0.61620533, 0.5876613, 1)
+script = ExtResource("7_o6xl0")
+
+[node name="ButtonCropZone" type="Panel" parent="ButtonCropper" unique_id=2109738967]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_right = -4.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_tipki")
