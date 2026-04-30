@@ -99,10 +99,10 @@ canvas_cull_mask = 4294967291
 size = Vector2i(40, 40)
 render_target_update_mode = 4
 
-[node name="FgLayer" type="CanvasLayer" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport" unique_id=31510933]
+[node name="BackgroundLayer" type="CanvasLayer" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport" unique_id=31510933]
 layer = -1
 
-[node name="ButtonBG" type="TextureRect" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport/FgLayer" unique_id=444446579]
+[node name="ButtonBG" type="TextureRect" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport/BackgroundLayer" unique_id=444446579]
 unique_name_in_owner = true
 visibility_layer = 2
 anchors_preset = 15
@@ -113,9 +113,9 @@ grow_vertical = 2
 expand_mode = 5
 stretch_mode = 6
 
-[node name="BgLayer" type="CanvasLayer" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport" unique_id=940384930]
+[node name="ForegroundLayer" type="CanvasLayer" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport" unique_id=940384930]
 
-[node name="ButtonFG" type="TextureRect" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport/BgLayer" unique_id=816461959]
+[node name="ButtonFG" type="TextureRect" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport/ForegroundLayer" unique_id=816461959]
 unique_name_in_owner = true
 visibility_layer = 2
 anchors_preset = 15
