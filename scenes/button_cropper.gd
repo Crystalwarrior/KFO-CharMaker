@@ -38,7 +38,7 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			dragging = true
-			drag_start_global = get_global_mouse_position()
+			drag_start_global = get_global_mouse_position().round()
 			initial_global_pos = global_position
 			initial_size = size
 			drag_mode = _detect_mode(event.position)[0]
@@ -74,7 +74,7 @@ func _detect_mode(local_pos: Vector2) -> Array:
 
 func _handle_drag() -> void:
 	if drag_mode == DragMode.MOVE:
-		global_position = initial_global_pos + (get_global_mouse_position() - drag_start_global)
+		global_position = initial_global_pos + (get_global_mouse_position() - drag_start_global).round()
 		return
 
 	var delta = get_global_mouse_position() - drag_start_global
@@ -104,8 +104,11 @@ func _handle_drag() -> void:
 	elif drag_mode in _VERTICAL_EDGE_MODES:
 		adjust_x -= (new_w - initial_size.x) / 2.0
 
-	global_position = Vector2(initial_global_pos.x + adjust_x, initial_global_pos.y + adjust_y).round()
-	size = Vector2(new_w, new_h).round()
+	global_position = Vector2(initial_global_pos.x + adjust_x, initial_global_pos.y + adjust_y)
+	size = Vector2(new_w, new_h)
+
+	global_position = global_position.round()
+	size = size.round()
 
 
 func _get_aspect_diff(raw_w: float, raw_h: float) -> float:
