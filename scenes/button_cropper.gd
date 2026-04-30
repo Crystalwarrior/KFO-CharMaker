@@ -3,6 +3,8 @@ extends Control
 
 @export var resize_width: int = 8
 @export var preserve_aspect_ratio: bool = true
+@onready var button_fg: TextureRect = %ButtonFG
+@onready var button_bg: TextureRect = %ButtonBG
 
 
 @onready var button_crop_zone: Control = %ButtonCropZone
@@ -101,6 +103,8 @@ func _handle_drag() -> void:
 
 	global_position = Vector2(initial_global_pos.x + adjust_x, initial_global_pos.y + adjust_y).round()
 	size = Vector2(new_w, new_h).round()
+	button_bg.size = size
+	button_fg.size = size
 
 
 func _get_aspect_diff(raw_w: float, raw_h: float) -> float:

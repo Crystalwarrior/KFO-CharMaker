@@ -60,10 +60,12 @@ extends Control
 @onready var emote_modifiers_fold: FoldableContainer = %EmoteModifiersFold
 
 # Button image buttons
+@onready var button_image_buttons: Control = $HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons
 @onready var load_bg_button: Button = %LoadBGButton
 @onready var clear_bg_button: Button = %ClearBGButton
 @onready var load_fg_button: Button = %LoadFGButton
 @onready var clear_fg_button: Button = %ClearFGButton
+@onready var capture_button: Button = %CaptureButton
 
 # TODO: get these the heck outta the gui
 @onready var world: Node2D = %World
@@ -121,8 +123,9 @@ var magick: Magick
 
 const BUTTON_PLACEHOLDER: Texture = preload("uid://e8ms34nail52")
 
-signal button_image_selected(texture: ImageTexture, is_bg)
-signal button_image_deleted(is_bg)
+signal button_image_selected(texture: ImageTexture, is_bg: bool)
+signal button_image_deleted(is_bg: bool)
+signal capture_mode()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -164,6 +167,8 @@ func _ready() -> void:
 	sound_name_edit.text_changed.connect(_on_emote_sound_changed)
 	sound_time_edit.value_changed.connect(_on_emote_soundTime_changed)
 	sound_loop_check.toggled.connect(_on_emote_soundLoop_changed)
+	off_photo_button.pressed.connect(_on_off_photo_button_pressed)
+	on_photo_button.pressed.connect(_on_on_photo_button_pressed)
 	# Button image buttons
 	load_bg_button.pressed.connect(_on_load_bg_button_pressed)
 	clear_bg_button.pressed.connect(_on_clear_bg_button_pressed)
@@ -761,3 +766,11 @@ func _on_load_fg_button_pressed() -> void:
 func _on_clear_fg_button_pressed() -> void:
 	is_button_image_bg = false
 	button_image_deleted.emit(is_button_image_bg)
+
+func _on_off_photo_button_pressed() -> void:
+	button_image_buttons.visible = true
+	capture_mode.emit(true)
+
+func _on_on_photo_button_pressed() -> void:
+	button_image_buttons.visible = true
+	capture_mode.emit(false)

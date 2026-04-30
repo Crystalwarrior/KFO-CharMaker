@@ -599,28 +599,37 @@ layout_mode = 2
 mouse_filter = 2
 drag_area_highlight_in_editor = true
 
-[node name="ViewZone" type="Control" parent="HSplitContainer/CenterSplitContainer" unique_id=1721035877]
+[node name="ViewZone" type="Control" parent="HSplitContainer/CenterSplitContainer" unique_id=1551648324]
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 
-[node name="BGVisibleButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone" unique_id=1761584301]
+[node name="ButtonImageButtons" type="Control" parent="HSplitContainer/CenterSplitContainer/ViewZone" unique_id=1414968696]
 visible = false
 layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -176.0
-offset_top = -154.0
-offset_bottom = -123.0
-grow_horizontal = 0
-grow_vertical = 0
-toggle_mode = true
-text = "Toggle Background"
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
-[node name="LoadBGButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone" unique_id=1115946800]
+[node name="CaptureButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons" unique_id=967405449]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -64.0
+offset_right = 64.0
+offset_bottom = 54.0
+grow_horizontal = 2
+text = "Capture"
+icon_alignment = 1
+vertical_icon_alignment = 0
+
+[node name="LoadBGButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons" unique_id=1115946800]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 3
@@ -636,7 +645,7 @@ grow_horizontal = 0
 grow_vertical = 0
 text = "Load Background"
 
-[node name="ClearBGButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone" unique_id=558507091]
+[node name="ClearBGButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons" unique_id=558507091]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 3
@@ -657,23 +666,7 @@ icon = ExtResource("6_ovvhr")
 icon_alignment = 1
 expand_icon = true
 
-[node name="FGVisibleButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone" unique_id=1292580871]
-visible = false
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -176.0
-offset_top = -112.0
-offset_bottom = -81.0
-grow_horizontal = 0
-grow_vertical = 0
-toggle_mode = true
-text = "Toggle Foreground"
-
-[node name="LoadFGButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone" unique_id=1224566324]
+[node name="LoadFGButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons" unique_id=1224566324]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 3
@@ -688,7 +681,7 @@ grow_horizontal = 0
 grow_vertical = 0
 text = "Load Foreground"
 
-[node name="ClearFGButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone" unique_id=2116921112]
+[node name="ClearFGButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons" unique_id=2116921112]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 3
