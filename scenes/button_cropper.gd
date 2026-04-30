@@ -6,6 +6,7 @@ extends Control
 
 
 @onready var button_crop_zone: Control = %ButtonCropZone
+@onready var size_label: Label = %SizeLabel
 
 
 enum DragMode {
@@ -27,6 +28,10 @@ var dragging = false
 var drag_start_global: Vector2
 var initial_global_pos: Vector2
 var initial_size: Vector2
+
+
+func _process(_delta: float) -> void:
+	size_label.text = "%dx%d" % [button_crop_zone.size.x, button_crop_zone.size.y]
 
 
 func _gui_input(event: InputEvent) -> void:

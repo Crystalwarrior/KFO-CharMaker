@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://cx1mrj8q70p7o" path="res://assets/icons/ZoomLess.svg" id="3_o6xl0"]
 [ext_resource type="Texture2D" uid="uid://bqql5tunkpnsn" path="res://assets/icons/ZoomMore.svg" id="4_tipki"]
 [ext_resource type="Script" uid="uid://c1ywb6hlblco2" path="res://scenes/button_cropper.gd" id="7_o6xl0"]
+[ext_resource type="FontFile" uid="uid://bg3pasb824cy1" path="res://assets/fonts/Habbo.ttf" id="9_85g3d"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tipki"]
 content_margin_left = 0.0
@@ -24,6 +25,9 @@ expand_margin_left = 1.0
 expand_margin_top = 1.0
 expand_margin_right = 1.0
 expand_margin_bottom = 1.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_tipki"]
+font = ExtResource("9_85g3d")
 
 [node name="Main" type="Node" unique_id=269323199]
 script = ExtResource("1_tipki")
@@ -148,14 +152,13 @@ script = ExtResource("3_h0otu")
 
 [node name="ButtonCropper" type="ReferenceRect" parent="." unique_id=923137094]
 unique_name_in_owner = true
-visible = false
 visibility_layer = 4
 offset_right = 48.0
 offset_bottom = 44.0
 border_color = Color(0, 0.61620533, 0.5876613, 1)
 script = ExtResource("7_o6xl0")
 
-[node name="ButtonCropZone" type="PanelContainer" parent="ButtonCropper" unique_id=832025316]
+[node name="ButtonCropZone" type="Panel" parent="ButtonCropper" unique_id=15811662]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -168,3 +171,13 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_tipki")
+
+[node name="SizeLabel" type="Label" parent="ButtonCropper/ButtonCropZone" unique_id=856390590]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = -14.0
+offset_right = 40.0
+offset_bottom = -1.0
+text = "err"
+label_settings = SubResource("LabelSettings_tipki")
+clip_text = true
