@@ -78,34 +78,46 @@ text = "Capture"
 icon_alignment = 1
 vertical_icon_alignment = 0
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="GUILayer" unique_id=1162041625]
+[node name="ButtonPreviewer" type="PanelContainer" parent="GUILayer" unique_id=1859716987]
 unique_name_in_owner = true
-visible = false
-offset_left = 322.0
-offset_top = 22.0
-offset_right = 362.0
-offset_bottom = 62.0
-pivot_offset_ratio = Vector2(1, 0)
+offset_left = 305.0
+offset_top = 8.0
+offset_right = 345.0
+offset_bottom = 48.0
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="GUILayer/ButtonPreviewer" unique_id=1162041625]
+unique_name_in_owner = true
+layout_mode = 2
 stretch = true
 
-[node name="SubViewport" type="SubViewport" parent="GUILayer/SubViewportContainer" unique_id=610432675]
+[node name="SubViewport" type="SubViewport" parent="GUILayer/ButtonPreviewer/SubViewportContainer" unique_id=610432675]
 unique_name_in_owner = true
 transparent_bg = true
 handle_input_locally = false
 snap_2d_transforms_to_pixel = true
 canvas_cull_mask = 4294967291
 size = Vector2i(40, 40)
-render_target_update_mode = 0
+render_target_update_mode = 4
 
-[node name="SubViewportCamera" type="Camera2D" parent="GUILayer/SubViewportContainer/SubViewport" unique_id=1620356932]
+[node name="FgLayer" type="CanvasLayer" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport" unique_id=31510933]
+layer = -1
+
+[node name="ButtonBG" type="TextureRect" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport/FgLayer" unique_id=444446579]
 unique_name_in_owner = true
 visibility_layer = 2
-anchor_mode = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 5
+stretch_mode = 6
 
-[node name="ButtonFG" type="TextureRect" parent="GUILayer/SubViewportContainer/SubViewport/SubViewportCamera" unique_id=816461959]
+[node name="BgLayer" type="CanvasLayer" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport" unique_id=940384930]
+
+[node name="ButtonFG" type="TextureRect" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport/BgLayer" unique_id=816461959]
 unique_name_in_owner = true
 visibility_layer = 2
-z_index = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -114,17 +126,10 @@ grow_vertical = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ButtonBG" type="TextureRect" parent="GUILayer/SubViewportContainer/SubViewport/SubViewportCamera" unique_id=444446579]
+[node name="SubViewportCamera" type="Camera2D" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport" unique_id=1620356932]
 unique_name_in_owner = true
 visibility_layer = 2
-z_index = -1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-expand_mode = 5
-stretch_mode = 6
+anchor_mode = 0
 
 [node name="CenterRef" type="ColorRect" parent="." unique_id=1978758270]
 unique_name_in_owner = true
@@ -146,7 +151,7 @@ unique_name_in_owner = true
 visible = false
 visibility_layer = 4
 offset_right = 48.0
-offset_bottom = 48.0
+offset_bottom = 44.0
 border_color = Color(0, 0.61620533, 0.5876613, 1)
 script = ExtResource("7_o6xl0")
 

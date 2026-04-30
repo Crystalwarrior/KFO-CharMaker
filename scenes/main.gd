@@ -3,6 +3,7 @@ extends Node
 
 @onready var button_cropper: ReferenceRect = %ButtonCropper
 @onready var capture_button: Button = %CaptureButton
+@onready var button_previewer: PanelContainer = %ButtonPreviewer
 @onready var sub_viewport_container: SubViewportContainer = %SubViewportContainer
 @onready var sub_viewport: SubViewport = %SubViewport
 @onready var sub_viewport_camera: Camera2D = %SubViewportCamera
@@ -27,7 +28,7 @@ func _process(delta: float) -> void:
 	
 	var prev_position: Vector2 = sub_viewport_container.position
 	var prev_size_x: float = sub_viewport_container.size.x
-	sub_viewport_container.set_size(button_cropper.button_crop_zone.size - Vector2(10, 10))
+	button_previewer.set_size(button_cropper.button_crop_zone.size)
 
 
 func _on_capture_button_pressed() -> void:
@@ -39,7 +40,7 @@ func _on_capture_button_pressed() -> void:
 	await RenderingServer.frame_post_draw
 	button.texture = ImageTexture.create_from_image(sub_viewport.get_texture().get_image())
 	capture_button.visible = false
-	sub_viewport_container.visible = false
+	button_previewer.visible = false
 	button_cropper.visible = false
 	char_converter.button_image_buttons.visible = false
 
@@ -58,5 +59,5 @@ func _on_button_image_deleted(is_bg) -> void:
 func _activate_capture_mode(is_off) -> void:
 	is_image_off = is_off
 	capture_button.visible = true
-	sub_viewport_container.visible = true
+	button_previewer.visible = true
 	button_cropper.visible = true
