@@ -2,11 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://bm4dd2b8qtgak" path="res://scenes/char_converter.tscn" id="1_h0otu"]
 [ext_resource type="Script" uid="uid://6ut86phbrp7r" path="res://scenes/main.gd" id="1_tipki"]
-[ext_resource type="Script" uid="uid://dkfp1sj4wdqmy" path="res://scenes/camera_controls.gd" id="2_o6xl0"]
-[ext_resource type="Texture2D" uid="uid://cdjfkw6b2o54t" path="res://assets/icons/CenterView.svg" id="2_tefeu"]
 [ext_resource type="Script" uid="uid://cmwvn07t0sv8n" path="res://scenes/camera.gd" id="3_h0otu"]
-[ext_resource type="Texture2D" uid="uid://cx1mrj8q70p7o" path="res://assets/icons/ZoomLess.svg" id="3_o6xl0"]
-[ext_resource type="Texture2D" uid="uid://bqql5tunkpnsn" path="res://assets/icons/ZoomMore.svg" id="4_tipki"]
 [ext_resource type="Script" uid="uid://c1ywb6hlblco2" path="res://scenes/button_cropper.gd" id="7_o6xl0"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tipki"]
@@ -38,104 +34,6 @@ script = ExtResource("1_tipki")
 [node name="CharConverter" parent="GUILayer" unique_id=472651589 instance=ExtResource("1_h0otu")]
 unique_name_in_owner = true
 
-[node name="CameraControls" type="HBoxContainer" parent="GUILayer" unique_id=1155165555]
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -67.0
-offset_bottom = 40.0
-grow_horizontal = 0
-script = ExtResource("2_o6xl0")
-
-[node name="ZoomCenterButton" type="Button" parent="GUILayer/CameraControls" unique_id=2020930577]
-unique_name_in_owner = true
-layout_mode = 2
-icon = ExtResource("2_tefeu")
-
-[node name="ZoomLessButton" type="Button" parent="GUILayer/CameraControls" unique_id=784014963]
-unique_name_in_owner = true
-layout_mode = 2
-icon = ExtResource("3_o6xl0")
-
-[node name="ZoomLevel" type="Button" parent="GUILayer/CameraControls" unique_id=209425801]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(70, 0)
-layout_mode = 2
-size_flags_vertical = 4
-text = "100.0 %"
-
-[node name="ZoomMoreButton" type="Button" parent="GUILayer/CameraControls" unique_id=971971615]
-unique_name_in_owner = true
-layout_mode = 2
-icon = ExtResource("4_tipki")
-
-[node name="CaptureButton" type="Button" parent="GUILayer" unique_id=1735467149]
-unique_name_in_owner = true
-visible = false
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -64.0
-offset_right = 64.0
-offset_bottom = 54.0
-grow_horizontal = 2
-text = "Capture"
-icon_alignment = 1
-vertical_icon_alignment = 0
-
-[node name="ButtonPreviewer" type="PanelContainer" parent="GUILayer" unique_id=1859716987]
-unique_name_in_owner = true
-offset_left = 305.0
-offset_top = 8.0
-offset_right = 345.0
-offset_bottom = 48.0
-
-[node name="SubViewportContainer" type="SubViewportContainer" parent="GUILayer/ButtonPreviewer" unique_id=1162041625]
-unique_name_in_owner = true
-layout_mode = 2
-stretch = true
-
-[node name="SubViewport" type="SubViewport" parent="GUILayer/ButtonPreviewer/SubViewportContainer" unique_id=610432675]
-unique_name_in_owner = true
-transparent_bg = true
-handle_input_locally = false
-snap_2d_transforms_to_pixel = true
-canvas_cull_mask = 4294967291
-size = Vector2i(40, 40)
-render_target_update_mode = 4
-
-[node name="BackgroundLayer" type="CanvasLayer" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport" unique_id=31510933]
-layer = -1
-
-[node name="ButtonBG" type="TextureRect" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport/BackgroundLayer" unique_id=444446579]
-unique_name_in_owner = true
-visibility_layer = 2
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-expand_mode = 5
-stretch_mode = 6
-
-[node name="ForegroundLayer" type="CanvasLayer" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport" unique_id=940384930]
-
-[node name="ButtonFG" type="TextureRect" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport/ForegroundLayer" unique_id=816461959]
-unique_name_in_owner = true
-visibility_layer = 2
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-expand_mode = 1
-stretch_mode = 6
-
-[node name="SubViewportCamera" type="Camera2D" parent="GUILayer/ButtonPreviewer/SubViewportContainer/SubViewport" unique_id=1620356932]
-unique_name_in_owner = true
-visibility_layer = 2
-anchor_mode = 0
-
 [node name="CenterRef" type="ColorRect" parent="." unique_id=1978758270]
 unique_name_in_owner = true
 visibility_layer = 4
@@ -153,6 +51,7 @@ script = ExtResource("3_h0otu")
 
 [node name="ButtonCropper" type="ReferenceRect" parent="." unique_id=923137094]
 unique_name_in_owner = true
+visible = false
 visibility_layer = 4
 offset_right = 48.0
 offset_bottom = 44.0
