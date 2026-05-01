@@ -1,5 +1,5 @@
 extends Control
-
+class_name ButtonCropper
 
 @export var resize_width: int = 8
 @export var preserve_aspect_ratio: bool = true
@@ -8,6 +8,7 @@ extends Control
 @onready var button_crop_zone: Control = %ButtonCropZone
 @onready var size_label: Label = %SizeLabel
 
+var _resize_width: int = resize_width
 
 enum DragMode {
 	LEFT, TOP_LEFT, TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT, MOVE,
@@ -32,6 +33,7 @@ var initial_size: Vector2
 
 func _process(_delta: float) -> void:
 	size_label.text = "%dx%d" % [button_crop_zone.size.x, button_crop_zone.size.y]
+	_resize_width = max(4, ceil(resize_width / get_viewport().get_camera_2d().zoom.x))
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -56,10 +58,10 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _detect_mode(local_pos: Vector2) -> Array:
-	var in_left = local_pos.x < resize_width
-	var in_right = local_pos.x > size.x - resize_width
-	var in_top = local_pos.y < resize_width
-	var in_bottom = local_pos.y > size.y - resize_width
+	var in_left = local_pos.x < _resize_width
+	var in_right = local_pos.x > size.x - _resize_width
+	var in_top = local_pos.y < _resize_width
+	var in_bottom = local_pos.y > size.y - _resize_width
 
 	if in_left and in_top: return [DragMode.TOP_LEFT, Control.CURSOR_FDIAGSIZE]
 	if in_right and in_bottom: return [DragMode.BOTTOM_RIGHT, Control.CURSOR_FDIAGSIZE]
@@ -92,8 +94,8 @@ func _handle_drag() -> void:
 		new_w = initial_size.x + size_diff
 		new_h = initial_size.y + size_diff
 
-	new_w = max(resize_width, new_w)
-	new_h = max(resize_width, new_h)
+	new_w = max(_resize_width, new_w)
+	new_h = max(_resize_width, new_h)
 
 	var adjust_x = (initial_size.x - new_w) if (drag_mode in _LEFT_MODES) else 0.0
 	var adjust_y = (initial_size.y - new_h) if (drag_mode in _TOP_MODES) else 0.0
