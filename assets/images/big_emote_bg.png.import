@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dyd211p6dgh67"
-path="res://.godot/imported/emote_border.png-36b1f926243e08df6a0ef61ed40bfcf4.ctex"
+uid="uid://bdxiuchywyyhf"
+path="res://.godot/imported/big_emote_bg.png-e5eeb7e188069d1f5c5b0182af86c148.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/emote_border.png"
-dest_files=["res://.godot/imported/emote_border.png-36b1f926243e08df6a0ef61ed40bfcf4.ctex"]
+source_file="res://assets/images/big_emote_bg.png"
+dest_files=["res://.godot/imported/big_emote_bg.png-e5eeb7e188069d1f5c5b0182af86c148.ctex"]
 
 [params]
 
