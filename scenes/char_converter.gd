@@ -549,7 +549,8 @@ func load_character(parsed_data: Dictionary[String, Dictionary]):
 	number_spin_box.set_block_signals(true)
 	number_spin_box.max_value = current_character.emotes.size()
 	number_spin_box.set_block_signals(false)
-
+	# Don't select any emote
+	_on_emote_selected(-1)
 
 func load_image_file(image_path: String):
 	var local_path: String = image_path.trim_prefix(
