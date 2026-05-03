@@ -607,13 +607,18 @@ func _on_anim_state_selected(index: int):
 			if ao_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
 				ao_anim.animation_player.animation_finished.disconnect(_on_pre_finished)
 			ao_anim.animation_player.stop()
-			if child.name == prefix + emote_name:
+			if child.name == prefix + emote_name or (prefix in ["(a)", "(b)"] and child.name == emote_name):
 				ao_anim.show()
 				animation_buttons.set_animation_player(ao_anim.animation_player)
 				loop_pre_button.disabled = false
 				if current_state == EmoteState.PRE:
 					ao_anim.animation_player.animation_finished.connect(_on_pre_finished, CONNECT_ONE_SHOT)
 					if loop_pre_button.button_pressed:
+						ao_anim.animation.loop_mode = Animation.LOOP_LINEAR
+					else:
+						ao_anim.animation.loop_mode = Animation.LOOP_NONE
+				else:
+					if ao_anim.animation_player.current_animation_length > 0.001:
 						ao_anim.animation.loop_mode = Animation.LOOP_LINEAR
 					else:
 						ao_anim.animation.loop_mode = Animation.LOOP_NONE

@@ -49,7 +49,7 @@ func initialize_from_frame_data(animation_name: String, frame_data: Array[Dictio
 		var frame: Dictionary = frame_data[i]
 		animation.track_insert_key(track_index, current_time, frame_textures[i])
 		current_time += frame["delay"] * 0.01
-	animation.length = current_time
+	animation.length = max(0.001, current_time)
 	animation.loop_mode = Animation.LOOP_LINEAR
 	var lib: AnimationLibrary = animation_player.get_animation_library("")
 	lib.add_animation(animation_name, animation)
