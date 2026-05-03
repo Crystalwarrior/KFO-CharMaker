@@ -184,16 +184,19 @@ mouse_force_pass_scroll_events = false
 [node name="CharacterVBox" type="VBoxContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList" unique_id=737692034]
 layout_mode = 2
 
+[node name="NewButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox" unique_id=2107542197]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 6
+text = "New Character"
+
+[node name="HSeparator2" type="HSeparator" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox" unique_id=1468223417]
+layout_mode = 2
+
 [node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox" unique_id=290307049]
 layout_mode = 2
 size_flags_vertical = 3
-
-[node name="NewButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/HBoxContainer" unique_id=2107542197]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-disabled = true
-text = "New Character"
 
 [node name="OpenIniButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/HBoxContainer" unique_id=313060656]
 unique_name_in_owner = true
@@ -204,8 +207,9 @@ size_flags_vertical = 8
 text = "Open char.ini
 "
 
-[node name="SaveButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox" unique_id=535886181]
+[node name="SaveButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/HBoxContainer" unique_id=535886181]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Save Character"
@@ -217,7 +221,7 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 1
-text = "Character"
+text = "Unsaved Character"
 horizontal_alignment = 1
 clip_text = true
 text_overrun_behavior = 1
@@ -226,7 +230,10 @@ text_overrun_behavior = 1
 custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 
-[node name="CharIcon" type="TextureRect" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/CharIconContainer" unique_id=1534636234]
+[node name="PanelContainer" type="PanelContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/CharIconContainer" unique_id=297886332]
+layout_mode = 2
+
+[node name="CharIcon" type="TextureRect" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/MenuList/CharacterVBox/CharIconContainer/PanelContainer" unique_id=1534636234]
 unique_name_in_owner = true
 layout_mode = 2
 texture = ExtResource("3_v5jts")
