@@ -8,7 +8,15 @@
 [ext_resource type="Texture2D" uid="uid://ckf3dmstwk8ha" path="res://assets/icons/FileBrowse.svg" id="6_62nbp"]
 [ext_resource type="Texture2D" uid="uid://i1ic28k5l1d8" path="res://assets/icons/trash.svg" id="6_ovvhr"]
 [ext_resource type="PackedScene" uid="uid://bv3pgfi27kdan" path="res://scenes/animation_buttons.tscn" id="7_wijlb"]
+[ext_resource type="StyleBox" uid="uid://cl656j0a88m6c" path="res://assets/themes/panel_no_focus.tres" id="8_78wkl"]
+[ext_resource type="Texture2D" uid="uid://c3pahx6lewmug" path="res://assets/icons/CameraTexture.svg" id="8_a481s"]
+[ext_resource type="StyleBox" uid="uid://dloxm1fufhvem" path="res://assets/themes/panel_focus.tres" id="8_o3upj"]
+[ext_resource type="PackedScene" uid="uid://cm8kiwf5n0uw6" path="res://scenes/button_previewer.tscn" id="8_r2pjc"]
 [ext_resource type="Texture2D" uid="uid://bgbitrgh13jqo" path="res://assets/icons/Add.svg" id="9_v5jts"]
+[ext_resource type="Script" uid="uid://dkfp1sj4wdqmy" path="res://scenes/camera_controls.gd" id="12_017pf"]
+[ext_resource type="Texture2D" uid="uid://cdjfkw6b2o54t" path="res://assets/icons/CenterView.svg" id="13_5cypo"]
+[ext_resource type="Texture2D" uid="uid://cx1mrj8q70p7o" path="res://assets/icons/ZoomLess.svg" id="14_45rf4"]
+[ext_resource type="Texture2D" uid="uid://bqql5tunkpnsn" path="res://assets/icons/ZoomMore.svg" id="15_y3ong"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v5jts"]
 content_margin_left = 4.0
@@ -93,6 +101,14 @@ unique_name_in_owner = true
 oversampling_override = 1.0
 position = Vector2i(0, 36)
 
+[node name="ButtonImageDialog" type="FileDialog" parent="." unique_id=271156793]
+unique_name_in_owner = true
+title = "Open a File"
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.png,*.jpg,*.jpeg;Image Files;image/png,image/jpeg")
+use_native_dialog = true
+
 [node name="InstallMagickDialog" type="AcceptDialog" parent="." unique_id=304357719]
 unique_name_in_owner = true
 oversampling_override = 1.0
@@ -136,6 +152,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 drag_area_highlight_in_editor = true
 
 [node name="LeftSplitContainer" type="VSplitContainer" parent="HSplitContainer" unique_id=462002216]
@@ -372,26 +389,30 @@ mouse_filter = 0
 mouse_force_pass_scroll_events = false
 horizontal_scroll_mode = 0
 
-[node name="GridContainer" type="GridContainer" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu" unique_id=993242273]
+[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu" unique_id=1214406289]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GridContainer" type="GridContainer" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer" unique_id=993242273]
 layout_mode = 2
 size_flags_horizontal = 3
 columns = 2
 
-[node name="NumberLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=240599959]
+[node name="NumberLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=240599959]
 layout_mode = 2
 text = "Number"
 
-[node name="HBoxContainer3" type="HBoxContainer" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=2067880252]
+[node name="HBoxContainer3" type="HBoxContainer" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=2067880252]
 layout_mode = 2
 
-[node name="NumberSpinBox" type="SpinBox" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer/HBoxContainer3" unique_id=612827928]
+[node name="NumberSpinBox" type="SpinBox" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer/HBoxContainer3" unique_id=612827928]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 min_value = 1.0
 value = 1.0
 
-[node name="DeleteEmoteButton" type="Button" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer/HBoxContainer3" unique_id=300686009]
+[node name="DeleteEmoteButton" type="Button" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer/HBoxContainer3" unique_id=300686009]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 10
@@ -401,54 +422,54 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_a481s")
 theme_override_styles/hover = SubResource("StyleBoxFlat_78wkl")
 icon = ExtResource("6_ovvhr")
 
-[node name="CommentLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=720974180]
+[node name="CommentLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=720974180]
 layout_mode = 2
 text = "Name"
 
-[node name="CommentEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=1628270160]
+[node name="CommentEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=1628270160]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="PreanimLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=1728643743]
+[node name="PreanimLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=1728643743]
 layout_mode = 2
 text = "Preanim"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=1459252721]
+[node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=1459252721]
 layout_mode = 2
 
-[node name="PreanimEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer/HBoxContainer" unique_id=896975106]
+[node name="PreanimEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer/HBoxContainer" unique_id=896975106]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="SetPreanimButton" type="Button" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer/HBoxContainer" unique_id=2137899022]
+[node name="SetPreanimButton" type="Button" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer/HBoxContainer" unique_id=2137899022]
 unique_name_in_owner = true
 layout_mode = 2
 icon = ExtResource("6_62nbp")
 
-[node name="EmoteLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=656249088]
+[node name="EmoteLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=656249088]
 layout_mode = 2
 text = "Emote"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=2107870307]
+[node name="HBoxContainer2" type="HBoxContainer" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=2107870307]
 layout_mode = 2
 
-[node name="EmoteEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer/HBoxContainer2" unique_id=992177765]
+[node name="EmoteEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer/HBoxContainer2" unique_id=992177765]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="SetEmoteButton" type="Button" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer/HBoxContainer2" unique_id=132749755]
+[node name="SetEmoteButton" type="Button" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer/HBoxContainer2" unique_id=132749755]
 unique_name_in_owner = true
 layout_mode = 2
 icon = ExtResource("6_62nbp")
 
-[node name="ModifierLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=357707153]
+[node name="ModifierLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=357707153]
 layout_mode = 2
 text = "Modifier"
 
-[node name="ModifierOption" type="OptionButton" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=2056810686]
+[node name="ModifierOption" type="OptionButton" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=2056810686]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -463,11 +484,11 @@ popup/item_2/id = 5
 popup/item_3/text = "Zoom Pre"
 popup/item_3/id = 6
 
-[node name="DeskmodLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=1625387104]
+[node name="DeskmodLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=1625387104]
 layout_mode = 2
 text = "Deskmod"
 
-[node name="DeskmodOption" type="OptionButton" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=93598593]
+[node name="DeskmodOption" type="OptionButton" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=93598593]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -486,73 +507,309 @@ popup/item_4/id = 4
 popup/item_5/text = "Pre Only Center"
 popup/item_5/id = 5
 
-[node name="SoundNameLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=98782827]
+[node name="SoundNameLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=98782827]
 layout_mode = 2
 text = "Sfx Name"
 
-[node name="SoundNameEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=428779073]
+[node name="SoundNameEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=428779073]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="SoundTimeLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=1605458007]
+[node name="SoundTimeLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=1605458007]
 layout_mode = 2
 text = "Sfx Time"
 
-[node name="SoundTimeEdit" type="SpinBox" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=1821313031]
+[node name="SoundTimeEdit" type="SpinBox" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=1821313031]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 allow_greater = true
 suffix = "ticks (60ms)"
 
-[node name="SoundLoopLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=767052883]
+[node name="SoundLoopLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=767052883]
 layout_mode = 2
 text = "Sfx Loop"
 
-[node name="SoundLoopCheck" type="CheckBox" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=1063154495]
+[node name="SoundLoopCheck" type="CheckBox" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=1063154495]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="OffButtonIcon" type="TextureRect" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=821147000]
+[node name="OffSpacer" type="Control" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=649260523]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-stretch_mode = 5
 
-[node name="OffEditButton" type="Button" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=624361521]
+[node name="OnSpacer" type="Control" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/VBoxContainer/GridContainer" unique_id=1592541393]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-disabled = true
-text = "EDIT"
-
-[node name="OnButtonIcon" type="TextureRect" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=687414993]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-stretch_mode = 5
-
-[node name="OnEditButton" type="Button" parent="HSplitContainer/LeftSplitContainer/EmoteModifiersFold/BottomMenu/GridContainer" unique_id=687975632]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-disabled = true
-text = "EDIT"
 
 [node name="CenterSplitContainer" type="VSplitContainer" parent="HSplitContainer" unique_id=721584462]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
 drag_area_highlight_in_editor = true
 
-[node name="ViewZone" type="Control" parent="HSplitContainer/CenterSplitContainer" unique_id=1721035877]
+[node name="ViewZone" type="Control" parent="HSplitContainer/CenterSplitContainer" unique_id=1551648324]
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 
+[node name="ButtonImageButtons" type="Control" parent="HSplitContainer/CenterSplitContainer/ViewZone" unique_id=1414968696]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons" unique_id=1028656257]
+custom_minimum_size = Vector2(205, 0)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -155.0
+offset_top = -31.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_force_pass_scroll_events = false
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer" unique_id=1855252759]
+layout_mode = 2
+
+[node name="ButtonMaker" type="ScrollContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer" unique_id=121800459]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 381)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker" unique_id=208792311]
+layout_mode = 2
+
+[node name="ButtonMakerPanel" type="MarginContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer" unique_id=219900737]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel" unique_id=864013856]
+layout_mode = 2
+
+[node name="ButtonPreviewer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer" unique_id=1566180227 instance=ExtResource("8_r2pjc")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer" unique_id=173556920]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/HBoxContainer" unique_id=490996126]
+layout_mode = 2
+text = "Button Size: "
+
+[node name="ButtonSizeSpinBox" type="SpinBox" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/HBoxContainer" unique_id=799739212]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 5120.0
+value = 40.0
+suffix = "px"
+
+[node name="CaptureButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer" unique_id=967405449]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Capture"
+icon_alignment = 1
+vertical_icon_alignment = 0
+
+[node name="GridContainer" type="GridContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer" unique_id=138829334]
+layout_mode = 2
+columns = 2
+
+[node name="LoadBGButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/GridContainer" unique_id=1115946800]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Load Background"
+alignment = 0
+
+[node name="ClearBGButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/GridContainer" unique_id=558507091]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_v5jts")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_a481s")
+theme_override_styles/hover = SubResource("StyleBoxFlat_78wkl")
+icon = ExtResource("6_ovvhr")
+icon_alignment = 1
+expand_icon = true
+
+[node name="LoadFGButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/GridContainer" unique_id=1224566324]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Load Foreground"
+alignment = 0
+
+[node name="ClearFGButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/GridContainer" unique_id=2116921112]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_v5jts")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_a481s")
+theme_override_styles/hover = SubResource("StyleBoxFlat_78wkl")
+icon = ExtResource("6_ovvhr")
+icon_alignment = 1
+expand_icon = true
+
+[node name="LoadMaskButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/GridContainer" unique_id=943645705]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Load Mask"
+alignment = 0
+
+[node name="ClearMaskButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/GridContainer" unique_id=1847165271]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_v5jts")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_a481s")
+theme_override_styles/hover = SubResource("StyleBoxFlat_78wkl")
+icon = ExtResource("6_ovvhr")
+icon_alignment = 1
+expand_icon = true
+
+[node name="HSeparator2" type="HSeparator" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer" unique_id=1315124356]
+layout_mode = 2
+
+[node name="ButtonImages" type="HBoxContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer" unique_id=1410049864]
+layout_mode = 2
+alignment = 1
+
+[node name="OffButtonPanel" type="PanelContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/ButtonImages" unique_id=694870029]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/panel = ExtResource("8_o3upj")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/ButtonImages/OffButtonPanel" unique_id=38858144]
+layout_mode = 2
+
+[node name="OffLabel" type="Label" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/ButtonImages/OffButtonPanel/VBoxContainer" unique_id=2023081388]
+layout_mode = 2
+text = "Off:"
+
+[node name="OffButtonIcon" type="TextureRect" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/ButtonImages/OffButtonPanel/VBoxContainer" unique_id=1992980976]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_horizontal = 6
+stretch_mode = 5
+
+[node name="OffButtons" type="HBoxContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/ButtonImages/OffButtonPanel/VBoxContainer" unique_id=577237965]
+layout_mode = 2
+
+[node name="OffPhotoButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/ButtonImages/OffButtonPanel/VBoxContainer/OffButtons" unique_id=832015235]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("8_a481s")
+icon_alignment = 1
+
+[node name="OffLoadButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/ButtonImages/OffButtonPanel/VBoxContainer/OffButtons" unique_id=2019865335]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+icon = ExtResource("6_62nbp")
+icon_alignment = 1
+
+[node name="VSeparator" type="VSeparator" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/ButtonImages" unique_id=2113140736]
+layout_mode = 2
+
+[node name="OnButtonPanel" type="PanelContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/ButtonImages" unique_id=730334418]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/panel = ExtResource("8_78wkl")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/ButtonImages/OnButtonPanel" unique_id=130178193]
+layout_mode = 2
+
+[node name="OnLabel" type="Label" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/ButtonImages/OnButtonPanel/VBoxContainer" unique_id=773341387]
+layout_mode = 2
+text = "On:"
+
+[node name="OnButtonIcon" type="TextureRect" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/ButtonImages/OnButtonPanel/VBoxContainer" unique_id=1283866063]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_horizontal = 6
+stretch_mode = 5
+
+[node name="OnButtons" type="HBoxContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/ButtonImages/OnButtonPanel/VBoxContainer" unique_id=599423421]
+layout_mode = 2
+
+[node name="OnPhotoButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/ButtonImages/OnButtonPanel/VBoxContainer/OnButtons" unique_id=1157630324]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("8_a481s")
+icon_alignment = 1
+
+[node name="OnLoadButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer/ButtonMaker/VBoxContainer/ButtonMakerPanel/VBoxContainer/ButtonImages/OnButtonPanel/VBoxContainer/OnButtons" unique_id=1207095032]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+icon = ExtResource("6_62nbp")
+icon_alignment = 1
+
+[node name="ButtonMakerCheckButton" type="CheckButton" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer" unique_id=1788208941]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 8
+text = "Button Maker"
+
+[node name="CameraControls" type="HBoxContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone" unique_id=1969255897]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -67.0
+offset_bottom = 40.0
+grow_horizontal = 0
+script = ExtResource("12_017pf")
+
+[node name="ZoomCenterButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/CameraControls" unique_id=20215307]
+unique_name_in_owner = true
+layout_mode = 2
+icon = ExtResource("13_5cypo")
+
+[node name="ZoomLessButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/CameraControls" unique_id=137675147]
+unique_name_in_owner = true
+layout_mode = 2
+icon = ExtResource("14_45rf4")
+
+[node name="ZoomLevel" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/CameraControls" unique_id=559714032]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+size_flags_vertical = 4
+text = "100.0 %"
+
+[node name="ZoomMoreButton" type="Button" parent="HSplitContainer/CenterSplitContainer/ViewZone/CameraControls" unique_id=730214678]
+unique_name_in_owner = true
+layout_mode = 2
+icon = ExtResource("15_y3ong")
+
 [node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/CenterSplitContainer" unique_id=128698260]
 layout_mode = 2
+mouse_filter = 0
+mouse_force_pass_scroll_events = false
 
 [node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer" unique_id=333832416]
 layout_mode = 2
@@ -569,6 +826,7 @@ layout_mode = 2
 [node name="AnimationOptionButton" type="OptionButton" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/HBoxContainer/HBoxContainer" unique_id=249581653]
 unique_name_in_owner = true
 layout_mode = 2
+disabled = true
 selected = 0
 item_count = 4
 popup/item_0/text = "Pre-Anim"
@@ -584,6 +842,7 @@ popup/item_3/id = 3
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "If the preanim should be looped or proceed to Idle when done"
+disabled = true
 text = "Loop Pre"
 
 [node name="EmotesFold" type="FoldableContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer" unique_id=2086862974]

@@ -18,6 +18,8 @@ config/icon="uid://0q1xjqv02lkg"
 [gui]
 
 timers/tooltip_delay_sec=0.25
+theme/default_font_multichannel_signed_distance_field=true
+theme/default_font_generate_mipmaps=true
 
 [input]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ckf3dmstwk8ha"
-path="res://.godot/imported/FileBrowse.svg-0bf485512d1d53d93fb6eb1a33f8a0f1.ctex"
+uid="uid://c3pahx6lewmug"
+path="res://.godot/imported/CameraTexture.svg-1ba36f2689f6c48a936e7cd5ddc59764.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/FileBrowse.svg"
-dest_files=["res://.godot/imported/FileBrowse.svg-0bf485512d1d53d93fb6eb1a33f8a0f1.ctex"]
+source_file="res://assets/icons/CameraTexture.svg"
+dest_files=["res://.godot/imported/CameraTexture.svg-1ba36f2689f6c48a936e7cd5ddc59764.ctex"]
 
 [params]
 

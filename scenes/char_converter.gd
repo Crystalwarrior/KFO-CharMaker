@@ -3,6 +3,7 @@ extends Control
 @onready var file_dialog: FileDialog = %FileDialog
 @onready var image_dialog: FileDialog = %ImageDialog
 @onready var file_dialog_save: FileDialog = %FileDialogSave
+@onready var button_image_dialog: FileDialog = %ButtonImageDialog
 @onready var confirmation_dialog: ConfirmationDialog = %ConfirmationDialog
 @onready var install_magick_dialog: AcceptDialog = %InstallMagickDialog
 
@@ -49,18 +50,39 @@ extends Control
 @onready var set_preanim_button: Button = %SetPreanimButton
 @onready var set_emote_button: Button = %SetEmoteButton
 @onready var off_button_icon: TextureRect = %OffButtonIcon
-@onready var off_edit_button: Button = %OffEditButton
+@onready var off_photo_button: Button = %OffPhotoButton
+@onready var off_load_button: Button = %OffLoadButton
 @onready var on_button_icon: TextureRect = %OnButtonIcon
-@onready var on_edit_button: Button = %OnEditButton
-
+@onready var on_photo_button: Button = %OnPhotoButton
+@onready var on_load_button: Button = %OnLoadButton
 @onready var emotes_fold: FoldableContainer = %EmotesFold
 @onready var character_fold: FoldableContainer = %CharacterFold
 @onready var emote_modifiers_fold: FoldableContainer = %EmoteModifiersFold
+@onready var button_maker_check_button: CheckButton = %ButtonMakerCheckButton
+
+# Button image buttons
+@onready var button_image_buttons: Control = $HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons
+@onready var load_bg_button: Button = %LoadBGButton
+@onready var clear_bg_button: Button = %ClearBGButton
+@onready var load_fg_button: Button = %LoadFGButton
+@onready var clear_fg_button: Button = %ClearFGButton
+@onready var load_mask_button: Button = %LoadMaskButton
+@onready var clear_mask_button: Button = %ClearMaskButton
+@onready var capture_button: Button = %CaptureButton
+
+@onready var button_maker: Control = %ButtonMaker
+@onready var off_button_panel: PanelContainer = %OffButtonPanel
+@onready var on_button_panel: PanelContainer = %OnButtonPanel
+@onready var button_previewer: ButtonPreviewer = %ButtonPreviewer
+@onready var button_size_spin_box: SpinBox = %ButtonSizeSpinBox
 
 # TODO: get these the heck outta the gui
 @onready var world: Node2D = %World
 
 @export var preview_height: float = 1.0
+
+const PANEL_FOCUS = preload("uid://dloxm1fufhvem")
+const PANEL_NO_FOCUS = preload("uid://cl656j0a88m6c")
 
 var position_offset_normal: Vector2 = Vector2(0.0, 0.0)
 
@@ -105,11 +127,22 @@ var current_state: EmoteState = EmoteState.PRE
 
 var parsed_data: Dictionary[String, Dictionary]
 
-var is_image_pre: bool
+var is_image_pre: bool = false
+
+enum ButtonImageType {
+	BG,
+	FG,
+	MASK
+}
+var button_image_type: ButtonImageType = ButtonImageType.BG
+
+var is_button_image_on: bool = false
 
 var magick: Magick
 
 const BUTTON_PLACEHOLDER: Texture = preload("uid://e8ms34nail52")
+
+signal button_maker_toggled(toggled_on: bool)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -118,6 +151,8 @@ func _ready() -> void:
 	file_dialog.file_selected.connect(_on_file_selected)
 	image_dialog.file_selected.connect(_on_image_selected)
 	file_dialog_save.file_selected.connect(_on_save_file_selected)
+	button_image_dialog.file_selected.connect(_on_button_image_file_selected)
+	
 	emote_list.item_selected.connect(_on_emote_selected)
 	add_emote_button.pressed.connect(_on_add_emote_pressed)
 	scaling_option.item_selected.connect(_on_scaling_selected)
@@ -149,10 +184,23 @@ func _ready() -> void:
 	sound_name_edit.text_changed.connect(_on_emote_sound_changed)
 	sound_time_edit.value_changed.connect(_on_emote_soundTime_changed)
 	sound_loop_check.toggled.connect(_on_emote_soundLoop_changed)
+	off_photo_button.pressed.connect(_on_off_photo_button_pressed)
+	on_photo_button.pressed.connect(_on_on_photo_button_pressed)
+	# Button image buttons
+	load_bg_button.pressed.connect(_on_load_bg_button_pressed)
+	clear_bg_button.pressed.connect(_on_clear_bg_button_pressed)
+	load_fg_button.pressed.connect(_on_load_fg_button_pressed)
+	clear_fg_button.pressed.connect(_on_clear_fg_button_pressed)
+	load_mask_button.pressed.connect(_on_load_mask_button_pressed)
+	clear_mask_button.pressed.connect(_on_clear_mask_button_pressed)
 
 	emotes_fold.folding_changed.connect(_on_emotes_folding_changed)
 	character_fold.folding_changed.connect(_on_character_folding_changed)
 	emote_modifiers_fold.folding_changed.connect(_on_emote_modifiers_folding_changed)
+
+	button_maker_check_button.toggled.connect(_on_button_maker_toggled)
+
+	capture_button.pressed.connect(_on_capture_pressed)
 
 	magick = Magick.new()
 	var magick_real: bool = magick.test_magick()
@@ -216,6 +264,7 @@ func _on_file_selected(path: String) -> void:
 	char_folder_label.text = char_folder.get_basename().get_file()
 	char_folder_label.tooltip_text = char_folder
 	regenerate_buttons()
+	animation_option_button.disabled = false
 
 
 func _on_char_name_changed(new_text: String) -> void:
@@ -351,6 +400,11 @@ func _on_emote_modifiers_folding_changed(_is_folded: bool) -> void:
 	%LeftSplitContainer.collapsed = character_fold.folded or emote_modifiers_fold.folded
 
 
+func _on_button_maker_toggled(toggled_on: bool) -> void:
+	button_maker.visible = toggled_on
+	button_maker_toggled.emit(toggled_on)
+
+
 func regenerate_buttons() -> void:
 	emote_list.clear()
 	for i: int in current_character.emotes.size():
@@ -442,6 +496,7 @@ func _on_emote_selected(idx: int) -> void:
 	var idle_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "idle")
 	var talk_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "talk")
 	var post_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "post")
+	animation_option_button.disabled = false
 	animation_option_button.set_item_disabled(0, true)
 	animation_option_button.set_item_disabled(1, true)
 	animation_option_button.set_item_disabled(2, true)
@@ -511,6 +566,8 @@ func handle_static_file(image_path: String) -> void:
 
 func clear_world() -> void:
 	animation_buttons.set_animation_player(null)
+	loop_pre_button.disabled = true
+	animation_option_button.disabled = true
 	for child in world.get_children():
 		child.queue_free()
 
@@ -541,6 +598,7 @@ func _on_anim_state_selected(index: int):
 			if child.name == prefix + emote_name:
 				ao_anim.show()
 				animation_buttons.set_animation_player(ao_anim.animation_player)
+				loop_pre_button.disabled = false
 				if current_state == EmoteState.PRE:
 					ao_anim.animation_player.animation_finished.connect(_on_pre_finished, CONNECT_ONE_SHOT)
 					if loop_pre_button.button_pressed:
@@ -564,6 +622,8 @@ func _on_pre_finished(_anim_name: StringName) -> void:
 
 
 func _on_loop_pre_button_toggled(toggled_on: bool) -> void:
+	if not current_anim:
+		return
 	# preanim is NOT selected
 	if animation_option_button.selected != 0:
 		return
@@ -718,3 +778,117 @@ func save_buttons(path: String) -> void:
 			emote.image_off.get_image().save_png(button_path + "_off.png")
 		if emote.image_on:
 			emote.image_on.get_image().save_png(button_path + "_on.png")
+
+func _on_button_image_file_selected(path: String) -> void:
+	var image = Image.load_from_file(path)
+	var texture = ImageTexture.create_from_image(image)
+	match button_image_type:
+		ButtonImageType.BG:
+			button_previewer.button_bg.texture = texture
+		ButtonImageType.FG:
+			button_previewer.button_fg.texture = texture
+		ButtonImageType.MASK:
+			button_previewer.button_mask.texture = texture
+
+
+func _on_load_bg_button_pressed() -> void:
+	button_image_type = ButtonImageType.BG
+	button_image_dialog.current_dir = current_character.get_folder()
+	button_image_dialog.popup_centered()
+
+func _on_clear_bg_button_pressed() -> void:
+	button_previewer.button_bg.texture = null
+
+func _on_load_fg_button_pressed() -> void:
+	button_image_type = ButtonImageType.FG
+	button_image_dialog.current_dir = current_character.get_folder()
+	button_image_dialog.popup_centered()
+
+func _on_clear_fg_button_pressed() -> void:
+	button_previewer.button_fg.texture = null
+
+
+func _on_load_mask_button_pressed() -> void:
+	button_image_type = ButtonImageType.MASK
+	button_image_dialog.current_dir = current_character.get_folder()
+	button_image_dialog.popup_centered()
+
+
+func _on_clear_mask_button_pressed() -> void:
+	button_previewer.button_mask.texture = null
+
+
+func _on_off_photo_button_pressed() -> void:
+	is_button_image_on = false
+	off_button_panel.add_theme_stylebox_override(&"panel", PANEL_FOCUS)
+	on_button_panel.add_theme_stylebox_override(&"panel", PANEL_NO_FOCUS)
+
+func _on_on_photo_button_pressed() -> void:
+	is_button_image_on = true
+	off_button_panel.add_theme_stylebox_override(&"panel", PANEL_NO_FOCUS)
+	on_button_panel.add_theme_stylebox_override(&"panel", PANEL_FOCUS)
+
+
+const EMOTE_MASK = preload("uid://c0xa6gbbd2q6y")
+const EVI_BORDER = preload("uid://urw1u54y0xkx")
+
+func _on_capture_pressed() -> void:
+	var button_icon: TextureRect = off_button_icon
+	if is_button_image_on:
+		button_icon = on_button_icon
+	button_previewer.sub_viewport.set_canvas_cull_mask_bit(1, false)
+	button_previewer.button_mask.clip_children = CanvasItem.CLIP_CHILDREN_DISABLED
+	button_previewer.button_mask.self_modulate = Color.TRANSPARENT
+	await RenderingServer.frame_post_draw
+	var button_size: int = int(button_size_spin_box.value)
+	var screencap: Image = button_previewer.sub_viewport.get_texture().get_image()
+	if screencap.get_size().x != button_size:
+		screencap.resize(button_size, button_size, Image.INTERPOLATE_LANCZOS)
+	var image: Image = screencap
+	if button_previewer.button_bg.texture != null:
+		image = button_previewer.button_bg.texture.get_image()
+		# Ensure all images have alpha channels
+		if image.get_format() != Image.FORMAT_RGBA8:
+			image.convert(Image.FORMAT_RGBA8)
+		if image.get_size().x != button_size:
+			image.resize(button_size, button_size, Image.INTERPOLATE_CUBIC)
+		image.blend_rect(screencap, Rect2i(Vector2i(0, 0), screencap.get_size()), Vector2i(0, 0))
+
+	if button_previewer.button_fg.texture != null:
+		var fg_image = button_previewer.button_fg.texture.get_image()
+		# Ensure all images have alpha channels
+		if fg_image.get_format() != Image.FORMAT_RGBA8:
+			fg_image.convert(Image.FORMAT_RGBA8)
+		if fg_image.get_size().x != button_size:
+			fg_image.resize(button_size, button_size, Image.INTERPOLATE_BILINEAR)
+		image.blend_rect(fg_image, Rect2i(Vector2i(0, 0), screencap.get_size()), Vector2i(0, 0))
+
+	# I couldn't figure out why blend_rect_mask didn't work so I'll instead just go
+	# pixel by pixel, performance doesn't matter too much here and usually buttons are
+	# smol anyway
+	if button_previewer.button_mask.texture != null:
+		var mask: Image = button_previewer.button_mask.texture.get_image()
+		if mask.get_size().x != button_size:
+			mask.resize(button_size, button_size, Image.INTERPOLATE_CUBIC)
+		# Ensure all images have alpha channels
+		if mask.get_format() != Image.FORMAT_RGBA8:
+			mask.convert(Image.FORMAT_RGBA8)
+		for y in range(image.get_height()):
+			for x in range(image.get_width()):
+				var mask_pixel: Color = mask.get_pixel(x, y)
+				var source_pixel: Color = image.get_pixel(x, y)
+				source_pixel.a = min(mask_pixel.a, source_pixel.a)
+				image.set_pixel(x, y, source_pixel)
+
+	# Set the button textures
+	var image_texture: ImageTexture = ImageTexture.create_from_image(image)
+	button_icon.texture = image_texture
+	var emote: Emote = current_character.emotes[current_emote_number]
+	if is_button_image_on:
+		emote.image_on = image_texture
+	else:
+		emote.image_off = image_texture
+	_on_emote_selected(current_emote_number)
+	button_previewer.sub_viewport.set_canvas_cull_mask_bit(1, true)
+	button_previewer.button_mask.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
+	button_previewer.button_mask.self_modulate = Color.WHITE

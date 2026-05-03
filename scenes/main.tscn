@@ -1,49 +1,42 @@
 [gd_scene format=3 uid="uid://b1xdag54tvknp"]
 
 [ext_resource type="PackedScene" uid="uid://bm4dd2b8qtgak" path="res://scenes/char_converter.tscn" id="1_h0otu"]
-[ext_resource type="Script" uid="uid://dkfp1sj4wdqmy" path="res://scenes/camera_controls.gd" id="2_o6xl0"]
-[ext_resource type="Texture2D" uid="uid://cdjfkw6b2o54t" path="res://assets/icons/CenterView.svg" id="2_tefeu"]
+[ext_resource type="Script" uid="uid://6ut86phbrp7r" path="res://scenes/main.gd" id="1_tipki"]
 [ext_resource type="Script" uid="uid://cmwvn07t0sv8n" path="res://scenes/camera.gd" id="3_h0otu"]
-[ext_resource type="Texture2D" uid="uid://cx1mrj8q70p7o" path="res://assets/icons/ZoomLess.svg" id="3_o6xl0"]
-[ext_resource type="Texture2D" uid="uid://bqql5tunkpnsn" path="res://assets/icons/ZoomMore.svg" id="4_tipki"]
+[ext_resource type="Script" uid="uid://c1ywb6hlblco2" path="res://scenes/button_cropper.gd" id="7_o6xl0"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tipki"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+draw_center = false
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8, 0, 0.8, 1)
+expand_margin_left = 1.0
+expand_margin_top = 1.0
+expand_margin_right = 1.0
+expand_margin_bottom = 1.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_tipki"]
+font_size = 12
+outline_size = 4
+outline_color = Color(0, 0, 0, 1)
 
 [node name="Main" type="Node" unique_id=269323199]
+script = ExtResource("1_tipki")
 
 [node name="GUILayer" type="CanvasLayer" parent="." unique_id=336270299]
 
 [node name="CharConverter" parent="GUILayer" unique_id=472651589 instance=ExtResource("1_h0otu")]
-
-[node name="CameraControls" type="HBoxContainer" parent="GUILayer" unique_id=1155165555]
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -67.0
-offset_bottom = 40.0
-grow_horizontal = 0
-script = ExtResource("2_o6xl0")
-
-[node name="ZoomCenterButton" type="Button" parent="GUILayer/CameraControls" unique_id=2020930577]
 unique_name_in_owner = true
-layout_mode = 2
-icon = ExtResource("2_tefeu")
-
-[node name="ZoomLessButton" type="Button" parent="GUILayer/CameraControls" unique_id=784014963]
-unique_name_in_owner = true
-layout_mode = 2
-icon = ExtResource("3_o6xl0")
-
-[node name="ZoomLevel" type="Button" parent="GUILayer/CameraControls" unique_id=209425801]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(70, 0)
-layout_mode = 2
-text = "100.0 %"
-
-[node name="ZoomMoreButton" type="Button" parent="GUILayer/CameraControls" unique_id=971971615]
-unique_name_in_owner = true
-layout_mode = 2
-icon = ExtResource("4_tipki")
 
 [node name="CenterRef" type="ColorRect" parent="." unique_id=1978758270]
+unique_name_in_owner = true
+visibility_layer = 4
 offset_left = -1.0
 offset_top = -1.0
 offset_right = 1.0
@@ -55,3 +48,37 @@ unique_name_in_owner = true
 [node name="Camera" type="Camera2D" parent="." unique_id=682089302]
 unique_name_in_owner = true
 script = ExtResource("3_h0otu")
+
+[node name="ButtonCropper" type="ReferenceRect" parent="." unique_id=923137094]
+unique_name_in_owner = true
+visible = false
+visibility_layer = 4
+custom_minimum_size = Vector2(20, 20)
+offset_right = 44.0
+offset_bottom = 44.0
+border_color = Color(0, 0.61620533, 0.5876613, 1)
+script = ExtResource("7_o6xl0")
+
+[node name="ButtonCropZone" type="Panel" parent="ButtonCropper" unique_id=15811662]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = -2.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_tipki")
+
+[node name="SizeLabel" type="Label" parent="ButtonCropper/ButtonCropZone" unique_id=856390590]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = -17.0
+offset_right = 40.0
+offset_bottom = -0.25
+text = "err"
+label_settings = SubResource("LabelSettings_tipki")
