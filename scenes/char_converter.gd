@@ -81,8 +81,10 @@ extends Control
 
 @export var preview_height: float = 1.0
 
-const PANEL_FOCUS = preload("uid://dloxm1fufhvem")
-const PANEL_NO_FOCUS = preload("uid://cl656j0a88m6c")
+const PANEL_FOCUS: StyleBox = preload("uid://dloxm1fufhvem")
+const PANEL_NO_FOCUS: StyleBox = preload("uid://cl656j0a88m6c")
+
+const CHAR_ICON_BORDER: Texture = preload("uid://b5s50jkyeiod0")
 
 var position_offset_normal: Vector2 = Vector2(0.0, 0.0)
 
@@ -125,8 +127,6 @@ var current_anim: AttorneyAnimation
 enum EmoteState {PRE, IDLE, TALK, POST}
 var current_state: EmoteState = EmoteState.PRE
 
-var parsed_data: Dictionary[String, Dictionary]
-
 var is_image_pre: bool = false
 
 enum ButtonImageType {
@@ -146,6 +146,7 @@ signal button_maker_toggled(toggled_on: bool)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	new_button.pressed.connect(_on_new_button_pressed)
 	open_ini_button.pressed.connect(_on_open_ini_button_pressed)
 	save_button.pressed.connect(_on_save_button_pressed)
 	file_dialog.file_selected.connect(_on_file_selected)
@@ -206,12 +207,20 @@ func _ready() -> void:
 	var magick_real: bool = magick.test_magick()
 	if not magick_real:
 		install_magick_dialog.popup_centered()
+	
+	_on_new_button_pressed()
 
 
-func _notification(what):
-	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		var path = ProjectSettings.globalize_path("user://frame_cache/")
-		remove_contents_of(path)
+func _on_new_button_pressed() -> void:
+	# Create a new character
+	clear_world()
+	current_character = Character.new()
+	current_character.ini_path = ""
+	load_character({})
+	regenerate_buttons()
+	character_icon.texture = CHAR_ICON_BORDER
+	char_folder_label.text = "Unsaved Character"
+	char_folder_label.tooltip_text = "Make sure to Save this character!"
 
 
 func _on_open_ini_button_pressed() -> void:
@@ -240,31 +249,13 @@ func _on_file_selected(path: String) -> void:
 	current_character = Character.new()
 	current_character.ini_path = path
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
-	parsed_data = BasicIni.parse(file.get_as_text())
-	# Load the data for the character!
-	current_character.load_data(parsed_data)
-	charname_edit.text = current_character.char_name
-	showname_edit.text = current_character.showname
-	showname_check.button_pressed = current_character.needs_showname
-	side_edit.text = current_character.side
-	blips_edit.text = current_character.blips
-	chat_edit.text = current_character.chat
-	effects_edit.text = current_character.effects
-	realization_edit.text = current_character.realization
-	category_edit.text = current_character.category
-	if current_character.scaling != "pixel":
-		scaling_option.select(0)
-	else:
-		scaling_option.select(1)
-	number_spin_box.set_block_signals(true)
-	number_spin_box.max_value = current_character.emotes.size()
-	number_spin_box.set_block_signals(false)
+	load_character(BasicIni.parse(file.get_as_text()))
+	animation_option_button.disabled = false
+	regenerate_buttons()
 	var char_folder: String = path.get_base_dir()
 	load_char_icon_from_filepath(char_folder + "/char_icon.png")
 	char_folder_label.text = char_folder.get_basename().get_file()
 	char_folder_label.tooltip_text = char_folder
-	regenerate_buttons()
-	animation_option_button.disabled = false
 
 
 func _on_char_name_changed(new_text: String) -> void:
@@ -521,6 +512,27 @@ func _on_emote_selected(idx: int) -> void:
 		_on_anim_state_selected(EmoteState.IDLE)
 
 
+func load_character(parsed_data: Dictionary[String, Dictionary]):
+	# Load the data for the character!
+	current_character.load_data(parsed_data)
+	charname_edit.text = current_character.char_name
+	showname_edit.text = current_character.showname
+	showname_check.button_pressed = current_character.needs_showname
+	side_edit.text = current_character.side
+	blips_edit.text = current_character.blips
+	chat_edit.text = current_character.chat
+	effects_edit.text = current_character.effects
+	realization_edit.text = current_character.realization
+	category_edit.text = current_character.category
+	if current_character.scaling != "pixel":
+		scaling_option.select(0)
+	else:
+		scaling_option.select(1)
+	number_spin_box.set_block_signals(true)
+	number_spin_box.max_value = current_character.emotes.size()
+	number_spin_box.set_block_signals(false)
+
+
 func load_image_file(image_path: String):
 	var local_path: String = image_path.trim_prefix(current_character.get_folder() + "/").get_basename()
 	var node_name: String = local_path.replace("/", "|")
@@ -693,16 +705,6 @@ func delete_emote(idx: int) -> void:
 	_on_emote_selected(clampi(0, idx-1, current_character.emotes.size()))
 
 
-func remove_contents_of(directory: String) -> void:
-	for dir_name in DirAccess.get_directories_at(directory):
-		var dir_path: String = directory.path_join(dir_name)
-		remove_contents_of(directory.path_join(dir_name))
-		DirAccess.remove_absolute(dir_path)
-	var dir = DirAccess.open(directory)
-	for file in dir.get_files():
-		dir.remove(file)
-
-
 func load_char_icon_from_filepath(iconPath: String) -> void:
 	var image = Image.load_from_file(iconPath)
 	var image_texture = ImageTexture.create_from_image(image)
@@ -720,6 +722,10 @@ func _on_save_file_selected(path: String) -> void:
 	save_file.store_string(ini_string)
 	current_character.ini_path = path
 	var save_folder: String = path.get_base_dir()
+	save_buttons(save_folder)
+	load_char_icon_from_filepath(save_folder + "/char_icon.png")
+	char_folder_label.text = save_folder.get_basename().get_file()
+	char_folder_label.tooltip_text = save_folder
 	# SAVE BUTTONS
 	# TODO: move this somewhere more appropriate!!
 	var emotions_folder: String = save_folder + "/emotions/"
@@ -741,7 +747,6 @@ If /_old_emotions/ already exists, all the files inside of it will also be overw
 			CONNECT_ONE_SHOT
 		)
 		return
-	save_buttons(save_folder)
 
 
 func _on_emotions_overwrite_confirmed(save_folder: String) -> void:
