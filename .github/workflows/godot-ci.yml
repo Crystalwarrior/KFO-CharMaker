@@ -6,7 +6,7 @@ on: push
 env:
   GODOT_VERSION: 4.6.2
   EXPORT_NAME: KFO-CharMaker
-  PROJECT_PATH: KFO-CharMaker
+  PROJECT_PATH: .
 
 jobs:
   export-windows:
