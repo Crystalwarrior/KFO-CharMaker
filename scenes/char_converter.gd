@@ -57,7 +57,7 @@ extends Control
 @onready var on_load_button: Button = %OnLoadButton
 @onready var emotes_fold: FoldableContainer = %EmotesFold
 @onready var character_fold: FoldableContainer = %CharacterFold
-@onready var emote_modifiers_fold: FoldableContainer = %EmoteModifiersFold
+@onready var emote_properties_fold: FoldableContainer = %EmotePropertiesFold
 @onready var button_maker_check_button: CheckButton = %ButtonMakerCheckButton
 
 # Button image buttons
@@ -197,7 +197,7 @@ func _ready() -> void:
 
 	emotes_fold.folding_changed.connect(_on_emotes_folding_changed)
 	character_fold.folding_changed.connect(_on_character_folding_changed)
-	emote_modifiers_fold.folding_changed.connect(_on_emote_modifiers_folding_changed)
+	emote_properties_fold.folding_changed.connect(_on_emote_properties_folding_changed)
 
 	button_maker_check_button.toggled.connect(_on_button_maker_toggled)
 
@@ -340,12 +340,16 @@ func _on_add_emote_pressed() -> void:
 	number_spin_box.set_block_signals(true)
 	number_spin_box.max_value = current_character.emotes.size()
 	number_spin_box.set_block_signals(false)
-	set_emote_button_images(emote, current_character.get_folder() + "/emotions/", current_character.emotes.size())
+	set_emote_button_images(emote,
+		current_character.get_folder() + "/emotions/", current_character.emotes.size()
+	)
 	add_emote_list_button(emote)
 
 
 func get_emote_path(filePath: String) -> String:
-	var result = filePath.get_basename().trim_prefix(current_character.get_folder() + "/")
+	var result = filePath.get_basename().trim_prefix(
+		current_character.get_folder() + "/"
+	)
 	result = result.trim_prefix("(a)").trim_prefix("(b)").trim_prefix("(c)")
 	return result
 
@@ -356,11 +360,13 @@ func _on_emote_name_changed(new_text: String) -> void:
 
 
 func _on_emote_mod_changed(index: int) -> void:
-	current_character.emotes[current_emote_number].emote_mod = modifier_option.get_item_id(index) as Emote.EmoteMod
+	var emote_mod: Emote.EmoteMod = modifier_option.get_item_id(index) as Emote.EmoteMod
+	current_character.emotes[current_emote_number].emote_mod = emote_mod
 
 
 func _on_emote_deskmod_changed(index: int) -> void:
-	current_character.emotes[current_emote_number].desk_mod = deskmod_option.get_item_id(index) as Emote.DeskMod
+	var desk_mod: Emote.DeskMod = deskmod_option.get_item_id(index) as Emote.DeskMod
+	current_character.emotes[current_emote_number].desk_mod = desk_mod
 
 
 func _on_emote_sound_changed(new_text: String) -> void:
@@ -384,11 +390,11 @@ func _on_character_folding_changed(_is_folded: bool) -> void:
 		character_fold.size_flags_vertical = Control.SIZE_FILL
 	else:
 		character_fold.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	%LeftSplitContainer.collapsed = character_fold.folded or emote_modifiers_fold.folded
+	%LeftSplitContainer.collapsed = character_fold.folded or emote_properties_fold.folded
 
 
-func _on_emote_modifiers_folding_changed(_is_folded: bool) -> void:
-	%LeftSplitContainer.collapsed = character_fold.folded or emote_modifiers_fold.folded
+func _on_emote_properties_folding_changed(_is_folded: bool) -> void:
+	%LeftSplitContainer.collapsed = character_fold.folded or emote_properties_fold.folded
 
 
 func _on_button_maker_toggled(toggled_on: bool) -> void:
@@ -410,7 +416,9 @@ func add_emote_list_button(emote: Emote) -> void:
 		icon = BUTTON_PLACEHOLDER
 	var at: int = emote_list.add_item(emote.display_name, icon)
 	emote_list.set_item_metadata(at, emote)
-	emote_list.set_item_tooltip(at, "%s\n%s: %s, %s" % [emote.display_name, at + 1, emote.pre, emote.idle])
+	emote_list.set_item_tooltip(at,
+		"%s\n%s: %s, %s" % [emote.display_name, at + 1, emote.pre, emote.idle]
+	)
 
 
 func set_emote_button_images(emote: Emote, folderPath: String, idx: int) -> void:
@@ -445,7 +453,9 @@ func search_valid_emote(char_folder: String, emote_name: String, state: String) 
 
 func _on_emote_selected(idx: int) -> void:
 	if idx < 0 or idx >= current_character.emotes.size():
+		emote_properties_fold.hide()
 		return
+	emote_properties_fold.show()
 	var previous_emote_number: int = current_emote_number
 	current_emote_number = idx
 	emote_list.select(current_emote_number)
@@ -483,10 +493,18 @@ func _on_emote_selected(idx: int) -> void:
 		if id == emote.desk_mod:
 			deskmod_option.select(i)
 			break
-	var pre_image_path: String = search_valid_emote(current_character.get_folder(), emote.pre, "pre")
-	var idle_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "idle")
-	var talk_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "talk")
-	var post_image_path: String = search_valid_emote(current_character.get_folder(), emote.idle, "post")
+	var pre_image_path: String = search_valid_emote(
+		current_character.get_folder(), emote.pre, "pre"
+	)
+	var idle_image_path: String = search_valid_emote(
+		current_character.get_folder(), emote.idle, "idle"
+	)
+	var talk_image_path: String = search_valid_emote(
+		current_character.get_folder(), emote.idle, "talk"
+	)
+	var post_image_path: String = search_valid_emote(
+		current_character.get_folder(), emote.idle, "post"
+	)
 	animation_option_button.disabled = false
 	animation_option_button.set_item_disabled(0, true)
 	animation_option_button.set_item_disabled(1, true)
@@ -534,7 +552,9 @@ func load_character(parsed_data: Dictionary[String, Dictionary]):
 
 
 func load_image_file(image_path: String):
-	var local_path: String = image_path.trim_prefix(current_character.get_folder() + "/").get_basename()
+	var local_path: String = image_path.trim_prefix(
+		current_character.get_folder() + "/"
+	).get_basename()
 	var node_name: String = local_path.replace("/", "|")
 	if is_instance_valid(world.get_node_or_null(node_name)):
 		return
@@ -549,9 +569,13 @@ func handle_animated_file(image_path: String) -> void:
 	var frame_data: Array[Dictionary] = await magick.get_threaded_frame_data(image_path)
 	var directory: String = image_path.get_base_dir()
 	var base_name: String = image_path.get_file().get_basename()
-	var local_path: String = image_path.trim_prefix(current_character.get_folder() + "/").get_basename()
+	var local_path: String = image_path.trim_prefix(
+		current_character.get_folder() + "/"
+	).get_basename()
 	var char_name: String = directory.get_file()
-	var frames_folder: String = ProjectSettings.globalize_path("user://frame_cache/%s/%s/" % [char_name, base_name])
+	var frames_folder: String = ProjectSettings.globalize_path(
+		"user://frame_cache/%s/%s/" % [char_name, base_name]
+	)
 	if not FileAccess.file_exists(frames_folder):
 		magick.split_frames(image_path, frames_folder)
 	var attorney_anim: AttorneyAnimation = AttorneyAnimation.new()
@@ -571,7 +595,9 @@ func handle_static_file(image_path: String) -> void:
 	var sprite = Sprite2D.new()
 	sprite.texture = image_texture
 	sprite.set_texture(image_texture)
-	var local_path: String = image_path.trim_prefix(current_character.get_folder() + "/").get_basename()
+	var local_path: String = image_path.trim_prefix(
+		current_character.get_folder() + "/"
+	).get_basename()
 	sprite.name = local_path.replace("/", "|")
 	world.add_child(sprite)
 
@@ -607,18 +633,23 @@ func _on_anim_state_selected(index: int):
 			if ao_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
 				ao_anim.animation_player.animation_finished.disconnect(_on_pre_finished)
 			ao_anim.animation_player.stop()
-			if child.name == prefix + emote_name or (prefix in ["(a)", "(b)"] and child.name == emote_name):
+			if child.name == prefix + emote_name or \
+			   (prefix in ["(a)", "(b)"] and child.name == emote_name):
 				ao_anim.show()
 				animation_buttons.set_animation_player(ao_anim.animation_player)
 				loop_pre_button.disabled = false
 				if current_state == EmoteState.PRE:
-					ao_anim.animation_player.animation_finished.connect(_on_pre_finished, CONNECT_ONE_SHOT)
+					ao_anim.animation_player.animation_finished.connect(
+						_on_pre_finished,
+						CONNECT_ONE_SHOT
+					)
 					if loop_pre_button.button_pressed:
 						ao_anim.animation.loop_mode = Animation.LOOP_LINEAR
 					else:
 						ao_anim.animation.loop_mode = Animation.LOOP_NONE
 				else:
-					if ao_anim.animation_player.current_animation_length > 0.001:
+					if ao_anim.animation_player.current_animation != "" and \
+					   ao_anim.animation_player.current_animation_length > 0.001:
 						ao_anim.animation.loop_mode = Animation.LOOP_LINEAR
 					else:
 						ao_anim.animation.loop_mode = Animation.LOOP_NONE
