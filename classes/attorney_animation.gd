@@ -52,4 +52,4 @@ func initialize_from_frame_data(animation_name: String, frame_data: Array[Dictio
 	animation.length = max(0.001, current_time)
 	animation.loop_mode = Animation.LOOP_LINEAR
 	var lib: AnimationLibrary = animation_player.get_animation_library("")
-	lib.add_animation(animation_name, animation)
+	lib.add_animation(animation_name.replace("/", "|"), animation)

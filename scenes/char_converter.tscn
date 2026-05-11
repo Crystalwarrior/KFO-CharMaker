@@ -866,13 +866,19 @@ title_position = 1
 custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 
-[node name="BottomMenu" type="ScrollContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/EmotesFold/HBoxContainer" unique_id=250980165]
+[node name="MarginContainer" type="Control" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/EmotesFold/HBoxContainer" unique_id=1838708872]
 layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BottomMenu" type="ScrollContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/EmotesFold/HBoxContainer/MarginContainer" unique_id=250980165]
+layout_mode = 0
+offset_right = 819.0
+offset_bottom = 120.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.3
 
-[node name="EmoteList" type="ItemList" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/EmotesFold/HBoxContainer/BottomMenu" unique_id=2061598841]
+[node name="EmoteList" type="ItemList" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/EmotesFold/HBoxContainer/MarginContainer/BottomMenu" unique_id=2061598841]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -884,6 +890,22 @@ same_column_width = true
 fixed_column_width = 40
 icon_mode = 0
 fixed_icon_size = Vector2i(40, 40)
+
+[node name="ScanEmotesButton" type="Button" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/EmotesFold/HBoxContainer/MarginContainer" unique_id=1708046104]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -4.0
+offset_top = -4.0
+offset_right = 4.0
+offset_bottom = 4.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Scan Folder for Emotes"
 
 [node name="AddEmoteButton" type="Button" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/EmotesFold/HBoxContainer" unique_id=696755111]
 unique_name_in_owner = true

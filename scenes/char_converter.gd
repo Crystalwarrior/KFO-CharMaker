@@ -76,6 +76,8 @@ extends Control
 @onready var button_previewer: ButtonPreviewer = %ButtonPreviewer
 @onready var button_size_spin_box: SpinBox = %ButtonSizeSpinBox
 
+@onready var scan_emotes_button: Button = %ScanEmotesButton
+
 # TODO: get these the heck outta the gui
 @onready var world: Node2D = %World
 
@@ -202,6 +204,8 @@ func _ready() -> void:
 	button_maker_check_button.toggled.connect(_on_button_maker_toggled)
 
 	capture_button.pressed.connect(_on_capture_pressed)
+	
+	scan_emotes_button.pressed.connect(_on_scan_emotes_button_pressed)
 
 	magick = Magick.new()
 	var magick_real: bool = magick.test_magick()
@@ -402,12 +406,14 @@ func _on_button_maker_toggled(toggled_on: bool) -> void:
 	button_maker_toggled.emit(toggled_on)
 
 
-func regenerate_buttons() -> void:
+func regenerate_buttons(read_emote_folder: bool = true) -> void:
 	emote_list.clear()
 	for i: int in current_character.emotes.size():
 		var emote: Emote = current_character.emotes[i]
-		set_emote_button_images(emote, current_character.get_folder() + "/emotions/", i)
+		if read_emote_folder:
+			set_emote_button_images(emote, current_character.get_folder() + "/emotions/", i)
 		add_emote_list_button(emote)
+	scan_emotes_button.set_visible(current_character.emotes.is_empty())
 
 
 func add_emote_list_button(emote: Emote) -> void:
@@ -454,6 +460,7 @@ func search_valid_emote(char_folder: String, emote_name: String, state: String) 
 func _on_emote_selected(idx: int) -> void:
 	if idx < 0 or idx >= current_character.emotes.size():
 		emote_properties_fold.hide()
+		scan_emotes_button.set_visible(current_character.emotes.is_empty())
 		return
 	emote_properties_fold.show()
 	var previous_emote_number: int = current_emote_number
@@ -629,39 +636,40 @@ func _on_anim_state_selected(index: int):
 	animation_buttons.set_animation_player(null)
 	for child: Node2D in world.get_children():
 		child.hide()
-		if child is AttorneyAnimation:
-			var ao_anim: AttorneyAnimation = child
-			if ao_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
-				ao_anim.animation_player.animation_finished.disconnect(_on_pre_finished)
-			ao_anim.animation_player.stop()
-			if child.name == prefix + emote_name or \
-			   (prefix in ["(a)", "(b)"] and child.name == emote_name):
-				ao_anim.show()
-				animation_buttons.set_animation_player(ao_anim.animation_player)
-				loop_pre_button.disabled = false
-				if current_state == EmoteState.PRE:
-					ao_anim.animation_player.animation_finished.connect(
-						_on_pre_finished,
-						CONNECT_ONE_SHOT
-					)
-					if loop_pre_button.button_pressed:
-						ao_anim.animation.loop_mode = Animation.LOOP_LINEAR
-					else:
-						ao_anim.animation.loop_mode = Animation.LOOP_NONE
-				else:
-					if ao_anim.animation_player.current_animation != "" and \
-					   ao_anim.animation_player.current_animation_length > 0.001:
-						ao_anim.animation.loop_mode = Animation.LOOP_LINEAR
-					else:
-						ao_anim.animation.loop_mode = Animation.LOOP_NONE
-				ao_anim.animation_player.play(ao_anim.name)
-				current_anim = ao_anim
-				animation_buttons.show()
+	var find_emote: Node2D = world.get_node_or_null(prefix + emote_name)
+	if not find_emote:
+		find_emote = world.get_node_or_null(emote_name)
+	if not find_emote:
+		return
+	if find_emote is AttorneyAnimation:
+		var ao_anim: AttorneyAnimation = find_emote
+		if ao_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
+			ao_anim.animation_player.animation_finished.disconnect(_on_pre_finished)
+		ao_anim.animation_player.stop()
+		ao_anim.show()
+		ao_anim.animation_player.play(ao_anim.name)
+		animation_buttons.set_animation_player(ao_anim.animation_player)
+		loop_pre_button.disabled = false
+		current_anim = ao_anim
+		if current_state == EmoteState.PRE:
+			ao_anim.animation_player.animation_finished.connect(
+				_on_pre_finished,
+				CONNECT_ONE_SHOT
+			)
+			if loop_pre_button.button_pressed:
+				ao_anim.animation.loop_mode = Animation.LOOP_LINEAR
+			else:
+				ao_anim.animation.loop_mode = Animation.LOOP_NONE
 		else:
-			# no prefix checked
-			if child.name == emote_name:
-				child.show()
-				animation_buttons.hide()
+			if ao_anim.animation_player.current_animation != "" and \
+			   ao_anim.animation_player.current_animation_length > 0.001:
+				ao_anim.animation.loop_mode = Animation.LOOP_LINEAR
+			else:
+				ao_anim.animation.loop_mode = Animation.LOOP_NONE
+		animation_buttons.show()
+	else:
+		find_emote.show()
+		animation_buttons.hide()
 
 
 func _on_pre_finished(_anim_name: StringName) -> void:
@@ -759,12 +767,9 @@ func _on_save_file_selected(path: String) -> void:
 	save_file.store_string(ini_string)
 	current_character.ini_path = path
 	var save_folder: String = path.get_base_dir()
-	save_buttons(save_folder)
 	load_char_icon_from_filepath(save_folder + "/char_icon.png")
 	char_folder_label.text = save_folder.get_basename().get_file()
 	char_folder_label.tooltip_text = save_folder
-	# SAVE BUTTONS
-	# TODO: move this somewhere more appropriate!!
 	var emotions_folder: String = save_folder + "/emotions/"
 	if DirAccess.dir_exists_absolute(emotions_folder):
 		confirmation_dialog.title = "Overwrite Buttons?"
@@ -784,6 +789,9 @@ If /_old_emotions/ already exists, all the files inside of it will also be overw
 			CONNECT_ONE_SHOT
 		)
 		return
+	# SAVE BUTTONS
+	# TODO: move this somewhere more appropriate!!
+	save_buttons(save_folder)
 
 
 func _on_emotions_overwrite_confirmed(save_folder: String) -> void:
@@ -934,3 +942,67 @@ func _on_capture_pressed() -> void:
 	button_previewer.sub_viewport.set_canvas_cull_mask_bit(1, true)
 	button_previewer.button_mask.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
 	button_previewer.button_mask.self_modulate = Color.WHITE
+
+
+func _on_scan_emotes_button_pressed() -> void:
+	if not current_character:
+		return
+	var ignored_directories: PackedStringArray = [
+		"emotions", "_old_emotions", "custom_objections"
+	]
+	var current_folder: String = current_character.get_folder()
+	var found_emotes: PackedStringArray = scan_folder(current_folder, "")
+	for folder: String in DirAccess.get_directories_at(current_folder):
+		if folder.to_lower() in ignored_directories:
+			continue
+		found_emotes.append_array(scan_folder(current_folder + "/" + folder, current_folder))
+
+	var pre_dict: Dictionary[String, bool] = {}
+	for emote: String in found_emotes:
+		print(emote)
+		if emote.begins_with("(b)") or emote.begins_with("(c)"):
+			continue
+		if emote.begins_with("(a)"):
+			var idle_emote: String = emote.right(-3)
+			if pre_dict.has(idle_emote):
+				pre_dict[idle_emote] = true
+			else:
+				pre_dict[idle_emote] = false
+			continue
+		if not pre_dict.has(emote):
+			pre_dict[emote] = false
+		else:
+			pre_dict[emote] = true
+
+	for key in pre_dict:
+		var is_pre: bool = pre_dict[key]
+		var emote: Emote = Emote.new(key.get_file().capitalize())
+		emote.idle = key
+		if is_pre:
+			emote.pre = key
+			emote.emote_mod = Emote.EmoteMod.PREANIM
+		else:
+			emote.pre = "-"
+			emote.emote_mod = Emote.EmoteMod.IDLE
+		current_character.emotes.append(emote)
+	regenerate_buttons(false)
+	number_spin_box.set_block_signals(true)
+	number_spin_box.max_value = current_character.emotes.size()
+	number_spin_box.set_block_signals(false)
+
+
+func scan_folder(folder_path: String, base_folder: String = "") -> PackedStringArray:
+	var ignored_filenames: PackedStringArray = [
+		"char_icon", "custom",
+		"holdit_bubble", "objection_bubble", "takethat_bubble"
+	]
+	var emote_files: PackedStringArray
+	var local_folder_path: String = ""
+	if not base_folder.is_empty():
+		local_folder_path = folder_path.get_basename().trim_prefix(base_folder + "/") + "/"
+	for file: String in DirAccess.get_files_at(folder_path):
+		if file.get_basename().to_lower() in ignored_filenames:
+			continue
+		if file.get_extension() in SUPPORTED_EXTENSIONS:
+			emote_files.append(local_folder_path + file.get_basename())
+	return emote_files
