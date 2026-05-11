@@ -994,7 +994,8 @@ func _on_scan_emotes_button_pressed() -> void:
 func scan_folder(folder_path: String, base_folder: String = "") -> PackedStringArray:
 	var ignored_filenames: PackedStringArray = [
 		"char_icon", "custom",
-		"holdit_bubble", "objection_bubble", "takethat_bubble"
+		"holdit_bubble", "objection_bubble", "takethat_bubble",
+		"defense_speedlines", "prosecution_speedlines",
 	]
 	var emote_files: PackedStringArray
 	var local_folder_path: String = ""
