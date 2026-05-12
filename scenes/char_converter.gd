@@ -656,17 +656,19 @@ func _on_anim_state_selected(index: int):
 				_on_pre_finished,
 				CONNECT_ONE_SHOT
 			)
+			animation_buttons.show()
 			if loop_pre_button.button_pressed:
 				ao_anim.animation.loop_mode = Animation.LOOP_LINEAR
 			else:
 				ao_anim.animation.loop_mode = Animation.LOOP_NONE
 		else:
 			if ao_anim.animation_player.current_animation != "" and \
-			   ao_anim.animation_player.current_animation_length > 0.001:
+			   snapped(ao_anim.animation_player.current_animation_length, 0.001) > 0.001:
 				ao_anim.animation.loop_mode = Animation.LOOP_LINEAR
+				animation_buttons.show()
 			else:
 				ao_anim.animation.loop_mode = Animation.LOOP_NONE
-		animation_buttons.show()
+				animation_buttons.hide()
 	else:
 		find_emote.show()
 		animation_buttons.hide()
