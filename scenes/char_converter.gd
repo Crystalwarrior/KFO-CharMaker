@@ -77,6 +77,9 @@ extends Control
 @onready var button_size_spin_box: SpinBox = %ButtonSizeSpinBox
 
 @onready var scan_emotes_button: Button = %ScanEmotesButton
+@onready var credits_text_edit: TextEdit = %CreditsTextEdit
+
+@onready var open_current_folder_button: Button = %OpenCurrentFolderButton
 
 # TODO: get these the heck outta the gui
 @onready var world: Node2D = %World
@@ -207,12 +210,19 @@ func _ready() -> void:
 	
 	scan_emotes_button.pressed.connect(_on_scan_emotes_button_pressed)
 
+	open_current_folder_button.pressed.connect(_on_open_current_folder_button_pressed)
+
 	magick = Magick.new()
 	var magick_real: bool = magick.test_magick()
 	if not magick_real:
 		install_magick_dialog.popup_centered()
 	
 	_on_new_button_pressed()
+
+
+#func _notification(what):
+	#if what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
+		#print("hello there")
 
 
 func _on_new_button_pressed() -> void:
@@ -256,10 +266,38 @@ func _on_file_selected(path: String) -> void:
 	load_character(BasicIni.parse(file.get_as_text()))
 	animation_option_button.disabled = false
 	regenerate_buttons()
-	var char_folder: String = path.get_base_dir()
+	var char_folder: String = current_character.get_folder()
 	load_char_icon_from_filepath(char_folder + "/char_icon.png")
 	char_folder_label.text = char_folder.get_basename().get_file()
 	char_folder_label.tooltip_text = char_folder
+	load_credits_file()
+
+
+func load_credits_file() -> void:
+	if not current_character:
+		return
+	var credits_file: FileAccess
+	var char_folder: String = current_character.get_folder()
+	# We need to do this for Linux support due to case sensitivity issues
+	for file: String in DirAccess.get_files_at(char_folder):
+		if file.to_lower() == "credits.txt":
+			credits_file = FileAccess.open(char_folder + "/" + file, FileAccess.READ)
+			break
+	credits_text_edit.clear()
+	if credits_file:
+		credits_text_edit.text = credits_file.get_as_text()
+
+
+func save_credits_file() -> void:
+	if not current_character:
+		return
+	var char_folder: String = current_character.get_folder()
+	# We need to do this for Linux support due to case sensitivity issues
+	for file: String in DirAccess.get_files_at(char_folder):
+		if file.to_lower() == "credits.txt":
+			DirAccess.remove_absolute(char_folder + "/" + file)
+	var credits_file: FileAccess = FileAccess.open(char_folder + "/credits.txt", FileAccess.WRITE)
+	credits_file.store_string(credits_text_edit.text)
 
 
 func _on_char_name_changed(new_text: String) -> void:
@@ -553,6 +591,8 @@ func load_character(parsed_data: Dictionary[String, Dictionary]):
 		scaling_option.select(0)
 	else:
 		scaling_option.select(1)
+	# for some reason the "select" function does not emit signal
+	_on_scaling_selected(scaling_option.selected)
 	number_spin_box.set_block_signals(true)
 	number_spin_box.max_value = current_character.emotes.size()
 	number_spin_box.set_block_signals(false)
@@ -767,6 +807,7 @@ func _on_save_file_selected(path: String) -> void:
 	var ini_string: String = BasicIni.make_char_ini(current_character.save_data())
 	var save_file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	save_file.store_string(ini_string)
+	save_credits_file()
 	current_character.ini_path = path
 	var save_folder: String = path.get_base_dir()
 	load_char_icon_from_filepath(save_folder + "/char_icon.png")
@@ -991,6 +1032,12 @@ func _on_scan_emotes_button_pressed() -> void:
 	number_spin_box.set_block_signals(true)
 	number_spin_box.max_value = current_character.emotes.size()
 	number_spin_box.set_block_signals(false)
+
+
+func _on_open_current_folder_button_pressed() -> void:
+	if current_character.ini_path.is_empty():
+		return
+	OS.shell_show_in_file_manager(current_character.ini_path)
 
 
 func scan_folder(folder_path: String, base_folder: String = "") -> PackedStringArray:
