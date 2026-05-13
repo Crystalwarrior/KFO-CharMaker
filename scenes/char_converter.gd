@@ -592,7 +592,7 @@ func load_character(parsed_data: Dictionary[String, Dictionary]):
 	else:
 		scaling_option.select(1)
 	# for some reason the "select" function does not emit signal
-	_on_scaling_selected(scaling_option.selected)
+	scaling_option.item_selected.emit(scaling_option.selected)
 	number_spin_box.set_block_signals(true)
 	number_spin_box.max_value = current_character.emotes.size()
 	number_spin_box.set_block_signals(false)
