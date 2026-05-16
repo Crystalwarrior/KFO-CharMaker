@@ -59,7 +59,7 @@ font_size = 32
 outline_size = 8
 outline_color = Color(0, 0, 0, 1)
 
-[node name="CharConverter" type="Control" unique_id=472651589]
+[node name="CharConverter" type="Control" unique_id=1116533365]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -70,6 +70,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme = ExtResource("1_62nbp")
 script = ExtResource("1_1uboj")
+metadata/_custom_type_script = "uid://dc4ptx84cxhp5"
 
 [node name="FileDialog" type="FileDialog" parent="." unique_id=178860689]
 unique_name_in_owner = true
@@ -211,7 +212,7 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 0
-text = "Save Character"
+text = "Save char.ini"
 
 [node name="HSeparator" type="HSeparator" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/CharacterVBox" unique_id=538711742]
 layout_mode = 2
@@ -452,12 +453,12 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_a481s")
 theme_override_styles/hover = SubResource("StyleBoxFlat_78wkl")
 icon = ExtResource("6_ovvhr")
 
-[node name="CommentLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmotePropertiesFold/BottomMenu/VBoxContainer/GridContainer" unique_id=720974180]
+[node name="DisplayNameLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/EmotePropertiesFold/BottomMenu/VBoxContainer/GridContainer" unique_id=720974180]
 layout_mode = 2
 size_flags_horizontal = 0
 text = "Name"
 
-[node name="CommentEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmotePropertiesFold/BottomMenu/VBoxContainer/GridContainer" unique_id=1628270160]
+[node name="DisplayNameEdit" type="LineEdit" parent="HSplitContainer/LeftSplitContainer/EmotePropertiesFold/BottomMenu/VBoxContainer/GridContainer" unique_id=1628270160]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -612,7 +613,6 @@ layout_mode = 2
 
 [node name="ButtonMaker" type="ScrollContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer" unique_id=121800459]
 unique_name_in_owner = true
-visible = false
 custom_minimum_size = Vector2(0, 381)
 layout_mode = 2
 
