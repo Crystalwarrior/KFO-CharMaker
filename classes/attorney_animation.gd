@@ -46,6 +46,9 @@ func initialize_from_frame_data(animation_name: String, frame_data: Array[Dictio
 
 	var current_time: float = 0.0
 	for i: int in frame_data.size():
+		# Add a frame right before the new frame to fix playing the animation backwards
+		if i - 1 > -1:
+			animation.track_insert_key(track_index, current_time - 0.001, frame_textures[i - 1])
 		var frame: Dictionary = frame_data[i]
 		animation.track_insert_key(track_index, current_time, frame_textures[i])
 		current_time += frame["delay"] * 0.01
