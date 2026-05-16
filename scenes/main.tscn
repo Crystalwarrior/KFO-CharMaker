@@ -2,8 +2,22 @@
 
 [ext_resource type="PackedScene" uid="uid://bm4dd2b8qtgak" path="res://scenes/char_converter.tscn" id="1_h0otu"]
 [ext_resource type="Script" uid="uid://6ut86phbrp7r" path="res://scenes/main.gd" id="1_tipki"]
+[ext_resource type="Shader" uid="uid://cdouneub4u4in" path="res://assets/shaders/grid.gdshader" id="2_tbgi4"]
 [ext_resource type="Script" uid="uid://cmwvn07t0sv8n" path="res://scenes/camera.gd" id="3_h0otu"]
 [ext_resource type="Script" uid="uid://c1ywb6hlblco2" path="res://scenes/button_cropper.gd" id="7_o6xl0"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tbgi4"]
+shader = ExtResource("2_tbgi4")
+shader_parameter/background_colour = Color(0.07, 0.07, 0.1, 1)
+shader_parameter/grid_colour = Color(0.35, 0.4, 0.45, 1)
+shader_parameter/subdivision_colour = Color(0.2, 0.23, 0.28, 1)
+shader_parameter/h_origin_colour = Color(0.2, 0.2, 1, 1)
+shader_parameter/v_origin_colour = Color(1, 0.2, 0.2, 1)
+shader_parameter/origin_position = Vector2(0, 0)
+shader_parameter/grid_spacing_pixels = 100.0
+shader_parameter/subdivisions = 10
+shader_parameter/line_thickness = 3.0
+shader_parameter/line_smooth = 0.5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tipki"]
 content_margin_left = 0.0
@@ -34,13 +48,14 @@ script = ExtResource("1_tipki")
 [node name="CharConverter" parent="GUILayer" unique_id=472651589 instance=ExtResource("1_h0otu")]
 unique_name_in_owner = true
 
-[node name="CenterRef" type="ColorRect" parent="." unique_id=1978758270]
-unique_name_in_owner = true
-visibility_layer = 4
-offset_left = -1.0
-offset_top = -1.0
-offset_right = 1.0
-offset_bottom = 1.0
+[node name="Label" type="Label" parent="GUILayer" unique_id=1940901788]
+modulate = Color(1, 1, 1, 0.49803922)
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 23.0
+grow_horizontal = 2
+text = "toggle grid: G"
+horizontal_alignment = 1
 
 [node name="World" type="Node2D" parent="." unique_id=1984213863]
 unique_name_in_owner = true
@@ -48,6 +63,23 @@ unique_name_in_owner = true
 [node name="Camera" type="Camera2D" parent="." unique_id=682089302]
 unique_name_in_owner = true
 script = ExtResource("3_h0otu")
+
+[node name="Grid" type="ColorRect" parent="Camera" unique_id=592182120]
+unique_name_in_owner = true
+visibility_layer = 4
+z_index = -5
+z_as_relative = false
+material = SubResource("ShaderMaterial_tbgi4")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -3252.0
+offset_top = -2125.0
+offset_right = 3252.0
+offset_bottom = 2125.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="ButtonCropper" type="ReferenceRect" parent="." unique_id=923137094]
 unique_name_in_owner = true

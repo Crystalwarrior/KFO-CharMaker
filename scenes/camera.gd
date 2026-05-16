@@ -2,6 +2,7 @@ class_name DragCamera2D
 extends Camera2D
 
 @export var camera_reset_point: Marker2D
+@onready var grid: ColorRect = %Grid
 
 var zoom_speed_factor = 1.1
 
@@ -36,6 +37,9 @@ func _unhandled_input(event):
 	if event is InputEventMouseMotion:
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) or Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE):
 			position -= event.relative / zoom.x
+	if event.is_action_pressed(&"toggle_grid"):
+		if grid:
+			grid.set_visible(not grid.visible)
 
 
 func _process(delta):
