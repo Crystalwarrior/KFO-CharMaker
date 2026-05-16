@@ -34,12 +34,12 @@ enum ButtonImageType {
 const PANEL_FOCUS: StyleBox = preload("uid://dloxm1fufhvem")
 const PANEL_NO_FOCUS: StyleBox = preload("uid://cl656j0a88m6c")
 
-const CHAR_ICON_BORDER: Texture = preload("uid://b5s50jkyeiod0")
+const CHAR_ICON_BORDER: Texture2D = preload("uid://b5s50jkyeiod0")
 
-const BUTTON_PLACEHOLDER: Texture = preload("uid://e8ms34nail52")
+const BUTTON_PLACEHOLDER: Texture2D = preload("uid://e8ms34nail52")
 
-const EMOTE_MASK = preload("uid://c0xa6gbbd2q6y")
-const EVI_BORDER = preload("uid://urw1u54y0xkx")
+const EMOTE_MASK: Texture2D = preload("uid://c0xa6gbbd2q6y")
+const EVI_BORDER: Texture2D = preload("uid://urw1u54y0xkx")
 
 const VALID_SECTIONS: PackedStringArray = [
 	# General character options
@@ -123,6 +123,12 @@ var magick: Magick
 ## such as ImageMagick splitting up an animated format into frames, etc.
 @onready var loading_screen: ColorRect = %LoadingScreen
 
+## The split container for character and emote properties
+@onready var left_split_container: VSplitContainer = %LeftSplitContainer
+
+## The split container for the main view, button maker and emotes list
+@onready var center_split_container: VSplitContainer = %CenterSplitContainer
+
 #region Character Emotes
 ## The fold that contains the emotes of the character.
 @onready var emotes_fold: FoldableContainer = %EmotesFold
@@ -135,7 +141,7 @@ var magick: Magick
 #region Animation Controls
 ## The buttons that show up when an emote is a valid animation.
 ## Doesn't show up if the emote is static.
-@onready var animation_buttons: HBoxContainer = %AnimationButtons
+@onready var animation_buttons: AnimationButtons = %AnimationButtons
 ## The option button responsible for selecting the type of emote animation to display.
 ## The options are pre, idle, talk, post.
 @onready var animation_option_button: OptionButton = %AnimationOptionButton
@@ -222,7 +228,7 @@ var magick: Magick
 ## The name of the sound effect to use for this emote.
 ## If blank, no sound effect will be used.
 @onready var sound_name_edit: LineEdit = %SoundNameEdit
-## The time to delay the sound effect in ticks (60ms per tick) 
+## The time to delay the sound effect in ticks (60ms per tick)
 @onready var sound_time_edit: SpinBox = %SoundTimeEdit
 ## If checked, the sound effect will be looped.
 @onready var sound_loop_check: CheckBox = %SoundLoopCheck
@@ -320,7 +326,7 @@ func _ready() -> void:
 	# Char sidemenu
 	charname_edit.text_changed.connect(_on_char_name_changed)
 	showname_edit.text_changed.connect(_on_char_showname_changed)
-	showname_check.toggled.connect(_on_char_needShowname_changed)
+	showname_check.toggled.connect(_on_char_need_showname_changed)
 	side_edit.text_changed.connect(_on_char_side_changed)
 	blips_edit.text_changed.connect(_on_char_blips_changed)
 	chat_edit.text_changed.connect(_on_char_chat_changed)
@@ -341,8 +347,8 @@ func _ready() -> void:
 	modifier_option.item_selected.connect(_on_emote_mod_changed)
 	deskmod_option.item_selected.connect(_on_emote_deskmod_changed)
 	sound_name_edit.text_changed.connect(_on_emote_sound_changed)
-	sound_time_edit.value_changed.connect(_on_emote_soundTime_changed)
-	sound_loop_check.toggled.connect(_on_emote_soundLoop_changed)
+	sound_time_edit.value_changed.connect(_on_emote_sound_time_changed)
+	sound_loop_check.toggled.connect(_on_emote_sound_loop_changed)
 	off_photo_button.pressed.connect(_on_off_photo_button_pressed)
 	on_photo_button.pressed.connect(_on_on_photo_button_pressed)
 	# Button image buttons
@@ -441,9 +447,9 @@ func save_credits_file() -> void:
 
 
 ## Loads a character icon PNG from disk and sets it on the character icon texture rect.
-func load_char_icon_from_filepath(iconPath: String) -> void:
-	var image = Image.load_from_file(iconPath)
-	var image_texture = ImageTexture.create_from_image(image)
+func load_char_icon_from_filepath(icon_path: String) -> void:
+	var image: Image = Image.load_from_file(icon_path)
+	var image_texture: ImageTexture = ImageTexture.create_from_image(image)
 	character_icon.texture = image_texture
 
 
@@ -526,7 +532,7 @@ func save_buttons(path: String) -> void:
 	DirAccess.make_dir_absolute(emotions_folder)
 	for idx: int in current_character.emotes.size():
 		var emote: Emote = current_character.emotes[idx]
-		var button_path = emotions_folder + "button" + str(idx + 1)
+		var button_path: String = emotions_folder + "button" + str(idx + 1)
 		if emote.image_off:
 			emote.image_off.get_image().save_png(button_path + "_off.png")
 		if emote.image_on:
@@ -554,7 +560,7 @@ func _on_char_showname_changed(new_text: String) -> void:
 
 
 ## Updates whether the character needs a showname override.
-func _on_char_needShowname_changed(toggled_on: bool) -> void:
+func _on_char_need_showname_changed(toggled_on: bool) -> void:
 	current_character.needs_showname = toggled_on
 
 
@@ -684,7 +690,7 @@ func regenerate_buttons(read_emote_folder: bool = true) -> void:
 
 ## Adds a single emote entry to the emote list with its off-state icon and tooltip.
 func add_emote_list_button(emote: Emote) -> void:
-	var icon: Texture = emote.image_off
+	var icon: Texture2D = emote.image_off
 	if icon == null:
 		icon = BUTTON_PLACEHOLDER
 	var at: int = emote_list.add_item(emote.display_name, icon)
@@ -696,8 +702,8 @@ func add_emote_list_button(emote: Emote) -> void:
 
 
 ## Loads off/on button PNG images from disk for the emote at the given index.
-func set_emote_button_images(emote: Emote, folderPath: String, idx: int) -> void:
-	var button_path = folderPath + "button" + str(idx + 1)
+func set_emote_button_images(emote: Emote, folder_path: String, idx: int) -> void:
+	var button_path: String = folder_path + "button" + str(idx + 1)
 	var button_off_path: String = button_path + "_off.png"
 	var button_on_path: String = button_path + "_on.png"
 	if FileAccess.file_exists(button_off_path):
@@ -731,8 +737,8 @@ func _on_emote_selected(idx: int) -> void:
 	if previous_emote_number >= 0 and previous_emote_number < current_character.emotes.size():
 		var previous_emote: Emote = current_character.emotes[previous_emote_number]
 		if previous_emote and previous_emote.image_off != null:
-			emote_list.set_item_icon(previous_emote_number, previous_emote.image_off)
-	var icon: Texture = emote.image_off
+			emote_list.set_item_icon(previous_emote_number, previous_emote.image_off as Texture2D)
+	var icon: Texture2D = emote.image_off
 	if icon == null:
 		icon = BUTTON_PLACEHOLDER
 	if emote.image_on != null:
@@ -750,23 +756,33 @@ func _on_emote_selected(idx: int) -> void:
 		if id == emote.desk_mod:
 			deskmod_option.select(i)
 			break
+	await load_emote_images(emote, current_character)
+	if emote.emote_mod == Emote.EmoteMod.PREANIM:
+		_on_anim_state_selected(EmoteState.PRE)
+	else:
+		_on_anim_state_selected(EmoteState.IDLE)
+
+
+## Loads all the associated images with the Emote with an await and a loading screen.
+func load_emote_images(emote: Emote, character: Character) -> void:
+	loading_screen.show()
 	var pre_image_path: String = search_valid_emote(
-		current_character.get_folder(),
+		character.get_folder(),
 		emote.pre,
 		"pre",
 	)
 	var idle_image_path: String = search_valid_emote(
-		current_character.get_folder(),
+		character.get_folder(),
 		emote.idle,
 		"idle",
 	)
 	var talk_image_path: String = search_valid_emote(
-		current_character.get_folder(),
+		character.get_folder(),
 		emote.idle,
 		"talk",
 	)
 	var post_image_path: String = search_valid_emote(
-		current_character.get_folder(),
+		character.get_folder(),
 		emote.idle,
 		"post",
 	)
@@ -775,7 +791,6 @@ func _on_emote_selected(idx: int) -> void:
 	animation_option_button.set_item_disabled(1, true)
 	animation_option_button.set_item_disabled(2, true)
 	animation_option_button.set_item_disabled(3, true)
-	loading_screen.show()
 	if pre_image_path:
 		await load_image_file(pre_image_path)
 		animation_option_button.set_item_disabled(0, false)
@@ -789,11 +804,6 @@ func _on_emote_selected(idx: int) -> void:
 		await load_image_file(post_image_path)
 		animation_option_button.set_item_disabled(3, false)
 	loading_screen.hide()
-	if emote.emote_mod == Emote.EmoteMod.PREANIM:
-		_on_anim_state_selected(EmoteState.PRE)
-	else:
-		_on_anim_state_selected(EmoteState.IDLE)
-
 #endregion
 
 #region Emote Properties
@@ -852,8 +862,8 @@ func _on_image_selected(path: String) -> void:
 
 
 ## Converts a full file path to a relative emote path, stripping (a)/(b)/(c) prefixes.
-func get_emote_path(filePath: String, trim_prefix: bool = true) -> String:
-	var result = filePath.get_basename().trim_prefix(
+func get_emote_path(file_path: String, trim_prefix: bool = true) -> String:
+	var result: String = file_path.get_basename().trim_prefix(
 		current_character.get_folder() + "/",
 	)
 	if trim_prefix:
@@ -885,12 +895,12 @@ func _on_emote_sound_changed(new_text: String) -> void:
 
 
 ## Updates the emote's SFX delay from the UI.
-func _on_emote_soundTime_changed(value: float) -> void:
+func _on_emote_sound_time_changed(value: float) -> void:
 	current_character.emotes[current_emote_number].sound_time = int(value)
 
 
 ## Updates whether the emote's SFX loops from the UI.
-func _on_emote_soundLoop_changed(toggled_on: bool) -> void:
+func _on_emote_sound_loop_changed(toggled_on: bool) -> void:
 	current_character.emotes[current_emote_number].sound_loop = toggled_on
 
 
@@ -902,7 +912,7 @@ func _on_button_maker_toggled(toggled_on: bool) -> void:
 
 ## Collapses the center split container when the emote list fold is toggled.
 func _on_emotes_folding_changed(is_folded: bool) -> void:
-	%CenterSplitContainer.collapsed = is_folded
+	center_split_container.collapsed = is_folded
 
 
 ## Adjusts the character fold container sizing and collapses the left panel.
@@ -911,19 +921,19 @@ func _on_character_folding_changed(_is_folded: bool) -> void:
 		character_fold.size_flags_vertical = Control.SIZE_FILL
 	else:
 		character_fold.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	%LeftSplitContainer.collapsed = character_fold.folded or emote_properties_fold.folded
+	left_split_container.collapsed = character_fold.folded or emote_properties_fold.folded
 
 
 ## Collapses the left panel when the emote properties fold is toggled.
 func _on_emote_properties_folding_changed(_is_folded: bool) -> void:
-	%LeftSplitContainer.collapsed = character_fold.folded or emote_properties_fold.folded
+	left_split_container.collapsed = character_fold.folded or emote_properties_fold.folded
 
 #endregion
 
 #region Image Loading & Preview
 
 ## Loads an image file into the world view, handling both static and animated formats.
-func load_image_file(image_path: String):
+func load_image_file(image_path: String) -> void:
 	var local_path: String = image_path.trim_prefix(
 		current_character.get_folder() + "/",
 	).get_basename()
@@ -965,9 +975,9 @@ func handle_animated_file(image_path: String) -> void:
 ## Loads a static PNG image as a Sprite2D in the world view.
 ## TODO: static image file should still be treated as a single-frame AttorneyAnimation
 func handle_static_file(image_path: String) -> void:
-	var image = Image.load_from_file(image_path)
-	var image_texture = ImageTexture.create_from_image(image)
-	var sprite = Sprite2D.new()
+	var image: Image = Image.load_from_file(image_path)
+	var image_texture: ImageTexture = ImageTexture.create_from_image(image)
+	var sprite: Sprite2D = Sprite2D.new()
 	sprite.texture = image_texture
 	sprite.set_texture(image_texture)
 	var local_path: String = image_path.trim_prefix(
@@ -982,7 +992,7 @@ func clear_world() -> void:
 	animation_buttons.set_animation_player(null)
 	loop_pre_button.disabled = true
 	animation_option_button.disabled = true
-	for child in world.get_children():
+	for child: Node in world.get_children():
 		child.queue_free()
 
 
@@ -998,7 +1008,7 @@ func _on_scaling_selected(index: int) -> void:
 #region Animation Preview
 
 ## Switches the preview to the selected animation state (pre/idle/talk/post).
-func _on_anim_state_selected(index: int):
+func _on_anim_state_selected(index: int) -> void:
 	animation_option_button.select(index)
 	current_state = index as EmoteState
 	var emote_name: String = emote_edit.text
@@ -1079,8 +1089,8 @@ func _on_loop_pre_button_toggled(toggled_on: bool) -> void:
 
 ## Applies the selected image to the button previewer (BG, FG, or mask layer).
 func _on_button_image_file_selected(path: String) -> void:
-	var image = Image.load_from_file(path)
-	var texture = ImageTexture.create_from_image(image)
+	var image: Image = Image.load_from_file(path)
+	var texture: ImageTexture = ImageTexture.create_from_image(image)
 	match button_image_type:
 		ButtonImageType.BG:
 			button_previewer.button_bg.texture = texture
@@ -1165,7 +1175,7 @@ func _on_capture_pressed() -> void:
 		image.blend_rect(screencap, Rect2i(Vector2i(0, 0), screencap.get_size()), Vector2i(0, 0))
 
 	if button_previewer.button_fg.texture != null:
-		var fg_image = button_previewer.button_fg.texture.get_image()
+		var fg_image: Image = button_previewer.button_fg.texture.get_image()
 		# Ensure all images have alpha channels
 		if fg_image.get_format() != Image.FORMAT_RGBA8:
 			fg_image.convert(Image.FORMAT_RGBA8)
@@ -1187,8 +1197,8 @@ func _on_capture_pressed() -> void:
 		# Ensure all images have alpha channels
 		if mask.get_format() != Image.FORMAT_RGBA8:
 			mask.convert(Image.FORMAT_RGBA8)
-		for y in range(image.get_height()):
-			for x in range(image.get_width()):
+		for y: int in range(image.get_height()):
+			for x: int in range(image.get_width()):
 				var mask_pixel: Color = mask.get_pixel(x, y)
 				var source_pixel: Color = image.get_pixel(x, y)
 				source_pixel.a = min(mask_pixel.a, source_pixel.a)
@@ -1244,7 +1254,7 @@ func _on_scan_emotes_button_pressed() -> void:
 		else:
 			pre_dict[emote] = true
 
-	for key in pre_dict:
+	for key: String in pre_dict:
 		var is_pre: bool = pre_dict[key]
 		var emote: Emote = Emote.new(key.get_file().capitalize())
 		emote.idle = key
@@ -1302,15 +1312,14 @@ func search_valid_emote(char_folder: String, emote_name: String, state: String) 
 				return ""
 		if FileAccess.file_exists(try_path):
 			return try_path
-		else:
-			try_path = "%s/%s.%s" % [char_folder, emote_name, ext]
+		try_path = "%s/%s.%s" % [char_folder, emote_name, ext]
 		if FileAccess.file_exists(try_path):
 			return try_path
 	return ""
 
 
 ## Populates the UI from parsed character INI data.
-func load_character(parsed_data: Dictionary[String, Dictionary]):
+func load_character(parsed_data: Dictionary[String, Dictionary]) -> void:
 	# Load the data for the character!
 	current_character.load_data(parsed_data)
 	charname_edit.text = current_character.char_name

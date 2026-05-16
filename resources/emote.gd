@@ -60,9 +60,9 @@ enum DeskMod {
 ## If the sound should be looping or not
 @export var sound_loop: bool = false
 ## Emote's off button, shown when the emote not selected
-@export var image_off: Texture
+@export var image_off: Texture2D
 ## Emote's on button, shown when the emote is selected
-@export var image_on: Texture
+@export var image_on: Texture2D
 
 func _init(
 		p_display_name: String = "",
@@ -70,7 +70,7 @@ func _init(
 		p_idle: String = "",
 		p_emote_mod: String = "0",
 		p_desk_mod: String = "",
-):
+) -> void:
 	display_name = p_display_name
 	pre = p_pre
 	idle = p_idle
