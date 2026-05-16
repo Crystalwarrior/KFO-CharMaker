@@ -1,5 +1,8 @@
 extends Control
 
+## Main character converter scene. Handles character INI loading/saving, emote
+## management, animation preview, and button image capture.
+
 @onready var file_dialog: FileDialog = %FileDialog
 @onready var image_dialog: FileDialog = %ImageDialog
 @onready var file_dialog_save: FileDialog = %FileDialogSave
@@ -129,11 +132,14 @@ var current_character: Character
 
 var current_anim: AttorneyAnimation
 
+## Animation states corresponding to preanim, idle, talk, post-talking.
 enum EmoteState {PRE, IDLE, TALK, POST}
 var current_state: EmoteState = EmoteState.PRE
 
+## Whether the image dialog is selecting a preanim or idle emote image.
 var is_image_pre: bool = false
 
+## Which type of button image layer is being loaded (background, foreground, mask).
 enum ButtonImageType {
 	BG,
 	FG,
@@ -141,12 +147,15 @@ enum ButtonImageType {
 }
 var button_image_type: ButtonImageType = ButtonImageType.BG
 
+## Whether the currently selected button slot is the "on" or "off" state.
 var is_button_image_on: bool = false
 
+## ImageMagick utility reference, used for splitting animated frames.
 var magick: Magick
 
 const BUTTON_PLACEHOLDER: Texture = preload("uid://e8ms34nail52")
 
+## Emitted when the button maker panel is shown or hidden.
 signal button_maker_toggled(toggled_on: bool)
 
 # Called when the node enters the scene tree for the first time.
@@ -225,8 +234,8 @@ func _ready() -> void:
 		#print("hello there")
 
 
+## Resets the editor state and creates a new blank character.
 func _on_new_button_pressed() -> void:
-	# Create a new character
 	clear_world()
 	current_character = Character.new()
 	current_character.ini_path = ""
@@ -237,16 +246,19 @@ func _on_new_button_pressed() -> void:
 	char_folder_label.tooltip_text = "Make sure to Save this character!"
 
 
+## Opens the file dialog to select a character INI file.
 func _on_open_ini_button_pressed() -> void:
 	file_dialog.popup_centered()
 
 
+## Opens the image file dialog for selecting a preanim image.
 func _on_set_preanim_button_pressed() -> void:
 	is_image_pre = true
 	image_dialog.current_dir = current_character.get_folder()
 	image_dialog.popup_centered()
 
 
+## Opens the image file dialog for selecting an idle emote image.
 func _on_set_emote_button_pressed() -> void:
 	is_image_pre = false
 	image_dialog.current_dir = current_character.get_folder()
@@ -257,8 +269,8 @@ func _on_char_icon_file_selected(file_path: String) -> void:
 	load_char_icon_from_filepath(file_path)
 
 
+## Loads a character from a selected INI file path, populates the UI.
 func _on_file_selected(path: String) -> void:
-	# Create a new character
 	clear_world()
 	current_character = Character.new()
 	current_character.ini_path = path
@@ -273,12 +285,12 @@ func _on_file_selected(path: String) -> void:
 	load_credits_file()
 
 
+## Reads the character's credits.txt into the credits editor (case-insensitive for Linux).
 func load_credits_file() -> void:
 	if not current_character:
 		return
 	var credits_file: FileAccess
 	var char_folder: String = current_character.get_folder()
-	# We need to do this for Linux support due to case sensitivity issues
 	for file: String in DirAccess.get_files_at(char_folder):
 		if file.to_lower() == "credits.txt":
 			credits_file = FileAccess.open(char_folder + "/" + file, FileAccess.READ)
@@ -288,11 +300,11 @@ func load_credits_file() -> void:
 		credits_text_edit.text = credits_file.get_as_text()
 
 
+## Writes the credits editor content back to credits.txt (case-insensitive for Linux).
 func save_credits_file() -> void:
 	if not current_character:
 		return
 	var char_folder: String = current_character.get_folder()
-	# We need to do this for Linux support due to case sensitivity issues
 	for file: String in DirAccess.get_files_at(char_folder):
 		if file.to_lower() == "credits.txt":
 			DirAccess.remove_absolute(char_folder + "/" + file)
@@ -300,51 +312,63 @@ func save_credits_file() -> void:
 	credits_file.store_string(credits_text_edit.text)
 
 
+## Updates the character's display name from the UI.
 func _on_char_name_changed(new_text: String) -> void:
 	current_character.char_name = new_text
 
 
+## Updates the character's showname from the UI.
 func _on_char_showname_changed(new_text: String) -> void:
 	current_character.showname = new_text
 
 
+## Updates whether the character needs a showname override.
 func _on_char_needShowname_changed(toggled_on: bool) -> void:
 	current_character.needs_showname = toggled_on
 
 
+## Updates the character side (prosecution/defense) from the UI.
 func _on_char_side_changed(new_text: String) -> void:
 	current_character.side = new_text
 
 
+## Updates the blip sound override from the UI.
 func _on_char_blips_changed(new_text: String) -> void:
 	current_character.blips = new_text
 
 
+## Updates the character chat bubble style from the UI.
 func _on_char_chat_changed(new_text: String) -> void:
 	current_character.chat = new_text
 
 
+## Updates the effects (e.g. speedlines) from the UI.
 func _on_char_effects_changed(new_text: String) -> void:
 	current_character.effects = new_text
 
 
+## Updates the realization overlay from the UI.
 func _on_char_realization_changed(new_text: String) -> void:
 	current_character.realization = new_text
 
 
+## Updates the character category from the UI.
 func _on_char_category_changed(new_text: String) -> void:
 	current_character.category = new_text
 
 
+## Updates the character scaling mode (pixel vs. smooth) from the UI.
 func _on_char_scaling_changed(index: int) -> void:
 	current_character.scaling = scaling_option.get_item_text(index)
 
 
+## Handles direct text entry for the preanim path.
 func _on_preanim_edit_changed(new_text: String) -> void:
 	is_image_pre = true
 	_on_image_selected(new_text)
 
 
+## Commits the preanim path when the preanim edit loses focus.
 func _on_preanim_lost_focus() -> void:
 	if preanim_edit.text == current_character.emotes[current_emote_number].pre:
 		return
@@ -352,11 +376,13 @@ func _on_preanim_lost_focus() -> void:
 	_on_image_selected(preanim_edit.text)
 
 
+## Handles direct text entry for the idle emote path.
 func _on_emote_edit_changed(new_text: String) -> void:
 	is_image_pre = false
 	_on_image_selected(new_text)
 
 
+## Commits the idle emote path when the emote edit loses focus.
 func _on_emote_lost_focus() -> void:
 	if emote_edit.text == current_character.emotes[current_emote_number].idle:
 		return
@@ -364,6 +390,7 @@ func _on_emote_lost_focus() -> void:
 	_on_image_selected(emote_edit.text)
 
 
+## Sets an image path on the current emote (preanim or idle depending on is_image_pre).
 func _on_image_selected(path: String) -> void:
 	if is_image_pre:
 		preanim_edit.text = get_emote_path(path)
@@ -374,6 +401,7 @@ func _on_image_selected(path: String) -> void:
 	_on_emote_selected(current_emote_number)
 
 
+## Adds a new blank emote to the character and updates the UI.
 func _on_add_emote_pressed() -> void:
 	if not current_character:
 		return
@@ -388,6 +416,7 @@ func _on_add_emote_pressed() -> void:
 	add_emote_list_button(emote)
 
 
+## Converts a full file path to a relative emote path, stripping (a)/(b)/(c) prefixes.
 func get_emote_path(filePath: String) -> String:
 	var result = filePath.get_basename().trim_prefix(
 		current_character.get_folder() + "/"
@@ -396,37 +425,45 @@ func get_emote_path(filePath: String) -> String:
 	return result
 
 
+## Updates the emote display name from the UI.
 func _on_emote_name_changed(new_text: String) -> void:
 	current_character.emotes[current_emote_number].display_name = new_text
 	emote_list.set_item_text(current_emote_number, new_text)
 
 
+## Updates the emote modifier (e.g. preanim) from the UI.
 func _on_emote_mod_changed(index: int) -> void:
 	var emote_mod: Emote.EmoteMod = modifier_option.get_item_id(index) as Emote.EmoteMod
 	current_character.emotes[current_emote_number].emote_mod = emote_mod
 
 
+## Updates the desk modifier from the UI.
 func _on_emote_deskmod_changed(index: int) -> void:
 	var desk_mod: Emote.DeskMod = deskmod_option.get_item_id(index) as Emote.DeskMod
 	current_character.emotes[current_emote_number].desk_mod = desk_mod
 
 
+## Updates the emote's SFX name from the UI.
 func _on_emote_sound_changed(new_text: String) -> void:
 	current_character.emotes[current_emote_number].sound_name = new_text
 
 
+## Updates the emote's SFX delay from the UI.
 func _on_emote_soundTime_changed(value: float) -> void:
 	current_character.emotes[current_emote_number].sound_time = int(value)
 
 
+## Updates whether the emote's SFX loops from the UI.
 func _on_emote_soundLoop_changed(toggled_on: bool) -> void:
 	current_character.emotes[current_emote_number].sound_loop = toggled_on
 
 
+## Collapses the center split container when the emote list fold is toggled.
 func _on_emotes_folding_changed(is_folded: bool) -> void:
 	%CenterSplitContainer.collapsed = is_folded
 
 
+## Adjusts the character fold container sizing and collapses the left panel.
 func _on_character_folding_changed(_is_folded: bool) -> void:
 	if character_fold.folded:
 		character_fold.size_flags_vertical = Control.SIZE_FILL
@@ -435,15 +472,18 @@ func _on_character_folding_changed(_is_folded: bool) -> void:
 	%LeftSplitContainer.collapsed = character_fold.folded or emote_properties_fold.folded
 
 
+## Collapses the left panel when the emote properties fold is toggled.
 func _on_emote_properties_folding_changed(_is_folded: bool) -> void:
 	%LeftSplitContainer.collapsed = character_fold.folded or emote_properties_fold.folded
 
 
+## Toggles the button maker panel visibility.
 func _on_button_maker_toggled(toggled_on: bool) -> void:
 	button_maker.visible = toggled_on
 	button_maker_toggled.emit(toggled_on)
 
 
+## Rebuilds the emote list UI buttons from the current character data.
 func regenerate_buttons(read_emote_folder: bool = true) -> void:
 	emote_list.clear()
 	for i: int in current_character.emotes.size():
@@ -454,6 +494,7 @@ func regenerate_buttons(read_emote_folder: bool = true) -> void:
 	scan_emotes_button.set_visible(current_character.emotes.is_empty())
 
 
+## Adds a single emote entry to the emote list with its off-state icon and tooltip.
 func add_emote_list_button(emote: Emote) -> void:
 	var icon: Texture = emote.image_off
 	if icon == null:
@@ -465,6 +506,7 @@ func add_emote_list_button(emote: Emote) -> void:
 	)
 
 
+## Loads off/on button PNG images from disk for the emote at the given index.
 func set_emote_button_images(emote: Emote, folderPath: String, idx: int) -> void:
 	var button_path = folderPath + "button" + str(idx + 1)
 	var button_off_path: String = button_path + "_off.png"
@@ -475,6 +517,8 @@ func set_emote_button_images(emote: Emote, folderPath: String, idx: int) -> void
 		emote.image_on = ImageTexture.create_from_image(Image.load_from_file(button_on_path))
 
 
+## Searches the character folder for an emote file matching the given name and
+## animation state (pre/idle/talk/post). Returns the first valid path found.
 func search_valid_emote(char_folder: String, emote_name: String, state: String) -> String:
 	var try_path: String
 	for ext: String in SUPPORTED_EXTENSIONS:
@@ -495,6 +539,7 @@ func search_valid_emote(char_folder: String, emote_name: String, state: String) 
 	return ""
 
 
+## Selects an emote by index and updates all UI fields and previews.
 func _on_emote_selected(idx: int) -> void:
 	if idx < 0 or idx >= current_character.emotes.size():
 		emote_properties_fold.hide()
@@ -575,6 +620,7 @@ func _on_emote_selected(idx: int) -> void:
 		_on_anim_state_selected(EmoteState.IDLE)
 
 
+## Populates the UI from parsed character INI data.
 func load_character(parsed_data: Dictionary[String, Dictionary]):
 	# Load the data for the character!
 	current_character.load_data(parsed_data)
@@ -599,6 +645,7 @@ func load_character(parsed_data: Dictionary[String, Dictionary]):
 	# Don't select any emote
 	_on_emote_selected(-1)
 
+## Loads an image file into the world view, handling both static and animated formats.
 func load_image_file(image_path: String):
 	var local_path: String = image_path.trim_prefix(
 		current_character.get_folder() + "/"
@@ -613,6 +660,7 @@ func load_image_file(image_path: String):
 		handle_static_file(image_path)
 
 
+## Extracts frames from an animated file (webp/apng/gif) and creates an AttorneyAnimation.
 func handle_animated_file(image_path: String) -> void:
 	var frame_data: Array[Dictionary] = await magick.get_threaded_frame_data(image_path)
 	var directory: String = image_path.get_base_dir()
@@ -636,7 +684,8 @@ func handle_animated_file(image_path: String) -> void:
 		world.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	world.add_child(attorney_anim)
 
-# TODO: static image file should still be treated as a single-frame AttorneyAnimation
+## Loads a static PNG image as a Sprite2D in the world view.
+## TODO: static image file should still be treated as a single-frame AttorneyAnimation
 func handle_static_file(image_path: String) -> void:
 	var image = Image.load_from_file(image_path)
 	var image_texture = ImageTexture.create_from_image(image)
@@ -650,6 +699,7 @@ func handle_static_file(image_path: String) -> void:
 	world.add_child(sprite)
 
 
+## Removes all child nodes from the world viewport and resets animation controls.
 func clear_world() -> void:
 	animation_buttons.set_animation_player(null)
 	loop_pre_button.disabled = true
@@ -658,6 +708,7 @@ func clear_world() -> void:
 		child.queue_free()
 
 
+## Switches the preview to the selected animation state (pre/idle/talk/post).
 func _on_anim_state_selected(index: int):
 	animation_option_button.select(index)
 	current_state = index as EmoteState
@@ -714,12 +765,14 @@ func _on_anim_state_selected(index: int):
 		animation_buttons.hide()
 
 
+## When the preanim finishes playing, automatically transitions to the idle state.
 func _on_pre_finished(_anim_name: StringName) -> void:
 	# wait a frame so we don't create a frame where nothing is shown
 	await get_tree().process_frame
 	_on_anim_state_selected(EmoteState.IDLE)
 
 
+## Toggles looping for the preanim animation when the pre state is selected.
 func _on_loop_pre_button_toggled(toggled_on: bool) -> void:
 	if not current_anim:
 		return
@@ -732,6 +785,7 @@ func _on_loop_pre_button_toggled(toggled_on: bool) -> void:
 		current_anim.animation.loop_mode = Animation.LOOP_NONE
 
 
+## Updates the world viewport texture filter when the scaling option changes.
 func _on_scaling_selected(index: int) -> void:
 	if index == 0:
 		world.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -739,6 +793,7 @@ func _on_scaling_selected(index: int) -> void:
 		world.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 
+## Reorders the emote in the list to match the spin box value when the user changes it.
 func _on_emote_number_changed(value: float) -> void:
 	var index_from: int = current_emote_number
 	var index_to: int = int(value) - 1
@@ -747,6 +802,7 @@ func _on_emote_number_changed(value: float) -> void:
 	current_emote_number = index_to
 
 
+## Prompts for confirmation before deleting an emote. Hold Shift to skip the prompt.
 func _on_delete_emote_pressed() -> void:
 	if Input.is_key_pressed(KEY_SHIFT):
 		delete_emote(current_emote_number)
@@ -768,6 +824,7 @@ There is no undo-redo yet!! (Hold Shift to skip this prompt next time)
 	)
 
 
+## Deletes the current emote after the user confirms in the confirmation dialog.
 func _on_delete_emote_confirmed() -> void:
 	if confirmation_dialog.confirmed.is_connected(_on_delete_emote_confirmed):
 		confirmation_dialog.confirmed.disconnect(_on_delete_emote_confirmed)
@@ -776,6 +833,7 @@ func _on_delete_emote_confirmed() -> void:
 	delete_emote(current_emote_number)
 
 
+## Cleans up confirmation dialog signal connections when deletion is cancelled.
 func _on_delete_emote_canceled() -> void:
 	if confirmation_dialog.confirmed.is_connected(_on_delete_emote_confirmed):
 		confirmation_dialog.confirmed.disconnect(_on_delete_emote_confirmed)
@@ -783,6 +841,7 @@ func _on_delete_emote_canceled() -> void:
 		confirmation_dialog.canceled.disconnect(_on_delete_emote_canceled)
 
 
+## Removes an emote by index and updates the UI list and spin box bounds.
 func delete_emote(idx: int) -> void:
 	current_character.emotes.remove_at(idx)
 	number_spin_box.set_block_signals(true)
@@ -792,17 +851,21 @@ func delete_emote(idx: int) -> void:
 	_on_emote_selected(clampi(0, idx-1, current_character.emotes.size()))
 
 
+## Loads a character icon PNG from disk and sets it on the character icon texture rect.
 func load_char_icon_from_filepath(iconPath: String) -> void:
 	var image = Image.load_from_file(iconPath)
 	var image_texture = ImageTexture.create_from_image(image)
 	character_icon.texture = image_texture
 
 
+## Opens the save file dialog for the character's INI path.
 func _on_save_button_pressed() -> void:
 	file_dialog_save.current_dir = current_character.get_folder()
 	file_dialog_save.popup_centered()
 
 
+## Writes the INI file and saves button images. Prompts for confirmation if the
+## emotions folder already exists.
 func _on_save_file_selected(path: String) -> void:
 	var ini_string: String = BasicIni.make_char_ini(current_character.save_data())
 	var save_file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
@@ -837,6 +900,7 @@ If /_old_emotions/ already exists, all the files inside of it will also be overw
 	save_buttons(save_folder)
 
 
+## Backs up and overwrites the emotions folder when the user confirms.
 func _on_emotions_overwrite_confirmed(save_folder: String) -> void:
 	if confirmation_dialog.confirmed.is_connected(_on_emotions_overwrite_confirmed):
 		confirmation_dialog.confirmed.disconnect(_on_emotions_overwrite_confirmed)
@@ -845,6 +909,7 @@ func _on_emotions_overwrite_confirmed(save_folder: String) -> void:
 	save_buttons(save_folder)
 
 
+## Cleans up confirmation dialog signal connections when overwrite is cancelled.
 func _on_emotions_overwrite_cancelled() -> void:
 	if confirmation_dialog.confirmed.is_connected(_on_emotions_overwrite_confirmed):
 		confirmation_dialog.confirmed.disconnect(_on_emotions_overwrite_confirmed)
@@ -852,6 +917,8 @@ func _on_emotions_overwrite_cancelled() -> void:
 		confirmation_dialog.canceled.disconnect(_on_emotions_overwrite_cancelled)
 
 
+## Saves the off/on button PNG images for all emotes into the emotions folder,
+## backing up any existing files to _old_emotions.
 func save_buttons(path: String) -> void:
 	var emotions_folder: String = path + "/emotions/"
 	if DirAccess.dir_exists_absolute(emotions_folder):
@@ -872,6 +939,7 @@ func save_buttons(path: String) -> void:
 		if emote.image_on:
 			emote.image_on.get_image().save_png(button_path + "_on.png")
 
+## Applies the selected image to the button previewer (BG, FG, or mask layer).
 func _on_button_image_file_selected(path: String) -> void:
 	var image = Image.load_from_file(path)
 	var texture = ImageTexture.create_from_image(image)
@@ -884,38 +952,46 @@ func _on_button_image_file_selected(path: String) -> void:
 			button_previewer.button_mask.texture = texture
 
 
+## Opens the file dialog to load a background image for the button previewer.
 func _on_load_bg_button_pressed() -> void:
 	button_image_type = ButtonImageType.BG
 	button_image_dialog.current_dir = current_character.get_folder()
 	button_image_dialog.popup_centered()
 
+## Clears the background image from the button previewer.
 func _on_clear_bg_button_pressed() -> void:
 	button_previewer.button_bg.texture = null
 
+## Opens the file dialog to load a foreground image for the button previewer.
 func _on_load_fg_button_pressed() -> void:
 	button_image_type = ButtonImageType.FG
 	button_image_dialog.current_dir = current_character.get_folder()
 	button_image_dialog.popup_centered()
 
+## Clears the foreground image from the button previewer.
 func _on_clear_fg_button_pressed() -> void:
 	button_previewer.button_fg.texture = null
 
 
+## Opens the file dialog to load a mask image for the button previewer.
 func _on_load_mask_button_pressed() -> void:
 	button_image_type = ButtonImageType.MASK
 	button_image_dialog.current_dir = current_character.get_folder()
 	button_image_dialog.popup_centered()
 
 
+## Clears the mask image from the button previewer.
 func _on_clear_mask_button_pressed() -> void:
 	button_previewer.button_mask.texture = null
 
 
+## Selects the off-state button slot and updates the visual focus indicator.
 func _on_off_photo_button_pressed() -> void:
 	is_button_image_on = false
 	off_button_panel.add_theme_stylebox_override(&"panel", PANEL_FOCUS)
 	on_button_panel.add_theme_stylebox_override(&"panel", PANEL_NO_FOCUS)
 
+## Selects the on-state button slot and updates the visual focus indicator.
 func _on_on_photo_button_pressed() -> void:
 	is_button_image_on = true
 	off_button_panel.add_theme_stylebox_override(&"panel", PANEL_NO_FOCUS)
@@ -925,6 +1001,8 @@ func _on_on_photo_button_pressed() -> void:
 const EMOTE_MASK = preload("uid://c0xa6gbbd2q6y")
 const EVI_BORDER = preload("uid://urw1u54y0xkx")
 
+## Captures the current button preview as an image, composites BG/FG/mask layers,
+## and saves the result as the selected emote's off or on button texture.
 func _on_capture_pressed() -> void:
 	var button_icon: TextureRect = off_button_icon
 	if is_button_image_on:
@@ -987,6 +1065,7 @@ func _on_capture_pressed() -> void:
 	button_previewer.button_mask.self_modulate = Color.WHITE
 
 
+## Scans the character folder for emote image files and auto-creates emote entries.
 func _on_scan_emotes_button_pressed() -> void:
 	if not current_character:
 		return
@@ -1034,12 +1113,14 @@ func _on_scan_emotes_button_pressed() -> void:
 	number_spin_box.set_block_signals(false)
 
 
+## Opens the character's folder in the system file manager.
 func _on_open_current_folder_button_pressed() -> void:
 	if current_character.ini_path.is_empty():
 		return
 	OS.shell_show_in_file_manager(current_character.ini_path)
 
 
+## Recursively scans a folder for supported emote image files, returning relative paths.
 func scan_folder(folder_path: String, base_folder: String = "") -> PackedStringArray:
 	var ignored_filenames: PackedStringArray = [
 		"char_icon", "custom",
