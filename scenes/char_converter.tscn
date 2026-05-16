@@ -613,6 +613,7 @@ layout_mode = 2
 
 [node name="ButtonMaker" type="ScrollContainer" parent="HSplitContainer/CenterSplitContainer/ViewZone/ButtonImageButtons/PanelContainer/VBoxContainer" unique_id=121800459]
 unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(0, 381)
 layout_mode = 2
 
