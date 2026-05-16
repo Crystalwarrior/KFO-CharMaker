@@ -37,6 +37,9 @@ func _process(_delta: float) -> void:
 
 
 func set_animation_player(to_player: AnimationPlayer) -> void:
+	var pause_enabled: bool = to_player != null and to_player.is_playing()
+	stop_button.set_visible(not pause_enabled)
+	pause_button.set_visible(pause_enabled)
 	if animation_player and animation_player.animation_started.is_connected(_on_animation_started):
 		animation_player.animation_started.disconnect(_on_animation_started)
 	animation_player = to_player
