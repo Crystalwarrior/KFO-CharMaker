@@ -756,11 +756,7 @@ func _on_emote_selected(idx: int) -> void:
 		if id == emote.desk_mod:
 			deskmod_option.select(i)
 			break
-	await load_emote_images(emote, current_character)
-	if emote.emote_mod == Emote.EmoteMod.PREANIM:
-		_on_anim_state_selected(EmoteState.PRE)
-	else:
-		_on_anim_state_selected(EmoteState.IDLE)
+	load_emote_images.call_deferred(emote, current_character)
 
 
 ## Loads all the associated images with the Emote with an await and a loading screen.
@@ -804,6 +800,10 @@ func load_emote_images(emote: Emote, character: Character) -> void:
 		await load_image_file(post_image_path)
 		animation_option_button.set_item_disabled(3, false)
 	loading_screen.hide()
+	if emote.emote_mod == Emote.EmoteMod.PREANIM:
+		_on_anim_state_selected(EmoteState.PRE)
+	else:
+		_on_anim_state_selected(EmoteState.IDLE)
 #endregion
 
 #region Emote Properties
