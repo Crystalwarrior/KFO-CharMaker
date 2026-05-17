@@ -1038,6 +1038,8 @@ func _on_anim_state_selected(index: int) -> void:
 	if not find_emote:
 		return
 	if find_emote is AttorneyAnimation:
+		if current_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
+			current_anim.animation_player.animation_finished.disconnect(_on_pre_finished)
 		var ao_anim: AttorneyAnimation = find_emote
 		if ao_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
 			ao_anim.animation_player.animation_finished.disconnect(_on_pre_finished)
