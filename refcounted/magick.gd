@@ -2,7 +2,7 @@ extends RefCounted
 
 class_name Magick
 
-class FrameDataRequest extends RefCounted:
+class ThreadedRequest extends RefCounted:
 	signal completed(frame_data: Array[Dictionary])
 
 ## The thread reserved for this Magick instance
@@ -28,17 +28,29 @@ func test_magick() -> bool:
 
 
 func get_threaded_frame_data(image_path: String) -> Signal:
-	var request := FrameDataRequest.new()
+	var request: ThreadedRequest = ThreadedRequest.new()
 	if is_instance_valid(thread):
 		thread.wait_to_finish()
 	thread = Thread.new()
-	thread.start(_frame_data_threaded.bind(image_path, request))
+	thread.start(
+		func () -> void:
+			var frame_data: Array[Dictionary] = get_frame_data(image_path)
+			request.completed.emit.call_deferred(frame_data)
+	)
 	return request.completed
 
 
-func _frame_data_threaded(image_path: String, request: FrameDataRequest) -> void:
-	var frame_data: Array[Dictionary] = get_frame_data(image_path)
-	request.completed.emit.call_deferred(frame_data)
+func get_threaded_split_frames(image_path: String, output_folder: String) -> Signal:
+	var request: ThreadedRequest = ThreadedRequest.new()
+	if is_instance_valid(thread):
+		thread.wait_to_finish()
+	thread = Thread.new()
+	thread.start(
+		func () -> void:
+			var output: Array = split_frames(image_path, output_folder)
+			request.completed.emit.call_deferred(output)
+	)
+	return request.completed
 
 
 ## Returns the frame data for each animated frame in the image

@@ -123,6 +123,9 @@ var magick: Magick
 ## such as ImageMagick splitting up an animated format into frames, etc.
 @onready var loading_screen: ColorRect = %LoadingScreen
 
+## The label shown on the loading screen.
+@onready var loading_label: Label = %LoadingLabel
+
 ## The split container for character and emote properties
 @onready var left_split_container: VSplitContainer = %LeftSplitContainer
 
@@ -949,18 +952,21 @@ func load_image_file(image_path: String) -> void:
 
 ## Extracts frames from an animated file (webp/apng/gif) and creates an AttorneyAnimation.
 func handle_animated_file(image_path: String) -> void:
-	var frame_data: Array[Dictionary] = await magick.get_threaded_frame_data(image_path)
 	var directory: String = image_path.get_base_dir()
 	var base_name: String = image_path.get_file().get_basename()
 	var local_path: String = image_path.trim_prefix(
 		current_character.get_folder() + "/",
 	).get_basename()
+	loading_label.text = "Loading %s...\nObtaining frame data..." % local_path
+	var frame_data: Array[Dictionary] = await magick.get_threaded_frame_data(image_path)
 	var char_name: String = directory.get_file()
 	var frames_folder: String = ProjectSettings.globalize_path(
 		"user://frame_cache/%s/%s/" % [char_name, base_name],
 	)
+	loading_label.text = "Loading %s...\nSplitting frames..." % local_path
 	if not FileAccess.file_exists(frames_folder):
-		magick.split_frames(image_path, frames_folder)
+		await magick.get_threaded_split_frames(image_path, frames_folder)
+	loading_label.text = "Loading %s...\nCreating AttorneyAnimation..." % local_path
 	var attorney_anim: AttorneyAnimation = AttorneyAnimation.new()
 	attorney_anim.add_frames_from_folder(frames_folder)
 	attorney_anim.initialize_from_frame_data(local_path, frame_data)

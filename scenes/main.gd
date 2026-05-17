@@ -2,7 +2,6 @@ extends Node
 
 
 @onready var button_cropper: ReferenceRect = %ButtonCropper
-@onready var center_ref: ColorRect = %CenterRef
 @onready var char_converter: Control = %CharConverter
 
 func _ready() -> void:
