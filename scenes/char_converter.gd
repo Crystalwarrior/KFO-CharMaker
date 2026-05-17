@@ -482,7 +482,8 @@ func _on_save_file_selected(path: String) -> void:
 	if DirAccess.dir_exists_absolute(emotions_folder):
 		confirmation_dialog.title = "Overwrite Buttons?"
 		confirmation_dialog.dialog_text = """
-Warning: /emotions/ folder already exists and will be overwritten.
+Warning: your  char.ini was saved, however,
+/emotions/ folder already exists and will be overwritten.
 If you press "Accept", an /_old_emotions/ folder will be created as backup.
 If /_old_emotions/ already exists, all the files inside of it will also be overwritten!
 		"""
@@ -1038,7 +1039,7 @@ func _on_anim_state_selected(index: int) -> void:
 	if not find_emote:
 		return
 	if find_emote is AttorneyAnimation:
-		if current_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
+		if current_anim and current_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
 			current_anim.animation_player.animation_finished.disconnect(_on_pre_finished)
 		var ao_anim: AttorneyAnimation = find_emote
 		if ao_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
