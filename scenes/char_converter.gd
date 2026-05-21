@@ -494,6 +494,22 @@ func _on_save_tscn_button_pressed() -> void:
 ## emotions folder already exists.
 func _on_save_file_selected(path: String) -> void:
 	if file_dialog_save.title == "Save Tscn":
+		var save_dir: String = path.get_base_dir()
+		for child: Node in world.get_children():
+			var anim_node: AttorneyAnimation = child as AttorneyAnimation
+			if not anim_node:
+				continue
+			var folder_name: String = anim_node.name.replace("|", "_")
+			var node_folder: String = save_dir + "/" + folder_name + "/"
+			DirAccess.make_dir_recursive_absolute(node_folder)
+			for i: int in anim_node.frame_textures.size():
+				var tex: ImageTexture = anim_node.frame_textures[i]
+				var frame_path: String = node_folder + str(i + 1) + ".webp"
+				if tex.get_image().save_webp(frame_path) != OK:
+					push_error("Failed to save frame texture: ", frame_path)
+					continue
+				tex.resource_path = "res://" + save_dir.get_file() + "/" + frame_path.trim_prefix(save_dir + "/")
+				print(tex.resource_path)
 		var packed_scene: PackedScene = PackedScene.new()
 		for node: Node in world.find_children("*"):
 			node.owner = world
