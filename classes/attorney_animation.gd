@@ -14,6 +14,7 @@ func _init() -> void:
 	animation_player.name = "AnimationPlayer"
 	animation_player.add_animation_library("", AnimationLibrary.new())
 	add_child(animation_player)
+	animation_player.owner = self
 
 
 func add_frames_from_folder(folder_path: String) -> void:
@@ -22,6 +23,7 @@ func add_frames_from_folder(folder_path: String) -> void:
 		frame_sprite.name = "Sprite"
 		#frame_sprite.centered = false
 		add_child(frame_sprite)
+		frame_sprite.owner = self
 	frame_textures.clear()
 	var frame_files: Array = DirAccess.get_files_at(folder_path)
 	# There's no simple function to call to do natural sorting, so we gotta

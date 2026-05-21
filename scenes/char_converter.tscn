@@ -245,13 +245,35 @@ size_flags_vertical = 0
 text = "Open char.ini
 "
 
-[node name="SaveButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/CharacterVBox/HBoxContainer" unique_id=535886181]
+[node name="SaveIniButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/CharacterVBox/HBoxContainer" unique_id=535886181]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 0
 text = "Save char.ini"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/CharacterVBox" unique_id=1367424368]
+layout_mode = 2
+size_flags_vertical = 0
+alignment = 1
+
+[node name="OpenTscnButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/CharacterVBox/HBoxContainer2" unique_id=851420965]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+text = "Open .tscn 
+"
+
+[node name="SaveTscnButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/CharacterVBox/HBoxContainer2" unique_id=1405280983]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+text = "Save .tscn"
 
 [node name="HSeparator" type="HSeparator" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/CharacterVBox" unique_id=538711742]
 layout_mode = 2

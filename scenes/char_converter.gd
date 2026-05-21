@@ -164,7 +164,12 @@ var magick: Magick
 ## The button to press to open a pre-existing INI file.
 @onready var open_ini_button: Button = %OpenIniButton
 ## The button to press to save the current INI file.
-@onready var save_button: Button = %SaveButton
+@onready var save_ini_button: Button = %SaveIniButton
+
+## The button to open a Godot .tscn scene file as a character
+@onready var open_tscn_button: Button = %OpenTscnButton
+## The button to save the current character as a Godot .tscn scene file
+@onready var save_tscn_button: Button = %SaveTscnButton
 
 ## The current character's detected char_icon.png.
 ## TODO: Allow the user to create one directly from the program?
@@ -315,7 +320,11 @@ var magick: Magick
 func _ready() -> void:
 	new_button.pressed.connect(_on_new_button_pressed)
 	open_ini_button.pressed.connect(_on_open_ini_button_pressed)
-	save_button.pressed.connect(_on_save_button_pressed)
+	save_ini_button.pressed.connect(_on_save_ini_button_pressed)
+
+	open_tscn_button.pressed.connect(_on_open_tscn_button_pressed)
+	save_tscn_button.pressed.connect(_on_save_tscn_button_pressed)
+
 	file_dialog.file_selected.connect(_on_file_selected)
 	image_dialog.file_selected.connect(_on_image_selected)
 	file_dialog_save.file_selected.connect(_on_save_file_selected)
@@ -461,46 +470,52 @@ func _on_char_icon_file_selected(file_path: String) -> void:
 
 
 ## Opens the save file dialog for the character's INI path.
-func _on_save_button_pressed() -> void:
+func _on_save_ini_button_pressed() -> void:
+	file_dialog_save.filters = ["*.ini;Char.ini file"]
 	file_dialog_save.current_dir = current_character.get_folder()
+	file_dialog_save.title = "Save Ini"
+	file_dialog_save.popup_centered()
+
+
+## Load a tscn file
+func _on_open_tscn_button_pressed() -> void:
+	print("Lol")
+
+
+## Save a tscn file
+func _on_save_tscn_button_pressed() -> void:
+	file_dialog_save.filters = ["*.tscn;.tscn file"]
+	file_dialog_save.current_dir = current_character.get_folder()
+	file_dialog_save.title = "Save Tscn"
 	file_dialog_save.popup_centered()
 
 
 ## Writes the INI file and saves button images. Prompts for confirmation if the
 ## emotions folder already exists.
 func _on_save_file_selected(path: String) -> void:
-	var ini_string: String = BasicIni.make_char_ini(current_character.save_data())
-	var save_file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
-	save_file.store_string(ini_string)
+	if file_dialog_save.title == "Save Tscn":
+		var packed_scene: PackedScene = PackedScene.new()
+		for node: Node in world.find_children("*"):
+			node.owner = world
+		var result: Error = packed_scene.pack(world)
+		if result != OK:
+			push_error("An error occurred while packing the scene.")
+			return
+		var error: Error = ResourceSaver.save(packed_scene, path)
+		if error != OK:
+			push_error("An error occurred while saving the scene to disk.")
+			return
+	else:
+		var ini_string: String = BasicIni.make_char_ini(current_character.save_data())
+		var save_file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+		save_file.store_string(ini_string)
 	save_credits_file()
 	current_character.ini_path = path
 	var save_folder: String = path.get_base_dir()
 	load_char_icon_from_filepath(save_folder + "/char_icon.png")
 	char_folder_label.text = save_folder.get_basename().get_file()
 	char_folder_label.tooltip_text = save_folder
-	var emotions_folder: String = save_folder + "/emotions/"
-	if DirAccess.dir_exists_absolute(emotions_folder):
-		confirmation_dialog.title = "Overwrite Buttons?"
-		confirmation_dialog.dialog_text = """
-Warning: your  char.ini was saved, however,
-/emotions/ folder already exists and will be overwritten.
-If you press "Accept", an /_old_emotions/ folder will be created as backup.
-If /_old_emotions/ already exists, all the files inside of it will also be overwritten!
-		"""
-		confirmation_dialog.ok_button_text = "Accept"
-		confirmation_dialog.popup_centered()
-		confirmation_dialog.confirmed.connect(
-			_on_emotions_overwrite_confirmed.bind(save_folder),
-			CONNECT_ONE_SHOT,
-		)
-		confirmation_dialog.canceled.connect(
-			_on_emotions_overwrite_cancelled,
-			CONNECT_ONE_SHOT,
-		)
-		return
-	# SAVE BUTTONS
-	# TODO: move this somewhere more appropriate!!
-	save_buttons(save_folder)
+	save_buttons_prompt(save_folder)
 
 
 ## Backs up and overwrites the emotions folder when the user confirms.
@@ -541,6 +556,31 @@ func save_buttons(path: String) -> void:
 			emote.image_off.get_image().save_png(button_path + "_off.png")
 		if emote.image_on:
 			emote.image_on.get_image().save_png(button_path + "_on.png")
+
+## Prompts for confirmation if the emotions folder already exists, otherwise
+## calls save_buttons()
+func save_buttons_prompt(save_folder: String) -> void:
+	var emotions_folder: String = save_folder + "/emotions/"
+	if DirAccess.dir_exists_absolute(emotions_folder):
+		confirmation_dialog.title = "Overwrite Buttons?"
+		confirmation_dialog.dialog_text = """
+Warning: your  char.ini was saved, however,
+/emotions/ folder already exists and will be overwritten.
+If you press "Accept", an /_old_emotions/ folder will be created as backup.
+If /_old_emotions/ already exists, all the files inside of it will also be overwritten!
+		"""
+		confirmation_dialog.ok_button_text = "Accept"
+		confirmation_dialog.popup_centered()
+		confirmation_dialog.confirmed.connect(
+			_on_emotions_overwrite_confirmed.bind(save_folder),
+			CONNECT_ONE_SHOT,
+		)
+		confirmation_dialog.canceled.connect(
+			_on_emotions_overwrite_cancelled,
+			CONNECT_ONE_SHOT,
+		)
+		return
+	save_buttons(save_folder)
 
 
 ## Opens the character's folder in the system file manager.
@@ -977,6 +1017,7 @@ func handle_animated_file(image_path: String) -> void:
 	elif scaling_option.selected == 1:
 		world.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	world.add_child(attorney_anim)
+	attorney_anim.owner = world
 
 
 ## Loads a static PNG image as a Sprite2D in the world view.
@@ -991,6 +1032,7 @@ func handle_static_file(image_path: String) -> void:
 		current_character.get_folder() + "/",
 	).get_basename()
 	sprite.name = local_path.replace("/", "|")
+	sprite.owner = world
 	world.add_child(sprite)
 
 
