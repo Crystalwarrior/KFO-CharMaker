@@ -7,12 +7,23 @@ var frame_textures: Array[ImageTexture]
 var animation_player: AnimationPlayer
 
 
-func _init() -> void:
+func _ready() -> void:
 	animation_player = AnimationPlayer.new()
 	animation_player.name = "AnimationPlayer"
 	animation_player.add_animation_library("", AnimationLibrary.new())
 	add_child(animation_player)
 	animation_player.owner = self
+
+	# Add a RESET animation
+	var animation: Animation = Animation.new()
+	var track_index: int = animation.add_track(Animation.TYPE_VALUE)
+	animation.track_set_path(track_index, "Sprite:texture")
+	animation.value_track_set_update_mode(track_index, Animation.UPDATE_DISCRETE)
+	animation.length = 0.001
+	animation.loop_mode = Animation.LOOP_NONE
+	animation.track_insert_key(track_index, 0.0, null)
+	var lib: AnimationLibrary = animation_player.get_animation_library("")
+	lib.add_animation("RESET", animation)
 
 
 func add_frames_from_folder(folder_path: String) -> void:
