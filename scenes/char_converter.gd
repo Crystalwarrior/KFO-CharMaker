@@ -734,7 +734,7 @@ func delete_emote(idx: int) -> void:
 	number_spin_box.max_value = current_character.emotes.size()
 	number_spin_box.set_block_signals(false)
 	emote_list.remove_item(idx)
-	_on_emote_selected(clampi(0, idx - 1, current_character.emotes.size()))
+	_on_emote_selected.call_deferred(clampi(0, idx - 1, current_character.emotes.size()))
 
 
 ## Rebuilds the emote list UI buttons from the current character data.
@@ -816,7 +816,11 @@ func _on_emote_selected(idx: int) -> void:
 		if id == emote.desk_mod:
 			deskmod_option.select(i)
 			break
-	load_emote_images.call_deferred(emote, current_character)
+	await load_emote_images(emote, current_character)
+	if emote.emote_mod == Emote.EmoteMod.PREANIM:
+		_on_anim_state_selected(EmoteState.PRE)
+	else:
+		_on_anim_state_selected(EmoteState.IDLE)
 
 
 ## Loads all the associated images with the Emote with an await and a loading screen.
@@ -860,10 +864,6 @@ func load_emote_images(emote: Emote, character: Character) -> void:
 		await load_image_file(post_image_path)
 		animation_option_button.set_item_disabled(3, false)
 	loading_screen.hide()
-	if emote.emote_mod == Emote.EmoteMod.PREANIM:
-		_on_anim_state_selected(EmoteState.PRE)
-	else:
-		_on_anim_state_selected(EmoteState.IDLE)
 #endregion
 
 #region Emote Properties
@@ -918,7 +918,7 @@ func _on_image_selected(path: String) -> void:
 	else:
 		emote_edit.text = get_emote_path(path)
 		current_character.emotes[current_emote_number].idle = emote_edit.text
-	_on_emote_selected(current_emote_number)
+	_on_emote_selected.call_deferred(current_emote_number)
 
 
 ## Converts a full file path to a relative emote path, stripping (a)/(b)/(c) prefixes.
@@ -1000,6 +1000,8 @@ func load_image_file(image_path: String) -> void:
 	var node_name: String = local_path.replace("/", "|")
 	if is_instance_valid(world.get_node_or_null(node_name)):
 		return
+	if current_anim and current_anim.animation_player.has_animation(node_name):
+		return
 	var file_extension: String = image_path.get_extension()
 	if file_extension in ANIMATED_EXTENSIONS:
 		await handle_animated_file(image_path)
@@ -1024,16 +1026,21 @@ func handle_animated_file(image_path: String) -> void:
 	if not FileAccess.file_exists(frames_folder):
 		await magick.get_threaded_split_frames(image_path, frames_folder)
 	loading_label.text = "Loading %s...\nCreating AttorneyAnimation..." % local_path
-	var attorney_anim: AttorneyAnimation = AttorneyAnimation.new()
-	attorney_anim.add_frames_from_folder(frames_folder)
-	attorney_anim.initialize_from_frame_data(local_path, frame_data)
-	attorney_anim.name = local_path.replace("/", "|")
+	if not current_anim:
+		current_anim = AttorneyAnimation.new()
+		current_anim.name = char_name # local_path.replace("/", "|")
+		world.add_child(current_anim)
+		current_anim.owner = world
+		# assumes animation player exists
+		current_anim.animation_player.animation_finished.connect(
+			_on_pre_finished
+		)
+	current_anim.add_frames_from_folder(frames_folder)
+	current_anim.initialize_from_frame_data(local_path, frame_data)
 	if scaling_option.selected == 0:
 		world.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	elif scaling_option.selected == 1:
 		world.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	world.add_child(attorney_anim)
-	attorney_anim.owner = world
 
 
 ## Loads a static PNG image as a Sprite2D in the world view.
@@ -1087,52 +1094,55 @@ func _on_anim_state_selected(index: int) -> void:
 			prefix = "(b)"
 		EmoteState.POST:
 			prefix = "(c)"
-	emote_name = emote_name.replace("/", "|")
 	animation_buttons.set_animation_player(null)
 	for child: Node2D in world.get_children():
 		child.hide()
+	emote_name = emote_name.replace("/", "|")
 	var find_emote: Node2D = world.get_node_or_null(prefix + emote_name)
 	if not find_emote:
 		find_emote = world.get_node_or_null(emote_name)
 	if not find_emote:
-		return
-	if find_emote is AttorneyAnimation:
-		if current_anim and current_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
-			current_anim.animation_player.animation_finished.disconnect(_on_pre_finished)
-		var ao_anim: AttorneyAnimation = find_emote
-		if ao_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
-			ao_anim.animation_player.animation_finished.disconnect(_on_pre_finished)
-		ao_anim.animation_player.stop()
-		ao_anim.show()
-		ao_anim.animation_player.play(ao_anim.name)
-		animation_buttons.set_animation_player(ao_anim.animation_player)
+		if not current_anim:
+			return
+		var animation_player: AnimationPlayer = current_anim.animation_player
+		animation_player.stop()
+		current_anim.show()
+		if animation_player.has_animation(prefix + emote_name):
+			animation_player.play(prefix + emote_name)
+		elif animation_player.has_animation(emote_name):
+			animation_player.play(emote_name)
+		else:
+			return
 		loop_pre_button.disabled = false
-		current_anim = ao_anim
-		if current_state == EmoteState.PRE:
-			ao_anim.animation_player.animation_finished.connect(
-				_on_pre_finished,
-				CONNECT_ONE_SHOT,
+		var animation: Animation = \
+			animation_player.get_animation(
+				animation_player.current_animation
 			)
+		if current_state == EmoteState.PRE:
 			animation_buttons.show()
 			if loop_pre_button.button_pressed:
-				ao_anim.animation.loop_mode = Animation.LOOP_LINEAR
+				animation.loop_mode = Animation.LOOP_LINEAR
 			else:
-				ao_anim.animation.loop_mode = Animation.LOOP_NONE
+				animation.loop_mode = Animation.LOOP_NONE
 		else:
-			if ao_anim.animation_player.current_animation != "" \
-					and snapped(ao_anim.animation_player.current_animation_length, 0.001) > 0.001:
-				ao_anim.animation.loop_mode = Animation.LOOP_LINEAR
+			if current_anim.animation_player.current_animation != "" \
+					and snapped(current_anim.animation_player.current_animation_length, 0.001) > 0.001:
+				animation.loop_mode = Animation.LOOP_LINEAR
 				animation_buttons.show()
 			else:
-				ao_anim.animation.loop_mode = Animation.LOOP_NONE
+				animation.loop_mode = Animation.LOOP_NONE
 				animation_buttons.hide()
-	else:
+		animation_buttons.set_animation_player(animation_player)
+	elif not (find_emote is AttorneyAnimation):
+		current_anim.hide()
 		find_emote.show()
 		animation_buttons.hide()
 
 
 ## When the preanim finishes playing, automatically transitions to the idle state.
 func _on_pre_finished(_anim_name: StringName) -> void:
+	if current_state != EmoteState.PRE:
+		return
 	# wait a frame so we don't create a frame where nothing is shown
 	await get_tree().process_frame
 	_on_anim_state_selected(EmoteState.IDLE)
@@ -1145,10 +1155,14 @@ func _on_loop_pre_button_toggled(toggled_on: bool) -> void:
 	# preanim is NOT selected
 	if animation_option_button.selected != 0:
 		return
+	var animation: Animation = \
+		current_anim.animation_player.get_animation(
+			current_anim.animation_player.current_animation
+		)
 	if toggled_on:
-		current_anim.animation.loop_mode = Animation.LOOP_LINEAR
+		animation.loop_mode = Animation.LOOP_LINEAR
 	else:
-		current_anim.animation.loop_mode = Animation.LOOP_NONE
+		animation.loop_mode = Animation.LOOP_NONE
 
 #endregion
 
@@ -1279,7 +1293,7 @@ func _on_capture_pressed() -> void:
 		emote.image_on = image_texture
 	else:
 		emote.image_off = image_texture
-	_on_emote_selected(current_emote_number)
+	_on_emote_selected.call_deferred(current_emote_number)
 	button_previewer.sub_viewport.set_canvas_cull_mask_bit(1, true)
 	button_previewer.button_mask.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
 	button_previewer.button_mask.self_modulate = Color.WHITE
@@ -1408,6 +1422,6 @@ func load_character(parsed_data: Dictionary[String, Dictionary]) -> void:
 	number_spin_box.max_value = current_character.emotes.size()
 	number_spin_box.set_block_signals(false)
 	# Don't select any emote
-	_on_emote_selected(-1)
+	_on_emote_selected.call_deferred(-1)
 
 #endregion

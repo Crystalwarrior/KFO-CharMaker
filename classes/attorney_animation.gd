@@ -2,8 +2,6 @@ extends Node2D
 
 class_name AttorneyAnimation
 
-@export var animation: Animation
-
 var frame_sprite: Sprite2D
 var frame_textures: Array[ImageTexture]
 var animation_player: AnimationPlayer
@@ -41,7 +39,7 @@ func add_frames_from_folder(folder_path: String) -> void:
 
 
 func initialize_from_frame_data(animation_name: String, frame_data: Array[Dictionary]) -> void:
-	animation = Animation.new()
+	var animation: Animation = Animation.new()
 	var track_index: int = animation.add_track(Animation.TYPE_VALUE)
 	animation.track_set_path(track_index, "Sprite:texture")
 	animation.value_track_set_update_mode(track_index, Animation.UPDATE_DISCRETE)
@@ -49,8 +47,8 @@ func initialize_from_frame_data(animation_name: String, frame_data: Array[Dictio
 	var current_time: float = 0.0
 	for i: int in frame_data.size():
 		# Add a frame right before the new frame to fix playing the animation backwards
-		if i - 1 > -1:
-			animation.track_insert_key(track_index, current_time - 0.001, frame_textures[i - 1])
+		#if i - 1 > -1:
+		#	animation.track_insert_key(track_index, current_time - 0.001, frame_textures[i - 1])
 		var frame: Dictionary = frame_data[i]
 		animation.track_insert_key(track_index, current_time, frame_textures[i])
 		current_time += frame["delay"] * 0.01
