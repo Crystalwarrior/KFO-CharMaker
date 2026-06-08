@@ -170,12 +170,16 @@ var magick: Magick
 @onready var open_tscn_button: Button = %OpenTscnButton
 ## The button to save the current character as a Godot .tscn scene file
 @onready var save_tscn_button: Button = %SaveTscnButton
+## The tab container that contains Char.ini Options and Credits
+@onready var tab_container: TabContainer = %TabContainer
 
 ## The current character's detected char_icon.png.
 ## TODO: Allow the user to create one directly from the program?
 @onready var character_icon: TextureRect = %CharIcon
 ## The label showing the user the currently opened character folder.
 @onready var char_folder_label: Label = %CharFolderLabel
+## The label that shows a warning of a problem w/ the character
+@onready var warning_label: Label = %WarningLabel
 
 ## The LineEdit responsible for the character name, not to be confused with
 ## the Showname. Character name is a legacy field for old-style iniswapping.
@@ -302,6 +306,8 @@ var magick: Magick
 @onready var on_load_button: Button = %OnLoadButton
 #endregion
 #endregion
+## The box container that has the Emotes navigator
+@onready var emotes_box_container: VBoxContainer = %EmotesBoxContainer
 
 ## The button that appears when the emote list is empty.
 ## When pressed, it scans the folder where the current char.ini is,
@@ -387,8 +393,14 @@ func _ready() -> void:
 	var magick_real: bool = magick.test_magick()
 	if not magick_real:
 		install_magick_dialog.popup_centered()
+	
+	emotes_box_container.hide()
+	tab_container.hide()
+	open_current_folder_button.hide()
+	save_ini_button.hide()
+	save_tscn_button.hide()
+	button_maker_check_button.hide()
 
-	_on_new_button_pressed()
 
 # func _notification(what):
 # 	if what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
@@ -403,11 +415,22 @@ func _on_new_button_pressed() -> void:
 	clear_world()
 	current_character = Character.new()
 	current_character.ini_path = ""
+	
 	load_character({ })
 	regenerate_buttons()
 	character_icon.texture = CHAR_ICON_BORDER
 	char_folder_label.text = "Unsaved Character"
 	char_folder_label.tooltip_text = "Make sure to Save this character!"
+	
+	warning_label.show()
+	warning_label.text = "Make sure to Save this character!"
+
+	emotes_box_container.show()
+	tab_container.show()
+	open_current_folder_button.show()
+	save_ini_button.show()
+	save_tscn_button.show()
+	button_maker_check_button.show()
 
 
 ## Opens the file dialog to select a character INI file.
@@ -420,6 +443,13 @@ func _on_file_selected(path: String) -> void:
 	clear_world()
 	current_character = Character.new()
 	current_character.ini_path = path
+	warning_label.hide()
+	emotes_box_container.show()
+	tab_container.show()
+	open_current_folder_button.show()
+	save_ini_button.show()
+	save_tscn_button.show()
+	button_maker_check_button.show()
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	load_character(BasicIni.parse(file.get_as_text()))
 	animation_option_button.disabled = false
@@ -527,6 +557,13 @@ func _on_save_file_selected(path: String) -> void:
 		save_file.store_string(ini_string)
 	save_credits_file()
 	current_character.ini_path = path
+	warning_label.hide()
+	emotes_box_container.show()
+	tab_container.show()
+	open_current_folder_button.show()
+	save_ini_button.show()
+	save_tscn_button.show()
+	button_maker_check_button.show()
 	var save_folder: String = path.get_base_dir()
 	load_char_icon_from_filepath(save_folder + "/char_icon.png")
 	char_folder_label.text = save_folder.get_basename().get_file()
