@@ -396,10 +396,10 @@ func _ready() -> void:
 	
 	emotes_box_container.hide()
 	tab_container.hide()
-	open_current_folder_button.hide()
-	save_ini_button.hide()
-	save_tscn_button.hide()
-	button_maker_check_button.hide()
+	open_current_folder_button.disabled = true
+	save_ini_button.disabled = true
+	save_tscn_button.disabled = true
+	button_maker_check_button.disabled = true
 
 
 # func _notification(what):
@@ -427,10 +427,10 @@ func _on_new_button_pressed() -> void:
 
 	emotes_box_container.show()
 	tab_container.show()
-	open_current_folder_button.show()
-	save_ini_button.show()
-	save_tscn_button.show()
-	button_maker_check_button.show()
+	open_current_folder_button.disabled = true
+	save_ini_button.disabled = false
+	save_tscn_button.disabled = false
+	button_maker_check_button.disabled = false
 
 
 ## Opens the file dialog to select a character INI file.
@@ -446,10 +446,10 @@ func _on_file_selected(path: String) -> void:
 	warning_label.hide()
 	emotes_box_container.show()
 	tab_container.show()
-	open_current_folder_button.show()
-	save_ini_button.show()
-	save_tscn_button.show()
-	button_maker_check_button.show()
+	open_current_folder_button.disabled = false
+	save_ini_button.disabled = false
+	save_tscn_button.disabled = false
+	button_maker_check_button.disabled = false
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	load_character(BasicIni.parse(file.get_as_text()))
 	animation_option_button.disabled = false
@@ -560,10 +560,10 @@ func _on_save_file_selected(path: String) -> void:
 	warning_label.hide()
 	emotes_box_container.show()
 	tab_container.show()
-	open_current_folder_button.show()
-	save_ini_button.show()
-	save_tscn_button.show()
-	button_maker_check_button.show()
+	open_current_folder_button.disabled = false
+	save_ini_button.disabled = false
+	save_tscn_button.disabled = false
+	button_maker_check_button.disabled = false
 	var save_folder: String = path.get_base_dir()
 	load_char_icon_from_filepath(save_folder + "/char_icon.png")
 	char_folder_label.text = save_folder.get_basename().get_file()
