@@ -164,13 +164,22 @@ var magick: Magick
 ## The button to press to open a pre-existing INI file.
 @onready var open_ini_button: Button = %OpenIniButton
 ## The button to press to save the current INI file.
-@onready var save_button: Button = %SaveButton
+@onready var save_ini_button: Button = %SaveIniButton
+
+## The button to open a Godot .tscn scene file as a character
+@onready var open_tscn_button: Button = %OpenTscnButton
+## The button to save the current character as a Godot .tscn scene file
+@onready var save_tscn_button: Button = %SaveTscnButton
+## The tab container that contains Char.ini Options and Credits
+@onready var tab_container: TabContainer = %TabContainer
 
 ## The current character's detected char_icon.png.
 ## TODO: Allow the user to create one directly from the program?
 @onready var character_icon: TextureRect = %CharIcon
 ## The label showing the user the currently opened character folder.
 @onready var char_folder_label: Label = %CharFolderLabel
+## The label that shows a warning of a problem w/ the character
+@onready var warning_label: Label = %WarningLabel
 
 ## The LineEdit responsible for the character name, not to be confused with
 ## the Showname. Character name is a legacy field for old-style iniswapping.
@@ -297,6 +306,8 @@ var magick: Magick
 @onready var on_load_button: Button = %OnLoadButton
 #endregion
 #endregion
+## The box container that has the Emotes navigator
+@onready var emotes_box_container: VBoxContainer = %EmotesBoxContainer
 
 ## The button that appears when the emote list is empty.
 ## When pressed, it scans the folder where the current char.ini is,
@@ -315,7 +326,11 @@ var magick: Magick
 func _ready() -> void:
 	new_button.pressed.connect(_on_new_button_pressed)
 	open_ini_button.pressed.connect(_on_open_ini_button_pressed)
-	save_button.pressed.connect(_on_save_button_pressed)
+	save_ini_button.pressed.connect(_on_save_ini_button_pressed)
+
+	open_tscn_button.pressed.connect(_on_open_tscn_button_pressed)
+	save_tscn_button.pressed.connect(_on_save_tscn_button_pressed)
+
 	file_dialog.file_selected.connect(_on_file_selected)
 	image_dialog.file_selected.connect(_on_image_selected)
 	file_dialog_save.file_selected.connect(_on_save_file_selected)
@@ -378,8 +393,14 @@ func _ready() -> void:
 	var magick_real: bool = magick.test_magick()
 	if not magick_real:
 		install_magick_dialog.popup_centered()
+	
+	emotes_box_container.hide()
+	tab_container.hide()
+	open_current_folder_button.disabled = true
+	save_ini_button.disabled = true
+	save_tscn_button.disabled = true
+	button_maker_check_button.disabled = true
 
-	_on_new_button_pressed()
 
 # func _notification(what):
 # 	if what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
@@ -394,11 +415,22 @@ func _on_new_button_pressed() -> void:
 	clear_world()
 	current_character = Character.new()
 	current_character.ini_path = ""
+	
 	load_character({ })
 	regenerate_buttons()
 	character_icon.texture = CHAR_ICON_BORDER
 	char_folder_label.text = "Unsaved Character"
 	char_folder_label.tooltip_text = "Make sure to Save this character!"
+	
+	warning_label.show()
+	warning_label.text = "Make sure to Save this character!"
+
+	emotes_box_container.show()
+	tab_container.show()
+	open_current_folder_button.disabled = true
+	save_ini_button.disabled = false
+	save_tscn_button.disabled = false
+	button_maker_check_button.disabled = false
 
 
 ## Opens the file dialog to select a character INI file.
@@ -411,6 +443,13 @@ func _on_file_selected(path: String) -> void:
 	clear_world()
 	current_character = Character.new()
 	current_character.ini_path = path
+	warning_label.hide()
+	emotes_box_container.show()
+	tab_container.show()
+	open_current_folder_button.disabled = false
+	save_ini_button.disabled = false
+	save_tscn_button.disabled = false
+	button_maker_check_button.disabled = false
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	load_character(BasicIni.parse(file.get_as_text()))
 	animation_option_button.disabled = false
@@ -461,46 +500,86 @@ func _on_char_icon_file_selected(file_path: String) -> void:
 
 
 ## Opens the save file dialog for the character's INI path.
-func _on_save_button_pressed() -> void:
+func _on_save_ini_button_pressed() -> void:
+	file_dialog_save.filters = ["*.ini;Char.ini file"]
 	file_dialog_save.current_dir = current_character.get_folder()
+	file_dialog_save.title = "Save Ini"
+	file_dialog_save.popup_centered()
+
+
+## Load a tscn file
+func _on_open_tscn_button_pressed() -> void:
+	print("Lol")
+
+
+## Save a tscn file
+func _on_save_tscn_button_pressed() -> void:
+	file_dialog_save.filters = ["*.tscn;.tscn file"]
+	file_dialog_save.current_dir = current_character.get_folder()
+	file_dialog_save.title = "Save Tscn"
 	file_dialog_save.popup_centered()
 
 
 ## Writes the INI file and saves button images. Prompts for confirmation if the
 ## emotions folder already exists.
 func _on_save_file_selected(path: String) -> void:
-	var ini_string: String = BasicIni.make_char_ini(current_character.save_data())
-	var save_file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
-	save_file.store_string(ini_string)
+	if file_dialog_save.title == "Save Tscn":
+		for idx: int in current_character.emotes.size():
+			await _on_emote_selected(idx)
+		var save_dir: String = path.get_base_dir()
+		for child: Node in world.get_children():
+			var anim_node: AttorneyAnimation = child as AttorneyAnimation
+			if not anim_node:
+				continue
+			DirAccess.make_dir_recursive_absolute(save_dir)
+			var lib: AnimationLibrary = anim_node.animation_player.get_animation_library("")
+			if not lib:
+				continue
+			for anim_name: StringName in lib.get_animation_list():
+				var animation: Animation = lib.get_animation(anim_name)
+				var anim_key: String = String(anim_name).replace("|", "/")
+				for track_idx: int in animation.get_track_count():
+					var key_count: int = animation.track_get_key_count(track_idx)
+					for key_idx: int in key_count:
+						var tex: ImageTexture = animation.track_get_key_value(track_idx, key_idx) as ImageTexture
+						if not tex:
+							continue
+						var frame_path: String = save_dir + "/frames/" + anim_key + "/" + str(key_idx + 1) + ".webp"
+						DirAccess.make_dir_recursive_absolute(frame_path.get_base_dir())
+						if tex.get_image().save_webp(frame_path) != OK:
+							push_error("Failed to save frame texture: ", frame_path)
+							continue
+						tex.resource_path = "res://" + save_dir.get_file() + "/" + frame_path.trim_prefix(save_dir + "/")
+						print(tex.resource_path)
+		var packed_scene: PackedScene = PackedScene.new()
+		for node: Node in world.find_children("*"):
+			node.owner = world
+		var result: Error = packed_scene.pack(world)
+		if result != OK:
+			push_error("An error occurred while packing the scene.")
+			return
+		var error: Error = ResourceSaver.save(packed_scene, path)
+		if error != OK:
+			push_error("An error occurred while saving the scene to disk.")
+			return
+	else:
+		var ini_string: String = BasicIni.make_char_ini(current_character.save_data())
+		var save_file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+		save_file.store_string(ini_string)
 	save_credits_file()
 	current_character.ini_path = path
+	warning_label.hide()
+	emotes_box_container.show()
+	tab_container.show()
+	open_current_folder_button.disabled = false
+	save_ini_button.disabled = false
+	save_tscn_button.disabled = false
+	button_maker_check_button.disabled = false
 	var save_folder: String = path.get_base_dir()
 	load_char_icon_from_filepath(save_folder + "/char_icon.png")
 	char_folder_label.text = save_folder.get_basename().get_file()
 	char_folder_label.tooltip_text = save_folder
-	var emotions_folder: String = save_folder + "/emotions/"
-	if DirAccess.dir_exists_absolute(emotions_folder):
-		confirmation_dialog.title = "Overwrite Buttons?"
-		confirmation_dialog.dialog_text = """
-Warning: your  char.ini was saved, however,
-/emotions/ folder already exists and will be overwritten.
-If you press "Accept", an /_old_emotions/ folder will be created as backup.
-If /_old_emotions/ already exists, all the files inside of it will also be overwritten!
-		"""
-		confirmation_dialog.ok_button_text = "Accept"
-		confirmation_dialog.popup_centered()
-		confirmation_dialog.confirmed.connect(
-			_on_emotions_overwrite_confirmed.bind(save_folder),
-			CONNECT_ONE_SHOT,
-		)
-		confirmation_dialog.canceled.connect(
-			_on_emotions_overwrite_cancelled,
-			CONNECT_ONE_SHOT,
-		)
-		return
-	# SAVE BUTTONS
-	# TODO: move this somewhere more appropriate!!
-	save_buttons(save_folder)
+	save_buttons_prompt(save_folder)
 
 
 ## Backs up and overwrites the emotions folder when the user confirms.
@@ -541,6 +620,31 @@ func save_buttons(path: String) -> void:
 			emote.image_off.get_image().save_png(button_path + "_off.png")
 		if emote.image_on:
 			emote.image_on.get_image().save_png(button_path + "_on.png")
+
+## Prompts for confirmation if the emotions folder already exists, otherwise
+## calls save_buttons()
+func save_buttons_prompt(save_folder: String) -> void:
+	var emotions_folder: String = save_folder + "/emotions/"
+	if DirAccess.dir_exists_absolute(emotions_folder):
+		confirmation_dialog.title = "Overwrite Buttons?"
+		confirmation_dialog.dialog_text = """
+Warning: your  char.ini was saved, however,
+/emotions/ folder already exists and will be overwritten.
+If you press "Accept", an /_old_emotions/ folder will be created as backup.
+If /_old_emotions/ already exists, all the files inside of it will also be overwritten!
+		"""
+		confirmation_dialog.ok_button_text = "Accept"
+		confirmation_dialog.popup_centered()
+		confirmation_dialog.confirmed.connect(
+			_on_emotions_overwrite_confirmed.bind(save_folder),
+			CONNECT_ONE_SHOT,
+		)
+		confirmation_dialog.canceled.connect(
+			_on_emotions_overwrite_cancelled,
+			CONNECT_ONE_SHOT,
+		)
+		return
+	save_buttons(save_folder)
 
 
 ## Opens the character's folder in the system file manager.
@@ -678,7 +782,7 @@ func delete_emote(idx: int) -> void:
 	number_spin_box.max_value = current_character.emotes.size()
 	number_spin_box.set_block_signals(false)
 	emote_list.remove_item(idx)
-	_on_emote_selected(clampi(0, idx - 1, current_character.emotes.size()))
+	_on_emote_selected.call_deferred(clampi(0, idx - 1, current_character.emotes.size()))
 
 
 ## Rebuilds the emote list UI buttons from the current character data.
@@ -760,7 +864,11 @@ func _on_emote_selected(idx: int) -> void:
 		if id == emote.desk_mod:
 			deskmod_option.select(i)
 			break
-	load_emote_images.call_deferred(emote, current_character)
+	await load_emote_images(emote, current_character)
+	if emote.emote_mod == Emote.EmoteMod.PREANIM:
+		_on_anim_state_selected(EmoteState.PRE)
+	else:
+		_on_anim_state_selected(EmoteState.IDLE)
 
 
 ## Loads all the associated images with the Emote with an await and a loading screen.
@@ -804,10 +912,6 @@ func load_emote_images(emote: Emote, character: Character) -> void:
 		await load_image_file(post_image_path)
 		animation_option_button.set_item_disabled(3, false)
 	loading_screen.hide()
-	if emote.emote_mod == Emote.EmoteMod.PREANIM:
-		_on_anim_state_selected(EmoteState.PRE)
-	else:
-		_on_anim_state_selected(EmoteState.IDLE)
 #endregion
 
 #region Emote Properties
@@ -862,7 +966,7 @@ func _on_image_selected(path: String) -> void:
 	else:
 		emote_edit.text = get_emote_path(path)
 		current_character.emotes[current_emote_number].idle = emote_edit.text
-	_on_emote_selected(current_emote_number)
+	_on_emote_selected.call_deferred(current_emote_number)
 
 
 ## Converts a full file path to a relative emote path, stripping (a)/(b)/(c) prefixes.
@@ -944,6 +1048,8 @@ func load_image_file(image_path: String) -> void:
 	var node_name: String = local_path.replace("/", "|")
 	if is_instance_valid(world.get_node_or_null(node_name)):
 		return
+	if current_anim and current_anim.animation_player.has_animation(node_name):
+		return
 	var file_extension: String = image_path.get_extension()
 	if file_extension in ANIMATED_EXTENSIONS:
 		await handle_animated_file(image_path)
@@ -968,15 +1074,21 @@ func handle_animated_file(image_path: String) -> void:
 	if not FileAccess.file_exists(frames_folder):
 		await magick.get_threaded_split_frames(image_path, frames_folder)
 	loading_label.text = "Loading %s...\nCreating AttorneyAnimation..." % local_path
-	var attorney_anim: AttorneyAnimation = AttorneyAnimation.new()
-	attorney_anim.add_frames_from_folder(frames_folder)
-	attorney_anim.initialize_from_frame_data(local_path, frame_data)
-	attorney_anim.name = local_path.replace("/", "|")
+	if not current_anim:
+		current_anim = AttorneyAnimation.new()
+		current_anim.name = char_name # local_path.replace("/", "|")
+		world.add_child(current_anim)
+		current_anim.owner = world
+		# assumes animation player exists
+		current_anim.animation_player.animation_finished.connect(
+			_on_pre_finished
+		)
+	current_anim.add_frames_from_folder(frames_folder)
+	current_anim.initialize_from_frame_data(local_path, frame_data)
 	if scaling_option.selected == 0:
 		world.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	elif scaling_option.selected == 1:
 		world.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	world.add_child(attorney_anim)
 
 
 ## Loads a static PNG image as a Sprite2D in the world view.
@@ -991,6 +1103,7 @@ func handle_static_file(image_path: String) -> void:
 		current_character.get_folder() + "/",
 	).get_basename()
 	sprite.name = local_path.replace("/", "|")
+	sprite.owner = world
 	world.add_child(sprite)
 
 
@@ -1029,52 +1142,55 @@ func _on_anim_state_selected(index: int) -> void:
 			prefix = "(b)"
 		EmoteState.POST:
 			prefix = "(c)"
-	emote_name = emote_name.replace("/", "|")
 	animation_buttons.set_animation_player(null)
 	for child: Node2D in world.get_children():
 		child.hide()
+	emote_name = emote_name.replace("/", "|")
 	var find_emote: Node2D = world.get_node_or_null(prefix + emote_name)
 	if not find_emote:
 		find_emote = world.get_node_or_null(emote_name)
 	if not find_emote:
-		return
-	if find_emote is AttorneyAnimation:
-		if current_anim and current_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
-			current_anim.animation_player.animation_finished.disconnect(_on_pre_finished)
-		var ao_anim: AttorneyAnimation = find_emote
-		if ao_anim.animation_player.animation_finished.is_connected(_on_pre_finished):
-			ao_anim.animation_player.animation_finished.disconnect(_on_pre_finished)
-		ao_anim.animation_player.stop()
-		ao_anim.show()
-		ao_anim.animation_player.play(ao_anim.name)
-		animation_buttons.set_animation_player(ao_anim.animation_player)
+		if not current_anim:
+			return
+		var animation_player: AnimationPlayer = current_anim.animation_player
+		animation_player.stop()
+		current_anim.show()
+		if animation_player.has_animation(prefix + emote_name):
+			animation_player.play(prefix + emote_name)
+		elif animation_player.has_animation(emote_name):
+			animation_player.play(emote_name)
+		else:
+			return
 		loop_pre_button.disabled = false
-		current_anim = ao_anim
-		if current_state == EmoteState.PRE:
-			ao_anim.animation_player.animation_finished.connect(
-				_on_pre_finished,
-				CONNECT_ONE_SHOT,
+		var animation: Animation = \
+			animation_player.get_animation(
+				animation_player.current_animation
 			)
+		if current_state == EmoteState.PRE:
 			animation_buttons.show()
 			if loop_pre_button.button_pressed:
-				ao_anim.animation.loop_mode = Animation.LOOP_LINEAR
+				animation.loop_mode = Animation.LOOP_LINEAR
 			else:
-				ao_anim.animation.loop_mode = Animation.LOOP_NONE
+				animation.loop_mode = Animation.LOOP_NONE
 		else:
-			if ao_anim.animation_player.current_animation != "" \
-					and snapped(ao_anim.animation_player.current_animation_length, 0.001) > 0.001:
-				ao_anim.animation.loop_mode = Animation.LOOP_LINEAR
+			if current_anim.animation_player.current_animation != "" \
+					and snapped(current_anim.animation_player.current_animation_length, 0.001) > 0.001:
+				animation.loop_mode = Animation.LOOP_LINEAR
 				animation_buttons.show()
 			else:
-				ao_anim.animation.loop_mode = Animation.LOOP_NONE
+				animation.loop_mode = Animation.LOOP_NONE
 				animation_buttons.hide()
-	else:
+		animation_buttons.set_animation_player(animation_player)
+	elif not (find_emote is AttorneyAnimation):
+		current_anim.hide()
 		find_emote.show()
 		animation_buttons.hide()
 
 
 ## When the preanim finishes playing, automatically transitions to the idle state.
 func _on_pre_finished(_anim_name: StringName) -> void:
+	if current_state != EmoteState.PRE:
+		return
 	# wait a frame so we don't create a frame where nothing is shown
 	await get_tree().process_frame
 	_on_anim_state_selected(EmoteState.IDLE)
@@ -1087,10 +1203,14 @@ func _on_loop_pre_button_toggled(toggled_on: bool) -> void:
 	# preanim is NOT selected
 	if animation_option_button.selected != 0:
 		return
+	var animation: Animation = \
+		current_anim.animation_player.get_animation(
+			current_anim.animation_player.current_animation
+		)
 	if toggled_on:
-		current_anim.animation.loop_mode = Animation.LOOP_LINEAR
+		animation.loop_mode = Animation.LOOP_LINEAR
 	else:
-		current_anim.animation.loop_mode = Animation.LOOP_NONE
+		animation.loop_mode = Animation.LOOP_NONE
 
 #endregion
 
@@ -1221,7 +1341,7 @@ func _on_capture_pressed() -> void:
 		emote.image_on = image_texture
 	else:
 		emote.image_off = image_texture
-	_on_emote_selected(current_emote_number)
+	_on_emote_selected.call_deferred(current_emote_number)
 	button_previewer.sub_viewport.set_canvas_cull_mask_bit(1, true)
 	button_previewer.button_mask.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
 	button_previewer.button_mask.self_modulate = Color.WHITE
@@ -1350,6 +1470,6 @@ func load_character(parsed_data: Dictionary[String, Dictionary]) -> void:
 	number_spin_box.max_value = current_character.emotes.size()
 	number_spin_box.set_block_signals(false)
 	# Don't select any emote
-	_on_emote_selected(-1)
+	_on_emote_selected.call_deferred(-1)
 
 #endregion

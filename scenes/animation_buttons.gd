@@ -28,12 +28,9 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	if not animation_player or animation_player.current_animation.is_empty():
+	if not animation_player or not animation_player.is_playing():
 		return
-	animation_position.max_value = animation_player.current_animation_length
-	animation_slider.max_value = animation_player.current_animation_length
-	if animation_player.is_playing():
-		update_sliders(animation_player.current_animation_position)
+	update_sliders(animation_player.current_animation_position)
 
 
 func set_animation_player(to_player: AnimationPlayer) -> void:
@@ -46,6 +43,8 @@ func set_animation_player(to_player: AnimationPlayer) -> void:
 	set_disabled(animation_player == null)
 	if animation_player:
 		animation_player.animation_started.connect(_on_animation_started)
+		animation_position.max_value = animation_player.current_animation_length
+		animation_slider.max_value = animation_player.current_animation_length
 	else:
 		update_sliders(0.0)
 

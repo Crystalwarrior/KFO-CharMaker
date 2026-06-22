@@ -19,6 +19,12 @@
 [ext_resource type="Texture2D" uid="uid://bqql5tunkpnsn" path="res://assets/icons/ZoomMore.svg" id="15_y3ong"]
 [ext_resource type="Texture2D" uid="uid://b6jsgfl3c40xo" path="res://assets/icons/loading.svg" id="18_5cypo"]
 
+[sub_resource type="LabelSettings" id="LabelSettings_5cypo"]
+font_size = 15
+font_color = Color(1, 1, 0, 1)
+outline_size = 6
+outline_color = Color(1, 0.5019608, 0, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v5jts"]
 content_margin_left = 4.0
 content_margin_top = 4.0
@@ -193,7 +199,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+split_offsets = PackedInt32Array(280)
 drag_area_highlight_in_editor = true
+split_offset = 280
 
 [node name="LeftSplitContainer" type="VSplitContainer" parent="HSplitContainer" unique_id=462002216]
 unique_name_in_owner = true
@@ -245,13 +253,35 @@ size_flags_vertical = 0
 text = "Open char.ini
 "
 
-[node name="SaveButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/CharacterVBox/HBoxContainer" unique_id=535886181]
+[node name="SaveIniButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/CharacterVBox/HBoxContainer" unique_id=535886181]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 0
 text = "Save char.ini"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/CharacterVBox" unique_id=1367424368]
+layout_mode = 2
+size_flags_vertical = 0
+alignment = 1
+
+[node name="OpenTscnButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/CharacterVBox/HBoxContainer2" unique_id=851420965]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+text = "Open .tscn 
+"
+
+[node name="SaveTscnButton" type="Button" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/CharacterVBox/HBoxContainer2" unique_id=1405280983]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+text = "Save .tscn"
 
 [node name="HSeparator" type="HSeparator" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/CharacterVBox" unique_id=538711742]
 layout_mode = 2
@@ -260,7 +290,17 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 1
-text = "Unsaved Character"
+text = "No Character"
+horizontal_alignment = 1
+clip_text = true
+text_overrun_behavior = 1
+
+[node name="WarningLabel" type="Label" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/CharacterVBox" unique_id=1688423583]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 1
+text = "No character is loaded!"
+label_settings = SubResource("LabelSettings_5cypo")
 horizontal_alignment = 1
 clip_text = true
 text_overrun_behavior = 1
@@ -285,6 +325,7 @@ texture = ExtResource("3_v5jts")
 expand_mode = 1
 
 [node name="TabContainer" type="TabContainer" parent="HSplitContainer/LeftSplitContainer/CharacterFold/CharIniMenu/CharacterVBox" unique_id=1060017952]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 current_tab = 0
@@ -873,24 +914,25 @@ unique_name_in_owner = true
 layout_mode = 2
 icon = ExtResource("15_y3ong")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/CenterSplitContainer" unique_id=128698260]
+[node name="EmotesBoxContainer" type="VBoxContainer" parent="HSplitContainer/CenterSplitContainer" unique_id=128698260]
+unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 0
 mouse_force_pass_scroll_events = false
 
-[node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer" unique_id=333832416]
+[node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/CenterSplitContainer/EmotesBoxContainer" unique_id=333832416]
 layout_mode = 2
 alignment = 2
 
-[node name="AnimationButtons" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/HBoxContainer" unique_id=696682605 instance=ExtResource("7_wijlb")]
+[node name="AnimationButtons" parent="HSplitContainer/CenterSplitContainer/EmotesBoxContainer/HBoxContainer" unique_id=696682605 instance=ExtResource("7_wijlb")]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/HBoxContainer" unique_id=148867730]
+[node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/CenterSplitContainer/EmotesBoxContainer/HBoxContainer" unique_id=148867730]
 layout_mode = 2
 
-[node name="AnimationOptionButton" type="OptionButton" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/HBoxContainer/HBoxContainer" unique_id=249581653]
+[node name="AnimationOptionButton" type="OptionButton" parent="HSplitContainer/CenterSplitContainer/EmotesBoxContainer/HBoxContainer/HBoxContainer" unique_id=249581653]
 unique_name_in_owner = true
 layout_mode = 2
 disabled = true
@@ -905,14 +947,14 @@ popup/item_2/id = 2
 popup/item_3/text = "Post (c)"
 popup/item_3/id = 3
 
-[node name="LoopPreButton" type="CheckButton" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/HBoxContainer/HBoxContainer" unique_id=1339919992]
+[node name="LoopPreButton" type="CheckButton" parent="HSplitContainer/CenterSplitContainer/EmotesBoxContainer/HBoxContainer/HBoxContainer" unique_id=1339919992]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "If the preanim should be looped or proceed to Idle when done"
 disabled = true
 text = "Loop Pre"
 
-[node name="EmotesFold" type="FoldableContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer" unique_id=2086862974]
+[node name="EmotesFold" type="FoldableContainer" parent="HSplitContainer/CenterSplitContainer/EmotesBoxContainer" unique_id=2086862974]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
@@ -921,15 +963,15 @@ title = "Emotes"
 title_alignment = 1
 title_position = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/EmotesFold" unique_id=1708349691]
+[node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/CenterSplitContainer/EmotesBoxContainer/EmotesFold" unique_id=1708349691]
 custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 
-[node name="MarginContainer" type="Control" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/EmotesFold/HBoxContainer" unique_id=1838708872]
+[node name="MarginContainer" type="Control" parent="HSplitContainer/CenterSplitContainer/EmotesBoxContainer/EmotesFold/HBoxContainer" unique_id=1838708872]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="BottomMenu" type="ScrollContainer" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/EmotesFold/HBoxContainer/MarginContainer" unique_id=250980165]
+[node name="BottomMenu" type="ScrollContainer" parent="HSplitContainer/CenterSplitContainer/EmotesBoxContainer/EmotesFold/HBoxContainer/MarginContainer" unique_id=250980165]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -940,7 +982,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.3
 
-[node name="EmoteList" type="ItemList" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/EmotesFold/HBoxContainer/MarginContainer/BottomMenu" unique_id=2061598841]
+[node name="EmoteList" type="ItemList" parent="HSplitContainer/CenterSplitContainer/EmotesBoxContainer/EmotesFold/HBoxContainer/MarginContainer/BottomMenu" unique_id=2061598841]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -953,7 +995,7 @@ fixed_column_width = 40
 icon_mode = 0
 fixed_icon_size = Vector2i(40, 40)
 
-[node name="ScanEmotesButton" type="Button" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/EmotesFold/HBoxContainer/MarginContainer" unique_id=1708046104]
+[node name="ScanEmotesButton" type="Button" parent="HSplitContainer/CenterSplitContainer/EmotesBoxContainer/EmotesFold/HBoxContainer/MarginContainer" unique_id=1708046104]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
@@ -969,7 +1011,7 @@ grow_horizontal = 2
 grow_vertical = 2
 text = "Scan Folder for Emotes"
 
-[node name="AddEmoteButton" type="Button" parent="HSplitContainer/CenterSplitContainer/VBoxContainer/EmotesFold/HBoxContainer" unique_id=696755111]
+[node name="AddEmoteButton" type="Button" parent="HSplitContainer/CenterSplitContainer/EmotesBoxContainer/EmotesFold/HBoxContainer" unique_id=696755111]
 unique_name_in_owner = true
 layout_mode = 2
 icon = ExtResource("9_v5jts")
